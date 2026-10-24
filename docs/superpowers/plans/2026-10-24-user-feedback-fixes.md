@@ -1,6 +1,6 @@
 # User Feedback & Polish Implementation Plan — Iteration 2
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Implement user test improvements and transition authentication to a clean, device-agnostic **Name + 4-digit PIN** model (architected for easy extension), alongside European date/time formatting, unescaped email generation, mobile stepper controls, flyer drag/drop, Euro glyphs, field validation, structured entry fees, touch-friendly drag-and-drop roster reordering, and a clean zero-dummy-data production launch state (Marc only, 0 quizzes).
 
@@ -91,7 +91,7 @@ src/
   export function formatEuropeanDateTime(date: Date | string, includeWeekday?: boolean): string; // "za 14/11/2026 om 20:00"
   ```
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```typescript
 // tests/lib/formatters.test.ts
@@ -118,21 +118,21 @@ describe("European Date & Time Formatters", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/lib/formatters.test.ts`
 Expected: FAIL (Cannot find module)
 
-- [ ] **Step 3: Implement `formatters.ts` and apply across UI and share helpers**
+- [x] **Step 3: Implement `formatters.ts` and apply across UI and share helpers**
 
 Build `src/lib/formatters.ts` using zero-padded date/month parts and 24-hour time; replace inline `Intl.DateTimeFormat` calls in `QuizCard.tsx`, `QuizDetailClient.tsx`, `mailto.ts`, and `whatsapp.ts`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/lib/formatters.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/formatters.ts src/components/QuizCard.tsx src/components/QuizDetailClient.tsx src/lib/mailto.ts src/lib/whatsapp.ts tests/lib/formatters.test.ts
@@ -164,7 +164,7 @@ git commit -m "feat: implement centralized European date and 24-hour time format
   ): string; // mailto: URI single-encoded
   ```
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```typescript
 // tests/lib/mailto.test.ts
@@ -192,21 +192,21 @@ describe("Mailto & Plaintext Email Generation", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/lib/mailto.test.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Implement clean email generator and update ActionToolbar**
+- [x] **Step 3: Implement clean email generator and update ActionToolbar**
 
 In `src/lib/mailto.ts`, separate the plain text body generator (`getRegistrationEmailPlainText`) from the URL encoder (`generateRegistrationMailto`); in `ActionToolbar.tsx`, copy the raw plain text directly to the clipboard instead of regex-extracting from the encoded mailto URL.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/lib/mailto.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/mailto.ts src/components/ActionToolbar.tsx tests/lib/mailto.test.ts
@@ -227,7 +227,7 @@ git commit -m "fix: resolve email double-encoding bug and provide clean plaintex
   - Header with `LogOut` icon button linking to `/auth/logout`.
   - Payment buttons and badges displaying `€` symbol (replacing dollar sign).
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```typescript
 // tests/ui/dashboardHeader.test.ts
@@ -248,21 +248,21 @@ describe("Dashboard Header & Currency Symbols", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/ui/dashboardHeader.test.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Implement header logout button and Euro icon**
+- [x] **Step 3: Implement header logout button and Euro icon**
 
 In `src/components/QuizzesDashboard.tsx`, add an "Afmelden" icon button linking to `/auth/logout` next to the title; in `ActionToolbar.tsx` and `QuizCard.tsx`, replace `DollarSign` with a clean styled `€` symbol.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/ui/dashboardHeader.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/QuizzesDashboard.tsx src/components/ActionToolbar.tsx src/components/QuizCard.tsx tests/ui/dashboardHeader.test.ts
@@ -282,7 +282,7 @@ git commit -m "feat: add visible logout button to header and replace dollar sign
 - Produces:
   - Client & server validation rejecting titles >100 chars, locations >120 chars, and invalid emails.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```typescript
 // tests/ui/formValidation.test.ts
@@ -310,21 +310,21 @@ describe("Quiz Input Validation", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/ui/formValidation.test.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Implement validation in `quizService.ts`, `quizActions.ts`, and `QuizEntryForm.tsx`**
+- [x] **Step 3: Implement validation in `quizService.ts`, `quizActions.ts`, and `QuizEntryForm.tsx`**
 
 Implement `validateQuizFields` with regex `^[^\s@]+@[^\s@]+\.[^\s@]+$` and length checks; add `maxLength={100}` and `maxLength={120}` to `QuizEntryForm.tsx` inputs; enforce validation in `createQuizAction`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/ui/formValidation.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/services/quizService.ts src/actions/quizActions.ts src/components/QuizEntryForm.tsx tests/ui/formValidation.test.ts
@@ -353,7 +353,7 @@ git commit -m "feat: add email format validation and field length limits"
   export function Stepper(props: StepperProps): React.JSX.Element;
   ```
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```typescript
 // tests/ui/stepper.test.ts
@@ -368,21 +368,21 @@ describe("Team Size Capacity Bounds", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/ui/stepper.test.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Implement `Stepper.tsx` and enforce capacity bounds**
+- [x] **Step 3: Implement `Stepper.tsx` and enforce capacity bounds**
 
 Build `src/components/ui/Stepper.tsx` with thumb-friendly `[-]` and `[+]` buttons; replace `<input type="number">` in `QuizEntryForm.tsx` and `EditQuizClient.tsx`; add bounds check `if (newMaxTeamSize < 1 || newMaxTeamSize > 10)` in `updateTeamCapacity` and `adminUpdateTeamCapacityAction`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/ui/stepper.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/ui/Stepper.tsx src/components/QuizEntryForm.tsx src/components/EditQuizClient.tsx src/actions/adminActions.ts src/services/rsvpService.ts tests/ui/stepper.test.ts
@@ -403,7 +403,7 @@ git commit -m "feat: implement mobile-friendly stepper and enforce 1-10 team cap
   - Full dropzone support on upload box (`onDragOver`, `onDragLeave`, `onDrop`).
   - Window/container clipboard paste listener (`onPaste`) handling image files directly.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```typescript
 // tests/ui/flyerUploader.test.ts
@@ -424,21 +424,21 @@ describe("FlyerUploader Drag & Drop and Paste Support", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/ui/flyerUploader.test.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Implement drag-and-drop and clipboard paste in `FlyerUploader.tsx`**
+- [x] **Step 3: Implement drag-and-drop and clipboard paste in `FlyerUploader.tsx`**
 
 Add `isDragging` state with visual dashed border highlight; implement `handleDrop` extracting dropped files; add `useEffect` paste event listener intercepting clipboard image items (`e.clipboardData.items`).
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/ui/flyerUploader.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/FlyerUploader.tsx tests/ui/flyerUploader.test.ts
@@ -460,7 +460,7 @@ git commit -m "feat: add drag-and-drop and clipboard screenshot paste support to
   // returns "€20 / ploeg" or "€5 / persoon"
   ```
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```typescript
 // tests/ui/entryFee.test.ts
@@ -482,21 +482,21 @@ describe("Structured Entry Fee Formatter", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/ui/entryFee.test.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Implement structured entry fee UI and formatting**
+- [x] **Step 3: Implement structured entry fee UI and formatting**
 
 In `QuizEntryForm.tsx`, replace the free-text input with a numeric amount field (prefixed by `€`) and a toggle button between **"per ploeg"** (default) and **"per persoon"**; auto-assemble via `formatStructuredEntryFee` before saving.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/ui/entryFee.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/QuizEntryForm.tsx src/services/quizService.ts tests/ui/entryFee.test.ts
@@ -522,7 +522,7 @@ git commit -m "feat: implement structured entry fee with amount input and team/p
   ): Promise<{ success: boolean; error?: string }>;
   ```
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```typescript
 // tests/services/rosterReorder.test.ts
@@ -553,21 +553,21 @@ describe("Admin Roster Reordering", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/services/rosterReorder.test.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Implement `reorderRsvps`, `adminReorderRsvpAction`, and drag handle UI in `TeamLineup.tsx`**
+- [x] **Step 3: Implement `reorderRsvps`, `adminReorderRsvpAction`, and drag handle UI in `TeamLineup.tsx`**
 
 Implement `reorderRsvps` in `src/services/rsvpService.ts` updating `queuedSince` order in an atomic PostgreSQL transaction; build `src/actions/reorderActions.ts`; in `TeamLineup.tsx`, render a slim drag handle (`⠿` GripVertical) for admins and implement HTML5/touch drag events to reorder items smoothly.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/services/rosterReorder.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/services/rsvpService.ts src/actions/reorderActions.ts src/components/TeamLineup.tsx src/components/QuizDetailClient.tsx tests/services/rosterReorder.test.ts
@@ -591,7 +591,7 @@ git commit -m "feat: implement admin touch drag-and-drop roster reordering"
   export async function adminResetMemberPinAction(memberId: string): Promise<{ success: boolean; error?: string }>;
   ```
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```typescript
 // tests/auth/pinAuth.test.ts
@@ -616,21 +616,21 @@ describe("Name + 4-Digit PIN Authentication", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/auth/pinAuth.test.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Implement `pinHash` in Prisma schema, PIN verification, Server Actions, and UI**
+- [x] **Step 3: Implement `pinHash` in Prisma schema, PIN verification, Server Actions, and UI**
 
 Add `pinHash String?` to `Member` in `prisma/schema.prisma`; implement `verifyMemberPin`, `setMemberPin`, and rolling session update in `src/lib/auth.ts`; implement `loginWithPinAction`, `setupInitialPinAction`, and `adminResetMemberPinAction`; update `/auth/login/page.tsx` with name picker and 4-digit PIN input; add "Reset PIN" button in `/admin/members`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/auth/pinAuth.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add prisma/schema.prisma src/lib/auth.ts src/actions/authActions.ts src/actions/adminActions.ts src/app/auth/login/page.tsx src/components/MemberRosterClient.tsx tests/auth/pinAuth.test.ts
@@ -650,7 +650,7 @@ git commit -m "feat: implement name + 4-digit PIN authentication, first-time PIN
   - Clean production seed: exactly 1 member (`Marc`, `ADMIN`), 0 dummy members, 0 dummy quizzes.
   - Dashboard friendly empty state prompting to add the first quiz when list is empty.
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```typescript
 // tests/ui/emptyDashboard.test.ts
@@ -672,21 +672,21 @@ describe("Clean Production Seed & Empty Dashboard State", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/ui/emptyDashboard.test.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Update `seed.ts` and `QuizzesDashboard.tsx`**
+- [x] **Step 3: Update `seed.ts` and `QuizzesDashboard.tsx`**
 
 In `prisma/seed.ts`, remove all dummy quizzes and dummy members, keeping strictly Marc as Admin and `defaultTeamName: "Ben in Black"`; in `QuizzesDashboard.tsx`, render a clean Dutch empty state: *"Nog geen quizzen gepland. Tik op '+ Nieuwe Quiz' om de eerste quiz toe te voegen!"* with a prominent button.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/ui/emptyDashboard.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add prisma/seed.ts src/components/QuizzesDashboard.tsx tests/ui/emptyDashboard.test.ts
