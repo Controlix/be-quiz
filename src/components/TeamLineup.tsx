@@ -1,3 +1,8 @@
+"use client";
+
+import { useState, useRef } from "react";
+import { GripVertical } from "lucide-react";
+
 export interface LineupMember {
   id: string;
   name: string;
@@ -28,6 +33,7 @@ interface TeamLineupProps {
   maxTeamSize: number;
   isAdmin?: boolean;
   onAdminOverrideDecline?: (memberId: string) => void;
+  onReorder?: (sourceIndex: number, destinationIndex: number) => Promise<void> | void;
 }
 
 export function TeamLineup({
@@ -35,9 +41,70 @@ export function TeamLineup({
   maxTeamSize,
   isAdmin = false,
   onAdminOverrideDecline,
+  onReorder,
 }: TeamLineupProps) {
-  const { active, reserves } = partitionLineup(attendees, maxTeamSize);
+  const sortedAttendees = [...attendees].sort(
+    (a, b) => new Date(a.queuedSince).getTime() - new Date(b.queuedSince).getTime()
+  );
+  const { active, reserves } = partitionLineup(sortedAttendees, maxTeamSize);
   const isComplete = active.length >= maxTeamSize;
+
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const touchStartIndexRef = useRef<number | null>(null);
+
+  const handleDragStart = (e: React.DragEvent, index: number) => {
+    e.dataTransfer.setData("text/plain", String(index));
+    e.dataTransfer.effectAllowed = "move";
+    setDraggedIndex(index);
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = "move";
+    if (dragOverIndex !== index) {
+      setDragOverIndex(index);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent, targetIndex: number) => {
+    e.preventDefault();
+    if (draggedIndex !== null && draggedIndex !== targetIndex) {
+      onReorder?.(draggedIndex, targetIndex);
+    }
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleTouchStart = (index: number) => {
+    touchStartIndexRef.current = index;
+    setDraggedIndex(index);
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    const touch = e.touches[0];
+    const target = document.elementFromPoint(touch.clientX, touch.clientY);
+    const row = target?.closest("[data-roster-index]");
+    if (row) {
+      const idx = Number(row.getAttribute("data-roster-index"));
+      if (!isNaN(idx) && idx !== dragOverIndex) {
+        setDragOverIndex(idx);
+      }
+    }
+  };
+
+  const handleTouchEnd = () => {
+    if (
+      touchStartIndexRef.current !== null &&
+      dragOverIndex !== null &&
+      touchStartIndexRef.current !== dragOverIndex
+    ) {
+      onReorder?.(touchStartIndexRef.current, dragOverIndex);
+    }
+    touchStartIndexRef.current = null;
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-4 shadow-sm">
@@ -60,33 +127,64 @@ export function TeamLineup({
       </div>
 
       {/* Active Lineup */}
-      <ul className="space-y-2 mb-3">
-        {active.map((member, idx) => (
-          <li key={member.id} className="flex items-center justify-between text-sm py-1">
-            <div className="flex items-center gap-2">
-              <span className="w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center">
-                {idx + 1}
-              </span>
-              <span className="font-medium text-slate-800">{member.name}</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <span className="text-xs text-slate-400">Speler</span>
-              {isAdmin && onAdminOverrideDecline && (
-                <button
-                  type="button"
-                  onClick={() => onAdminOverrideDecline(member.id)}
-                  className="text-[10px] text-red-600 hover:text-red-700 font-semibold px-1.5 py-0.5 rounded bg-red-50 hover:bg-red-100"
-                >
-                  Afzeggen
-                </button>
-              )}
-            </div>
-          </li>
-        ))}
+      <ul className="space-y-1.5 mb-3">
+        {active.map((member, idx) => {
+          const overallIndex = idx;
+          const isBeingDragged = draggedIndex === overallIndex;
+          const isTarget = dragOverIndex === overallIndex;
+
+          return (
+            <li
+              key={member.id}
+              data-roster-index={overallIndex}
+              draggable={isAdmin}
+              onDragStart={(e) => handleDragStart(e, overallIndex)}
+              onDragOver={(e) => handleDragOver(e, overallIndex)}
+              onDrop={(e) => handleDrop(e, overallIndex)}
+              className={`flex items-center justify-between text-sm py-1.5 px-2 rounded-xl transition-all ${
+                isBeingDragged
+                  ? "opacity-40 bg-slate-100"
+                  : isTarget
+                  ? "bg-blue-50 border border-blue-300"
+                  : "hover:bg-slate-50"
+              }`}
+            >
+              <div className="flex items-center gap-2 min-w-0">
+                {isAdmin && (
+                  <div
+                    onTouchStart={() => handleTouchStart(overallIndex)}
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
+                    className="cursor-grab active:cursor-grabbing p-1 -ml-1 text-slate-400 hover:text-slate-600 touch-none shrink-0"
+                    title="Sleep om volgorde te wijzigen"
+                  >
+                    <GripVertical className="w-4 h-4" />
+                  </div>
+                )}
+                <span className="w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center shrink-0">
+                  {idx + 1}
+                </span>
+                <span className="font-medium text-slate-800 truncate">{member.name}</span>
+              </div>
+              <div className="flex items-center gap-2 shrink-0">
+                <span className="text-xs text-slate-400">Speler</span>
+                {isAdmin && onAdminOverrideDecline && (
+                  <button
+                    type="button"
+                    onClick={() => onAdminOverrideDecline(member.id)}
+                    className="text-[10px] text-red-600 hover:text-red-700 font-semibold px-1.5 py-0.5 rounded bg-red-50 hover:bg-red-100"
+                  >
+                    Afzeggen
+                  </button>
+                )}
+              </div>
+            </li>
+          );
+        })}
         {Array.from({ length: Math.max(0, maxTeamSize - active.length) }).map((_, idx) => (
           <li
             key={`empty-${idx}`}
-            className="flex items-center gap-2 text-sm text-slate-400 py-1 italic"
+            className="flex items-center gap-2 text-sm text-slate-400 py-1.5 px-2 italic"
           >
             <span className="w-5 h-5 rounded-full bg-slate-100 text-slate-400 text-xs font-bold flex items-center justify-center">
               {active.length + idx + 1}
@@ -101,26 +199,56 @@ export function TeamLineup({
         <div className="mt-3 pt-3 border-t border-dashed border-slate-200">
           <h4 className="text-xs font-bold text-slate-600 mb-2">Reservelijst ({reserves.length})</h4>
           <ul className="space-y-1.5">
-            {reserves.map((member, idx) => (
-              <li
-                key={member.id}
-                className="flex items-center justify-between text-xs py-1 px-2 rounded-lg bg-amber-50 text-amber-900 border border-amber-200"
-              >
-                <span className="font-medium">{member.name}</span>
-                <div className="flex items-center gap-2">
-                  <span className="font-semibold text-amber-700">{formatReserveBadge(idx)}</span>
-                  {isAdmin && onAdminOverrideDecline && (
-                    <button
-                      type="button"
-                      onClick={() => onAdminOverrideDecline(member.id)}
-                      className="text-[10px] text-red-600 hover:text-red-700 font-semibold px-1 py-0.5 rounded bg-red-100"
-                    >
-                      Verwijder
-                    </button>
-                  )}
-                </div>
-              </li>
-            ))}
+            {reserves.map((member, idx) => {
+              const overallIndex = active.length + idx;
+              const isBeingDragged = draggedIndex === overallIndex;
+              const isTarget = dragOverIndex === overallIndex;
+
+              return (
+                <li
+                  key={member.id}
+                  data-roster-index={overallIndex}
+                  draggable={isAdmin}
+                  onDragStart={(e) => handleDragStart(e, overallIndex)}
+                  onDragOver={(e) => handleDragOver(e, overallIndex)}
+                  onDrop={(e) => handleDrop(e, overallIndex)}
+                  className={`flex items-center justify-between text-xs py-1.5 px-2 rounded-xl transition-all border ${
+                    isBeingDragged
+                      ? "opacity-40 bg-amber-100/50 border-amber-300"
+                      : isTarget
+                      ? "bg-blue-50 border-blue-400"
+                      : "bg-amber-50/70 text-amber-900 border-amber-200"
+                  }`}
+                >
+                  <div className="flex items-center gap-2 min-w-0">
+                    {isAdmin && (
+                      <div
+                        onTouchStart={() => handleTouchStart(overallIndex)}
+                        onTouchMove={handleTouchMove}
+                        onTouchEnd={handleTouchEnd}
+                        className="cursor-grab active:cursor-grabbing p-1 -ml-1 text-amber-500 hover:text-amber-700 touch-none shrink-0"
+                        title="Sleep om volgorde te wijzigen"
+                      >
+                        <GripVertical className="w-4 h-4" />
+                      </div>
+                    )}
+                    <span className="font-medium truncate">{member.name}</span>
+                  </div>
+                  <div className="flex items-center gap-2 shrink-0">
+                    <span className="font-semibold text-amber-700">{formatReserveBadge(idx)}</span>
+                    {isAdmin && onAdminOverrideDecline && (
+                      <button
+                        type="button"
+                        onClick={() => onAdminOverrideDecline(member.id)}
+                        className="text-[10px] text-red-600 hover:text-red-700 font-semibold px-1 py-0.5 rounded bg-red-100"
+                      >
+                        Verwijder
+                      </button>
+                    )}
+                  </div>
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}

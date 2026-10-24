@@ -7,6 +7,7 @@ import { RsvpControl } from "@/components/RsvpControl";
 import { ActionToolbar } from "@/components/ActionToolbar";
 import { joinQuizRsvpAction, declineQuizRsvpAction } from "@/actions/rsvpActions";
 import { adminOverrideDeclineAction } from "@/actions/adminActions";
+import { adminReorderRsvpAction } from "@/actions/reorderActions";
 import { setRegisteredAction, toggleFeePaidAction } from "@/actions/registrationActions";
 import { formatEuropeanDateTime } from "@/lib/formatters";
 import { ArrowLeft, MapPin, Calendar, Coins, Settings } from "lucide-react";
@@ -64,6 +65,23 @@ export function QuizDetailClient({
       setAttendees((prev) => prev.filter((a) => a.id !== memberId));
       await adminOverrideDeclineAction(team.id, memberId, currentMemberId);
     }
+  };
+
+  const handleReorder = async (sourceIndex: number, destinationIndex: number) => {
+    setAttendees((prev) => {
+      const sorted = [...prev].sort(
+        (a, b) => new Date(a.queuedSince).getTime() - new Date(b.queuedSince).getTime()
+      );
+      const [moved] = sorted.splice(sourceIndex, 1);
+      sorted.splice(destinationIndex, 0, moved);
+      const baseTime = Date.now() - 100000;
+      return sorted.map((item, idx) => ({
+        ...item,
+        queuedSince: new Date(baseTime + idx * 1000),
+      }));
+    });
+
+    await adminReorderRsvpAction(team.id, sourceIndex, destinationIndex);
   };
 
   const handleRegisterToggle = async () => {
@@ -147,6 +165,7 @@ export function QuizDetailClient({
         maxTeamSize={team?.maxTeamSize || 4}
         isAdmin={isAdmin}
         onAdminOverrideDecline={handleAdminOverrideDecline}
+        onReorder={handleReorder}
       />
 
       {/* Actions (Email, Payment, WhatsApp) */}

@@ -135,3 +135,49 @@ export async function updateTeamCapacity(
     });
   });
 }
+
+export async function reorderRsvps(
+  teamId: string,
+  sourceIndex: number,
+  destinationIndex: number
+): Promise<void> {
+  await prisma.$transaction(async (tx) => {
+    await tx.$executeRaw`SELECT id FROM "Team" WHERE id = ${teamId} FOR UPDATE`;
+
+    const attendingRsvps = await tx.rsvp.findMany({
+      where: {
+        teamId,
+        status: "ATTENDING",
+      },
+      orderBy: {
+        queuedSince: "asc",
+      },
+    });
+
+    if (
+      sourceIndex < 0 ||
+      sourceIndex >= attendingRsvps.length ||
+      destinationIndex < 0 ||
+      destinationIndex >= attendingRsvps.length ||
+      sourceIndex === destinationIndex
+    ) {
+      return;
+    }
+
+    const reordered = [...attendingRsvps];
+    const [moved] = reordered.splice(sourceIndex, 1);
+    reordered.splice(destinationIndex, 0, moved);
+
+    const baseTime = attendingRsvps[0].queuedSince
+      ? new Date(attendingRsvps[0].queuedSince).getTime()
+      : Date.now() - attendingRsvps.length * 1000;
+
+    for (let i = 0; i < reordered.length; i++) {
+      const newQueuedSince = new Date(baseTime + i * 1000);
+      await tx.rsvp.update({
+        where: { id: reordered[i].id },
+        data: { queuedSince: newQueuedSince },
+      });
+    }
+  });
+}
