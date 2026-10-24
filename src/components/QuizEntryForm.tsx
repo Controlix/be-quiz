@@ -7,6 +7,11 @@ import { Stepper } from "@/components/ui/Stepper";
 import { createQuizAction } from "@/actions/quizActions";
 import { formatStructuredEntryFee } from "@/services/quizService";
 import { VisionExtractionResult } from "@/services/visionService";
+import {
+  formatEuropeanDateString,
+  formatEuropeanTimeString,
+  parseEuropeanDateTime,
+} from "@/lib/formatters";
 import { Calendar, MapPin, Users, Coins, Mail, Link as LinkIcon, AlertCircle } from "lucide-react";
 
 interface QuizEntryFormProps {
@@ -43,8 +48,8 @@ export function QuizEntryForm({ currentMemberId }: QuizEntryFormProps) {
     }
 
     if (result.data.title) setTitle(result.data.title);
-    if (result.data.date) setDate(result.data.date);
-    if (result.data.time) setTime(result.data.time);
+    if (result.data.date) setDate(formatEuropeanDateString(result.data.date));
+    if (result.data.time) setTime(formatEuropeanTimeString(result.data.time));
     if (result.data.location) setLocation(result.data.location);
     if (result.data.maxTeamSize) setMaxTeamSize(String(result.data.maxTeamSize));
     if (result.data.organizerEmail) setOrganizerEmail(result.data.organizerEmail);
@@ -86,7 +91,18 @@ export function QuizEntryForm({ currentMemberId }: QuizEntryFormProps) {
 
     setLoading(true);
     try {
-      const startsAt = new Date(`${date}T${time}:00Z`);
+      const parsedDate = parseEuropeanDateTime(
+        date.includes("/") ? date : formatEuropeanDateString(date),
+        time.includes(":") ? time : formatEuropeanTimeString(time)
+      );
+
+      if (!parsedDate) {
+        setErrorBanner("Gelieve een geldige datum (DD/MM/JJJJ) en 24-uurs tijd (bv. 20:00) in te voeren.");
+        setLoading(false);
+        return;
+      }
+
+      const startsAt = parsedDate;
       const formattedEntryFee = formatStructuredEntryFee(entryFeeAmount, entryFeeUnit);
 
       const res = await createQuizAction(
@@ -174,29 +190,35 @@ export function QuizEntryForm({ currentMemberId }: QuizEntryFormProps) {
         {/* Date & Time */}
         <div className="grid grid-cols-2 gap-2">
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">Datum *</label>
+            <label className="block text-xs font-bold text-slate-700 mb-1">Datum (DD/MM/JJJJ) *</label>
             <input
-              type="date"
+              type="text"
+              inputMode="numeric"
+              maxLength={10}
               value={date}
               onChange={(e) => {
-                setDate(e.target.value);
+                setDate(formatEuropeanDateString(e.target.value));
                 setMissingFields((prev) => prev.filter((f) => f !== "date"));
               }}
-              className={`w-full text-sm p-2 rounded-xl border ${
+              placeholder="DD/MM/JJJJ"
+              className={`w-full text-sm p-2 rounded-xl border font-medium ${
                 missingFields.includes("date") ? "border-red-500 bg-red-50/30" : "border-slate-200"
               }`}
             />
           </div>
           <div>
-            <label className="block text-xs font-bold text-slate-700 mb-1">Aanvangsuur *</label>
+            <label className="block text-xs font-bold text-slate-700 mb-1">Aanvangsuur (24u) *</label>
             <input
-              type="time"
+              type="text"
+              inputMode="numeric"
+              maxLength={5}
               value={time}
               onChange={(e) => {
-                setTime(e.target.value);
+                setTime(formatEuropeanTimeString(e.target.value));
                 setMissingFields((prev) => prev.filter((f) => f !== "time"));
               }}
-              className={`w-full text-sm p-2 rounded-xl border ${
+              placeholder="20:00"
+              className={`w-full text-sm p-2 rounded-xl border font-medium ${
                 missingFields.includes("time") ? "border-red-500 bg-red-50/30" : "border-slate-200"
               }`}
             />

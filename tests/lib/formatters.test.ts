@@ -3,6 +3,9 @@ import {
   formatEuropeanDate,
   formatEuropeanTime,
   formatEuropeanDateTime,
+  formatEuropeanDateString,
+  formatEuropeanTimeString,
+  parseEuropeanDateTime,
 } from "../../src/lib/formatters";
 
 describe("European Date & Time Formatters", () => {
@@ -21,5 +24,25 @@ describe("European Date & Time Formatters", () => {
     const formatted = formatEuropeanDateTime(testDate, true);
     expect(formatted).toContain("14/11/2026");
     expect(formatted).toContain("20:05");
+  });
+
+  it("formats ISO date string (YYYY-MM-DD) into European DD/MM/YYYY input string", () => {
+    expect(formatEuropeanDateString("2026-11-20")).toBe("20/11/2026");
+    expect(formatEuropeanDateString("20112026")).toBe("20/11/2026");
+  });
+
+  it("formats time string into HH:mm", () => {
+    expect(formatEuropeanTimeString("2000")).toBe("20:00");
+    expect(formatEuropeanTimeString("19:30")).toBe("19:30");
+  });
+
+  it("parses DD/MM/YYYY and HH:mm into Date object", () => {
+    const date = parseEuropeanDateTime("20/11/2026", "20:00");
+    expect(date).not.toBeNull();
+    expect(date?.getFullYear()).toBe(2026);
+    expect(date?.getMonth()).toBe(10); // 0-indexed November
+    expect(date?.getDate()).toBe(20);
+    expect(date?.getHours()).toBe(20);
+    expect(date?.getMinutes()).toBe(0);
   });
 });
