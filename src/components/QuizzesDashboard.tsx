@@ -61,7 +61,26 @@ export function QuizzesDashboard({ initialQuizzes }: QuizzesDashboardProps) {
 
       {/* List */}
       <div className="flex-1">
-        {filteredQuizzes.length > 0 ? (
+        {initialQuizzes.length === 0 ? (
+          <div className="text-center py-16 px-4 bg-white rounded-3xl border border-slate-200 shadow-xs my-4 space-y-4">
+            <div className="w-16 h-16 rounded-2xl bg-blue-50 text-blue-600 flex items-center justify-center mx-auto text-2xl">
+              🏆
+            </div>
+            <div>
+              <h3 className="font-bold text-slate-900 text-base">Nog geen quizzen gepland</h3>
+              <p className="text-xs text-slate-500 mt-1 max-w-xs mx-auto">
+                Nog geen quizzen gepland. Tik op &apos;+ Nieuwe Quiz&apos; om de eerste quiz toe te voegen!
+              </p>
+            </div>
+            <Link
+              href="/quizzes/new"
+              className="inline-flex items-center gap-2 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-4 py-2.5 rounded-xl shadow-sm active:scale-95 transition-all"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Eerste Quiz Toevoegen</span>
+            </Link>
+          </div>
+        ) : filteredQuizzes.length > 0 ? (
           filteredQuizzes.map((quiz) => (
             <QuizCard
               key={quiz.id}
@@ -73,7 +92,7 @@ export function QuizzesDashboard({ initialQuizzes }: QuizzesDashboardProps) {
                 entryFee: quiz.entryFee || undefined,
                 status: quiz.status,
                 team: {
-                  name: quiz.team?.name || "De Quizvrienden",
+                  name: quiz.team?.name || "Ben in Black",
                   maxTeamSize: quiz.team?.maxTeamSize || 4,
                   registeredAt: quiz.team?.registeredAt ? new Date(quiz.team.registeredAt) : null,
                   paidAt: quiz.team?.paidAt ? new Date(quiz.team.paidAt) : null,
