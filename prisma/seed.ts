@@ -5,6 +5,16 @@ const prisma = new PrismaClient();
 async function main() {
   console.log("Seeding database...");
 
+  // Purge existing dummy quizzes, teams, and dummy members for clean production state
+  await prisma.rsvp.deleteMany({});
+  await prisma.team.deleteMany({});
+  await prisma.quiz.deleteMany({});
+  await prisma.session.deleteMany({});
+  await prisma.invite.deleteMany({});
+  await prisma.member.deleteMany({
+    where: { id: { not: "admin-seed-id" } },
+  });
+
   // Seed TeamSetting singleton
   await prisma.teamSetting.upsert({
     where: { id: "singleton" },
