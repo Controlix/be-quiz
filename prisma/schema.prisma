@@ -1,0 +1,137 @@
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "linux-musl-openssl-3.0.x"]
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum QuizStatus {
+  OPEN
+  CANCELLED
+  ARCHIVED
+}
+
+enum RsvpStatus {
+  ATTENDING
+  DECLINED
+}
+
+model Member {
+  id              String      @id @default(cuid())
+  name            String
+  role            Role        @default(USER)
+  createdAt       DateTime    @default(now())
+
+  sessions        Session[]
+  invite          Invite?
+  rsvps           Rsvp[]
+  quizzesCreated  Quiz[]      @relation("QuizCreator")
+  teamsRegistered Team[]      @relation("TeamRegistrar")
+  teamsPaid       Team[]      @relation("TeamPayer")
+  overridesGiven  Rsvp[]      @relation("RsvpOverrider")
+}
+
+model Invite {
+  id        String    @id @default(cuid())
+  memberId  String    @unique
+  member    Member    @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  tokenHash String    @unique
+  expiresAt DateTime?
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  tokenHash String   @unique
+  memberId  String
+  member    Member   @relation(fields: [memberId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Quiz {
+  id              String     @id @default(cuid())
+  title           String
+  startsAt        DateTime   // UTC timestamp representing quiz start
+  timeZone        String     @default("Europe/Brussels")
+  durationMinutes Int        @default(180)
+  location        String
+  organizerEmail  String?
+  registrationUrl String?
+  entryFee        String?    // Display-only string from flyer (e.g. "€20 / ploeg")
+  notes           String?
+  flyerImageUrl   String?
+  status          QuizStatus @default(OPEN)
+
+  createdById     String
+  createdBy       Member     @relation("QuizCreator", fields: [createdById], references: [id], onDelete: Restrict)
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+
+  // 1-to-1 in v1, prepared for 1-to-many in v2
+  team            Team?
+
+  @@index([startsAt, status])
+}
+
+model Team {
+  id             String    @id @default(cuid())
+  quizId         String    @unique // Enforces exactly 1 team per quiz in v1
+  quiz           Quiz      @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  name           String
+  maxTeamSize    Int       @default(4)
+
+  // Registration state
+  registeredAt   DateTime?
+  registeredById String?
+  registeredBy   Member?   @relation("TeamRegistrar", fields: [registeredById], references: [id], onDelete: Restrict)
+
+  // Payment state
+  paidAt         DateTime?
+  paidById       String?
+  paidBy         Member?   @relation("TeamPayer", fields: [paidById], references: [id], onDelete: Restrict)
+
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  rsvps          Rsvp[]
+
+  @@index([quizId])
+}
+
+model Rsvp {
+  id             String     @id @default(cuid())
+  teamId         String
+  team           Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  memberId       String
+  member         Member     @relation(fields: [memberId], references: [id], onDelete: Restrict)
+
+  status         RsvpStatus
+  queuedSince    DateTime?  // Single timestamp tracking place in line
+
+  // Admin decline audit
+  overriddenById String?
+  overriddenBy   Member?    @relation("RsvpOverrider", fields: [overriddenById], references: [id], onDelete: Restrict)
+  overriddenAt   DateTime?
+
+  createdAt      DateTime   @default(now())
+  updatedAt      DateTime   @updatedAt
+
+  @@unique([teamId, memberId])
+  @@index([teamId, status, queuedSince])
+}
+
+model TeamSetting {
+  id              String   @id @default("singleton")
+  defaultTeamName String   @default("De Quizvrienden")
+  updatedAt       DateTime @updatedAt
+}
