@@ -120,6 +120,10 @@ export async function updateTeamCapacity(
   teamId: string,
   newMaxTeamSize: number
 ): Promise<void> {
+  if (newMaxTeamSize < 1 || newMaxTeamSize > 10) {
+    throw new Error("Ploeggrootte moet tussen 1 en 10 liggen");
+  }
+
   await prisma.$transaction(async (tx) => {
     await tx.$executeRaw`SELECT id FROM "Team" WHERE id = ${teamId} FOR UPDATE`;
 

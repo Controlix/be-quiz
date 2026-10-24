@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { FlyerUploader } from "@/components/FlyerUploader";
+import { Stepper } from "@/components/ui/Stepper";
 import { createQuizAction } from "@/actions/quizActions";
 import { VisionExtractionResult } from "@/services/visionService";
 import { Calendar, MapPin, Users, Coins, Mail, Link as LinkIcon, AlertCircle } from "lucide-react";
@@ -195,8 +196,8 @@ export function QuizEntryForm({ currentMemberId }: QuizEntryFormProps) {
         </div>
 
         {/* Location & Team Size */}
-        <div className="grid grid-cols-3 gap-2">
-          <div className="col-span-2">
+        <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex-1">
             <label className="block text-xs font-bold text-slate-700 mb-1">Locatie / Zaal *</label>
             <input
               type="text"
@@ -214,18 +215,14 @@ export function QuizEntryForm({ currentMemberId }: QuizEntryFormProps) {
           </div>
           <div>
             <label className="block text-xs font-bold text-slate-700 mb-1">Max Spelers *</label>
-            <input
-              type="number"
-              min="1"
-              max="10"
-              value={maxTeamSize}
-              onChange={(e) => {
-                setMaxTeamSize(e.target.value);
+            <Stepper
+              value={Number(maxTeamSize) || 4}
+              min={1}
+              max={10}
+              onChange={(val) => {
+                setMaxTeamSize(String(val));
                 setMissingFields((prev) => prev.filter((f) => f !== "maxTeamSize"));
               }}
-              className={`w-full text-sm p-2 rounded-xl border text-center ${
-                missingFields.includes("maxTeamSize") ? "border-red-500 bg-red-50/30" : "border-slate-200"
-              }`}
             />
           </div>
         </div>

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { ArrowLeft, AlertTriangle, RefreshCw, XCircle } from "lucide-react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { Stepper } from "@/components/ui/Stepper";
 import {
   adminCancelQuizAction,
   adminResetRegistrationAction,
@@ -73,14 +74,12 @@ export function EditQuizClient({ quizId, teamId, currentCapacity }: EditQuizClie
           <p className="text-[11px] text-slate-500 mb-2">
             Bij het verlagen van de ploeggrootte worden de laatst toegevoegde spelers automatisch naar de reservelijst verplaatst.
           </p>
-          <div className="flex gap-2">
-            <input
-              type="number"
-              min="1"
-              max="10"
-              value={capacity}
-              onChange={(e) => setCapacity(e.target.value)}
-              className="w-20 text-sm p-2 rounded-xl border border-slate-200 text-center"
+          <div className="flex items-center gap-3">
+            <Stepper
+              value={Number(capacity) || 4}
+              min={1}
+              max={10}
+              onChange={(val) => setCapacity(String(val))}
             />
             <button
               type="button"

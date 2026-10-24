@@ -41,6 +41,9 @@ export async function adminOverrideDeclineAction(teamId: string, memberId: strin
 
 export async function adminUpdateTeamCapacityAction(teamId: string, newMaxTeamSize: number) {
   try {
+    if (newMaxTeamSize < 1 || newMaxTeamSize > 10) {
+      return { success: false, error: "Ploeggrootte moet tussen 1 en 10 liggen" };
+    }
     await updateTeamCapacity(teamId, newMaxTeamSize);
     revalidatePath("/quizzes");
     return { success: true };
