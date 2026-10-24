@@ -6,6 +6,9 @@ export default defineConfig({
   plugins: [react()],
   test: {
     environment: "node",
+    env: {
+      DATABASE_URL: "postgresql://quiz:quiz@localhost:5432/be_quiz?schema=test",
+    },
   },
   resolve: {
     alias: {

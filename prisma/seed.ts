@@ -26,6 +26,19 @@ async function main() {
     },
   });
 
+  // Seed Marc's dev invite token
+  const crypto = await import("crypto");
+  const adminHash = crypto.createHash("sha256").update("admin-marc-login").digest("hex");
+  await prisma.invite.upsert({
+    where: { memberId: admin.id },
+    update: { tokenHash: adminHash, usedAt: null },
+    create: {
+      memberId: admin.id,
+      tokenHash: adminHash,
+      usedAt: null,
+    },
+  });
+
   // Seed additional friends
   const memberNames = ["Sarah", "Tom", "Elena", "Thomas"];
   const memberMap = new Map<string, string>();
