@@ -1,6 +1,6 @@
 # Pub Quiz Coordination App (BE-Quiz) Implementation Plan — Vertical Slices
 
-> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
+> **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [x]`) syntax for tracking.
 
 **Goal:** Build a mobile-first Progressive Web App (PWA) for a private group of quiz friends to coordinate pub quizzes using an outside-in, vertical-slice approach where a clickable working prototype is accessible immediately in Slice 1.
 
@@ -123,7 +123,7 @@ src/
   }): TabCategory;
   ```
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```typescript
 // tests/ui/timelineTabs.test.ts
@@ -149,21 +149,21 @@ describe("Timeline Tab Classification", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/ui/timelineTabs.test.ts`
 Expected: FAIL (Cannot find module)
 
-- [ ] **Step 3: Implement mobile layout, TimelineTabs, QuizCard, and mock dashboard**
+- [x] **Step 3: Implement mobile layout, TimelineTabs, QuizCard, and mock dashboard**
 
 Initialize Next.js App Router with Tailwind CSS; configure mobile viewport container in `src/app/layout.tsx`; build `src/components/TimelineTabs.tsx` and `src/components/QuizCard.tsx`; populate `src/lib/mockData.ts` with 3 realistic quizzes; assemble `src/app/quizzes/page.tsx`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/ui/timelineTabs.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add package.json tsconfig.json next.config.ts tailwind.config.ts src/ vitest.config.ts tests/ui/timelineTabs.test.ts
@@ -196,7 +196,7 @@ git commit -m "feat(slice1): implement mobile layout and interactive timeline da
   ): { active: LineupMember[]; reserves: LineupMember[] };
   ```
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```typescript
 // tests/ui/quizDetail.test.ts
@@ -225,21 +225,21 @@ describe("Team Lineup Rendering & Partitioning", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/ui/quizDetail.test.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Implement TeamLineup, RsvpControl, ActionToolbar, and Detail Page**
+- [x] **Step 3: Implement TeamLineup, RsvpControl, ActionToolbar, and Detail Page**
 
 Build `TeamLineup.tsx` displaying confirmed players and reserve badges; build `RsvpControl.tsx` allowing you to click "Ik doe mee" and observe the 4-player cap and reserve list shift in local React state; build `ActionToolbar.tsx` displaying mailto, WhatsApp, and fee buttons; assemble `src/app/quizzes/[id]/page.tsx`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/ui/quizDetail.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/app/quizzes/[id]/page.tsx src/components/TeamLineup.tsx src/components/RsvpControl.tsx src/components/ActionToolbar.tsx tests/ui/quizDetail.test.ts
@@ -265,7 +265,7 @@ git commit -m "feat(slice1): complete clickable quiz detail view and interactive
   export const prisma: PrismaClient;
   ```
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```typescript
 // tests/db/schema.test.ts
@@ -280,21 +280,21 @@ describe("Database Connection & Models", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/db/schema.test.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Configure Docker Compose, `.env`, Prisma schema, and seed**
+- [x] **Step 3: Configure Docker Compose, `.env`, Prisma schema, and seed**
 
 Configure `docker-compose.yml` with PostgreSQL 16 on port 5432; create `.env` and `.env.example` with `DATABASE_URL="postgresql://quiz:quiz@localhost:5432/be_quiz?schema=public"`; define the complete Prisma schema from §6.1 of the design doc with `linux-musl-openssl-3.0.x` binary targets; implement `prisma/seed.ts` seeding members and the `singleton` TeamSetting row; initialize `src/lib/db.ts`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `docker-compose up -d && npx prisma migrate reset --force && npx vitest run tests/db/schema.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add docker-compose.yml .env.example prisma/ src/lib/db.ts tests/db/schema.test.ts
@@ -337,7 +337,7 @@ git commit -m "feat(slice2): configure postgres docker container, env, and prism
   export async function declineQuizRsvpAction(teamId: string): Promise<{ success: boolean; error?: string }>;
   ```
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```typescript
 // tests/services/rsvpConcurrency.test.ts
@@ -379,21 +379,21 @@ describe("RSVP Concurrency & FIFO Waitlist", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/services/rsvpConcurrency.test.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Implement `quizService.ts`, `rsvpService.ts`, Server Actions, and wire to UI**
+- [x] **Step 3: Implement `quizService.ts`, `rsvpService.ts`, Server Actions, and wire to UI**
 
 Implement atomic quiz and team creation in `quizService.ts`; wrap RSVP changes in transactions locking the team row (`SELECT * FROM "Team" WHERE id = $1 FOR UPDATE`) in `rsvpService.ts`; implement Server Actions in `src/actions/rsvpActions.ts` and `src/actions/quizActions.ts`; wire Server Actions to `src/app/quizzes/page.tsx` and `src/app/quizzes/[id]/page.tsx`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/services/rsvpConcurrency.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/services/ src/actions/ src/app/quizzes/ tests/services/rsvpConcurrency.test.ts
@@ -435,7 +435,7 @@ git commit -m "feat(slice2): wire live database queries, server actions, and row
   export function saveUploadedFlyer(file: Buffer, mimeType: string): Promise<string>; // returns public path e.g. "/uploads/xyz.jpg"
   ```
 
-- [ ] **Step 1: Write the failing test (including Review Focus failure modes)**
+- [x] **Step 1: Write the failing test (including Review Focus failure modes)**
 
 ```typescript
 // tests/services/visionService.test.ts
@@ -467,21 +467,21 @@ describe("Vision Extraction Validation & Error Handling", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/services/visionService.test.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Implement `storage.ts`, `FlyerUploader.tsx`, `visionService.ts`, route, and `QuizEntryForm.tsx`**
+- [x] **Step 3: Implement `storage.ts`, `FlyerUploader.tsx`, `visionService.ts`, route, and `QuizEntryForm.tsx`**
 
 Implement local file storage in `src/lib/storage.ts` saving images to `public/uploads/`; build client canvas downscaling in `FlyerUploader.tsx`; implement structured LLM prompt with 15s timeout and fallback in `visionService.ts`; build `/api/quizzes/extract/route.ts` validating MIME (`image/jpeg`, `image/png`, `image/webp`) and size (<=4MB); assemble `/quizzes/new/page.tsx` with Dutch banner on extraction failure.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/services/visionService.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/storage.ts src/components/FlyerUploader.tsx src/services/visionService.ts src/app/api/quizzes/extract/ src/app/quizzes/new/ src/components/QuizEntryForm.tsx tests/services/visionService.test.ts
@@ -528,7 +528,7 @@ git commit -m "feat(slice3): implement flyer scanner, vision ai parsing, and qui
   export async function toggleFeePaidAction(teamId: string): Promise<{ success: boolean }>;
   ```
 
-- [ ] **Step 1: Write the failing test (including Review Focus #5)**
+- [x] **Step 1: Write the failing test (including Review Focus #5)**
 
 ```typescript
 // tests/lib/integrations.test.ts
@@ -558,21 +558,21 @@ describe("Mailto & Calendar Integrations", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/lib/integrations.test.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Implement mailto, ical, whatsapp helpers, actions, and wire ActionToolbar**
+- [x] **Step 3: Implement mailto, ical, whatsapp helpers, actions, and wire ActionToolbar**
 
 Implement `src/lib/mailto.ts` using `encodeURIComponent` with `%0D%0A` newlines; implement `src/lib/ical.ts` and `src/lib/whatsapp.ts`; build Server Actions in `src/actions/registrationActions.ts`; serve `.ics` at `/api/quizzes/[id]/calendar.ics`; connect live actions into `ActionToolbar.tsx`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/lib/integrations.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/mailto.ts src/lib/ical.ts src/lib/whatsapp.ts src/services/registrationService.ts src/services/paymentService.ts src/actions/registrationActions.ts src/app/api/quizzes/[id]/calendar.ics/ src/components/ActionToolbar.tsx tests/lib/integrations.test.ts
@@ -601,7 +601,7 @@ git commit -m "feat(slice3): implement mailto hand-off, ical export, whatsapp sh
   export function getSessionMember(): Promise<Member | null>; // Read from Next.js cookies()
   ```
 
-- [ ] **Step 1: Write the failing test (including Review Focus #4)**
+- [x] **Step 1: Write the failing test (including Review Focus #4)**
 
 ```typescript
 // tests/auth/authFlow.test.ts
@@ -634,21 +634,21 @@ describe("Invite & Session Flow", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/auth/authFlow.test.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Implement crypto, session handling, auth routes, and Next.js middleware**
+- [x] **Step 3: Implement crypto, session handling, auth routes, and Next.js middleware**
 
 Implement SHA-256 token hashing in `src/lib/crypto.ts`; implement session creation (90-day expiry) in `src/lib/auth.ts`; implement `src/middleware.ts` gating all routes except `/auth/*` and static assets; build `/auth/login/page.tsx` with manual invite code input field; implement `/auth/join/route.ts` and `/auth/logout/route.ts`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/auth/authFlow.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/lib/crypto.ts src/lib/auth.ts src/middleware.ts src/app/auth/ tests/auth/authFlow.test.ts
@@ -676,7 +676,7 @@ git commit -m "feat(slice4): implement invite token claim, session middleware, a
   export async function adminUpdateDefaultTeamNameAction(newName: string): Promise<{ success: boolean }>;
   ```
 
-- [ ] **Step 1: Write the failing test (including Review Focus #2 & #3)**
+- [x] **Step 1: Write the failing test (including Review Focus #2 & #3)**
 
 ```typescript
 // tests/admin/adminActions.test.ts
@@ -726,21 +726,21 @@ describe("Admin Override & Capacity Demotion Logic", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/admin/adminActions.test.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Implement `ConfirmDialog.tsx`, admin Server Actions, and admin pages**
+- [x] **Step 3: Implement `ConfirmDialog.tsx`, admin Server Actions, and admin pages**
 
 Build `ConfirmDialog.tsx` for client-side confirmation dialogs; implement `adminOverrideDecline` and `updateTeamCapacity` in `src/services/rsvpService.ts`; implement Server Actions in `src/actions/adminActions.ts`; build `/quizzes/[id]/edit/page.tsx`, `/admin/members/page.tsx`, and `/admin/settings/page.tsx`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/admin/adminActions.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/ConfirmDialog.tsx src/services/rsvpService.ts src/actions/adminActions.ts src/app/quizzes/[id]/edit/ src/app/admin/ tests/admin/adminActions.test.ts
@@ -763,7 +763,7 @@ git commit -m "feat(slice4): implement admin controls, confirmation dialogs, and
   - Multi-stage Alpine `Dockerfile` running Next.js standalone server with `linux-musl-openssl-3.0.x`.
   - Comprehensive acceptance test suite testing all 9 criteria from Section 9 of the design spec.
 
-- [ ] **Step 1: Write the failing acceptance test**
+- [x] **Step 1: Write the failing acceptance test**
 
 ```typescript
 // tests/e2e/acceptance.test.ts
@@ -779,21 +779,21 @@ describe("Acceptance & PWA Suite", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/e2e/acceptance.test.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Implement PWA assets, standalone Dockerfile, and complete acceptance suite**
+- [x] **Step 3: Implement PWA assets, standalone Dockerfile, and complete acceptance suite**
 
 Create `public/manifest.json` and mobile icons; configure `output: "standalone"` in `next.config.ts`; build multi-stage `Dockerfile` (Alpine Node 20, Prisma generate, Next.js build, lean runner); implement `tests/e2e/acceptance.test.ts` verifying the 9 acceptance criteria against PostgreSQL.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/e2e/acceptance.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add public/ Dockerfile .dockerignore next.config.ts src/app/layout.tsx tests/e2e/acceptance.test.ts
