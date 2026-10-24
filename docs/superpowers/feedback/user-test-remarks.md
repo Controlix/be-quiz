@@ -100,3 +100,4 @@ This document serves as the single source of truth for:
 9. **Flyer Image Display on Quiz Detail View:** Displaying the actual uploaded flyer poster as a rich banner on the quiz details screen, with a tap-to-expand fullscreen modal.
 10. **Maps Integration (Navigation):** Tapping the venue/address on cards or detail views opens Google Maps / Apple Maps / Waze with direct route navigation.
 11. **Duplicate Quiz Detection on Entry:** Warn the user when adding a quiz if another quiz already exists on the same date or at the same venue to prevent accidental duplicates.
+12. **Direct Registration Toggle (Without Email):** Ability to directly mark a quiz team as registered (e.g. via a *"Markeer als ingeschreven"* button) for instances where registration was handled in person, via telephone, WhatsApp, or Facebook Messenger, without triggering the `mailto:` email hand-off.
