@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useRef } from "react";
-import { Upload, Camera, Loader2, AlertCircle } from "lucide-react";
+import { useState, useRef, useEffect } from "react";
+import { Camera, Loader2, AlertCircle, UploadCloud } from "lucide-react";
 import { VisionExtractionResult } from "@/services/visionService";
 
 interface FlyerUploaderProps {
@@ -11,6 +11,7 @@ interface FlyerUploaderProps {
 export function FlyerUploader({ onExtractionComplete }: FlyerUploaderProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const resizeImageCanvas = (file: File): Promise<Blob> => {
@@ -55,10 +56,7 @@ export function FlyerUploader({ onExtractionComplete }: FlyerUploaderProps) {
     });
   };
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
+  const processFile = async (file: File) => {
     setError(null);
     setLoading(true);
 
@@ -85,6 +83,62 @@ export function FlyerUploader({ onExtractionComplete }: FlyerUploaderProps) {
     }
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      await processFile(file);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!loading) {
+      setIsDragging(true);
+    }
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = async (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    if (loading) return;
+
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith("image/")) {
+      await processFile(file);
+    } else if (file) {
+      setError("Gelieve een geldige afbeelding (JPG, PNG, WEBP) te uploaden.");
+    }
+  };
+
+  useEffect(() => {
+    const handlePaste = (e: ClipboardEvent) => {
+      if (loading) return;
+      const items = e.clipboardData?.items;
+      if (!items) return;
+
+      for (let i = 0; i < items.length; i++) {
+        if (items[i].type.startsWith("image/")) {
+          const file = items[i].getAsFile();
+          if (file) {
+            processFile(file);
+            break;
+          }
+        }
+      }
+    };
+
+    window.addEventListener("paste", handlePaste);
+    return () => window.removeEventListener("paste", handlePaste);
+  }, [loading]);
+
   return (
     <div className="space-y-3">
       <input
@@ -98,9 +152,14 @@ export function FlyerUploader({ onExtractionComplete }: FlyerUploaderProps) {
 
       <div
         onClick={() => !loading && inputRef.current?.click()}
+        onDragOver={handleDragOver}
+        onDragLeave={handleDragLeave}
+        onDrop={handleDrop}
         className={`border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
           loading
             ? "border-blue-400 bg-blue-50/50"
+            : isDragging
+            ? "border-blue-500 bg-blue-50/70 scale-[1.01]"
             : "border-slate-200 hover:border-blue-500 hover:bg-slate-50 bg-white"
         }`}
       >
@@ -110,13 +169,23 @@ export function FlyerUploader({ onExtractionComplete }: FlyerUploaderProps) {
             <p className="text-sm font-semibold text-slate-800">Flyer analyseren met AI...</p>
             <p className="text-xs text-slate-500 mt-1">Datum, locatie en ploegmaat uitzoeken</p>
           </>
+        ) : isDragging ? (
+          <>
+            <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-3">
+              <UploadCloud className="w-6 h-6 animate-bounce" />
+            </div>
+            <p className="text-sm font-bold text-blue-700">Laat afbeelding hier los!</p>
+            <p className="text-xs text-blue-500 mt-1">Screenshot of flyer wordt meteen verwerkt</p>
+          </>
         ) : (
           <>
             <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mb-3">
               <Camera className="w-6 h-6" />
             </div>
-            <p className="text-sm font-bold text-slate-900">Upload flyer of maak foto</p>
-            <p className="text-xs text-slate-500 mt-1">Ondersteunt JPG, PNG, WEBP (tot 4MB)</p>
+            <p className="text-sm font-bold text-slate-900">Upload flyer, sleep hierheen of plak screenshot</p>
+            <p className="text-xs text-slate-500 mt-1">
+              Sleep een bestand of plak rechtstreeks met Ctrl+V / Cmd+V
+            </p>
           </>
         )}
       </div>
