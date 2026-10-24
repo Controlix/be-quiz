@@ -6,6 +6,7 @@ import { TeamLineup, LineupMember } from "@/components/TeamLineup";
 import { RsvpControl } from "@/components/RsvpControl";
 import { ActionToolbar } from "@/components/ActionToolbar";
 import { joinQuizRsvpAction, declineQuizRsvpAction } from "@/actions/rsvpActions";
+import { setRegisteredAction, toggleFeePaidAction } from "@/actions/registrationActions";
 import { ArrowLeft, MapPin, Calendar, Coins } from "lucide-react";
 
 interface QuizDetailClientProps {
@@ -47,6 +48,16 @@ export function QuizDetailClient({ quiz, currentMemberId }: QuizDetailClientProp
       setAttendees((prev) => prev.filter((a) => a.id !== currentMemberId));
       await declineQuizRsvpAction(team.id, currentMemberId);
     }
+  };
+
+  const handleRegisterToggle = async () => {
+    setIsRegistered((prev) => !prev);
+    await setRegisteredAction(team.id, currentMemberId);
+  };
+
+  const handlePaymentToggle = async () => {
+    setIsPaid((prev) => !prev);
+    await toggleFeePaidAction(team.id, currentMemberId);
   };
 
   const currentUserIndex = attendees.findIndex((a) => a.id === currentMemberId);
@@ -114,15 +125,18 @@ export function QuizDetailClient({ quiz, currentMemberId }: QuizDetailClientProp
 
       {/* Actions (Email, Payment, WhatsApp) */}
       <ActionToolbar
+        quizId={quiz.id}
         quizTitle={quiz.title}
         quizDate={new Date(quiz.startsAt)}
+        location={quiz.location}
+        durationMinutes={quiz.durationMinutes || 180}
         organizerEmail={quiz.organizerEmail || undefined}
         isRegistered={isRegistered}
         isPaid={isPaid}
         paidByName={team?.paidBy?.name}
         teamName={team?.name || "De Quizvrienden"}
-        onRegisterToggle={() => setIsRegistered(!isRegistered)}
-        onPaymentToggle={() => setIsPaid(!isPaid)}
+        onRegisterToggle={handleRegisterToggle}
+        onPaymentToggle={handlePaymentToggle}
       />
     </div>
   );

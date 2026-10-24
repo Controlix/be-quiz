@@ -1,9 +1,17 @@
+"use client";
+
 import { useState } from "react";
 import { Mail, Share2, Calendar, DollarSign, Check, Copy } from "lucide-react";
+import { generateRegistrationMailto } from "@/lib/mailto";
+import { generateGoogleCalendarUrl } from "@/lib/ical";
+import { generateWhatsAppShareUrl } from "@/lib/whatsapp";
 
 interface ActionToolbarProps {
+  quizId?: string;
   quizTitle: string;
   quizDate: Date;
+  location?: string;
+  durationMinutes?: number;
   organizerEmail?: string;
   isRegistered: boolean;
   isPaid: boolean;
@@ -14,8 +22,11 @@ interface ActionToolbarProps {
 }
 
 export function ActionToolbar({
+  quizId,
   quizTitle,
   quizDate,
+  location = "Vlaanderen",
+  durationMinutes = 180,
   organizerEmail,
   isRegistered,
   isPaid,
@@ -26,28 +37,29 @@ export function ActionToolbar({
 }: ActionToolbarProps) {
   const [copied, setCopied] = useState(false);
 
-  const formattedDate = new Intl.DateTimeFormat("nl-BE", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(quizDate));
-
-  // Decision D2: Team name only, NO player names or player counts
-  const mailSubject = encodeURIComponent(`Inschrijving quiz: ${quizTitle} - ${teamName}`);
-  const mailBody = encodeURIComponent(
-    `Beste organisatie,\n\nGraag schrijven wij onze ploeg in voor ${quizTitle} op ${formattedDate}:\n\nPloegnaam: ${teamName}\nContactpersoon: Marc\n\nMet vriendelijke groeten,\nMarc`
+  const mailtoUrl = generateRegistrationMailto(
+    { title: quizTitle, startsAt: quizDate, organizerEmail: organizerEmail || null },
+    { name: teamName },
+    "Marc"
   );
-  const mailtoUrl = `mailto:${organizerEmail || ""}?subject=${mailSubject}&body=${mailBody}`;
 
-  const shareText = encodeURIComponent(
-    `🏆 Kwis: *${quizTitle}* op ${formattedDate}!\nPloeg: ${teamName}\nBekijk de details en stem af via de app!`
+  const googleCalUrl = generateGoogleCalendarUrl(
+    { title: quizTitle, startsAt: quizDate, durationMinutes, location },
+    { name: teamName, paidAt: isPaid ? new Date() : null }
   );
-  const whatsappUrl = `https://wa.me/?text=${shareText}`;
+
+  const appUrl = typeof window !== "undefined" ? window.location.origin : "http://localhost:3000";
+  const whatsappUrl = generateWhatsAppShareUrl(
+    { id: quizId, title: quizTitle, startsAt: quizDate, location },
+    { name: teamName },
+    appUrl
+  );
 
   const handleCopy = () => {
-    navigator.clipboard.writeText(decodeURIComponent(mailBody));
+    // Extract body from mailtoUrl
+    const match = mailtoUrl.match(/body=([^&]*)/);
+    const body = match ? decodeURIComponent(match[1]) : "";
+    navigator.clipboard.writeText(body);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -89,6 +101,7 @@ export function ActionToolbar({
           </a>
 
           <button
+            type="button"
             onClick={handleCopy}
             className="w-full flex items-center justify-center gap-1.5 py-2 px-3 text-xs text-slate-600 hover:text-slate-900 bg-slate-50 rounded-lg border border-slate-200 transition-colors"
           >
@@ -98,23 +111,24 @@ export function ActionToolbar({
         </div>
       </div>
 
-      {/* Payment and Sharing Grid */}
-      <div className="grid grid-cols-2 gap-3">
+      {/* Grid: Payment, WhatsApp, and Calendar */}
+      <div className="grid grid-cols-3 gap-2">
         {/* Payment toggle */}
         <button
+          type="button"
           onClick={onPaymentToggle}
-          className={`flex flex-col items-center justify-center p-3.5 rounded-2xl border text-center transition-all ${
+          className={`flex flex-col items-center justify-center p-3 rounded-2xl border text-center transition-all ${
             isPaid
               ? "bg-emerald-50 border-emerald-200 text-emerald-900"
               : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
           }`}
         >
-          <DollarSign className={`w-5 h-5 mb-1 ${isPaid ? "text-emerald-600" : "text-slate-400"}`} />
-          <span className="text-xs font-bold leading-tight">
-            {isPaid ? "Betaald ✓" : "Inschrijvingsgeld"}
+          <DollarSign className={`w-4 h-4 mb-1 ${isPaid ? "text-emerald-600" : "text-slate-400"}`} />
+          <span className="text-[11px] font-bold leading-tight">
+            {isPaid ? "Betaald ✓" : "Inschrijfgeld"}
           </span>
-          <span className="text-[10px] text-slate-500 mt-0.5">
-            {isPaid ? (paidByName ? `Door ${paidByName}` : "Betaald") : "Tik om te markeren"}
+          <span className="text-[9px] text-slate-500 mt-0.5 truncate max-w-full">
+            {isPaid ? (paidByName ? `Door ${paidByName}` : "Betaald") : "Niet betaald"}
           </span>
         </button>
 
@@ -123,13 +137,36 @@ export function ActionToolbar({
           href={whatsappUrl}
           target="_blank"
           rel="noopener noreferrer"
-          className="flex flex-col items-center justify-center p-3.5 rounded-2xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-center transition-all"
+          className="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-center transition-all"
         >
-          <Share2 className="w-5 h-5 mb-1 text-[#25D366]" />
-          <span className="text-xs font-bold leading-tight">Deel WhatsApp</span>
-          <span className="text-[10px] text-slate-500 mt-0.5">Stuur naar groep</span>
+          <Share2 className="w-4 h-4 mb-1 text-[#25D366]" />
+          <span className="text-[11px] font-bold leading-tight">WhatsApp</span>
+          <span className="text-[9px] text-slate-500 mt-0.5">Deel in groep</span>
+        </a>
+
+        {/* Google Calendar */}
+        <a
+          href={googleCalUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="flex flex-col items-center justify-center p-3 rounded-2xl border border-slate-200 bg-white text-slate-700 hover:bg-slate-50 text-center transition-all"
+        >
+          <Calendar className="w-4 h-4 mb-1 text-blue-600" />
+          <span className="text-[11px] font-bold leading-tight">In Agenda</span>
+          <span className="text-[9px] text-slate-500 mt-0.5">Google Agenda</span>
         </a>
       </div>
+
+      {quizId && (
+        <div className="text-center">
+          <a
+            href={`/api/quizzes/${quizId}/calendar.ics`}
+            className="text-[11px] text-blue-600 hover:underline"
+          >
+            Download .ics bestand (Apple / Outlook)
+          </a>
+        </div>
+      )}
     </div>
   );
 }
