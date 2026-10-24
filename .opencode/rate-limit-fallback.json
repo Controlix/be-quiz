@@ -1,0 +1,31 @@
+{
+  "enabled": true,
+  "fallbackMode": "cycle",
+  "cooldownMs": 60000,
+  "otherModels": "wait",
+  "fallbackModels": [
+    { "providerID": "google", "modelID": "gemini-3.8-flash" },
+    { "providerID": "google", "modelID": "gemini-4-argon" },
+    { "providerID": "google", "modelID": "gemini-flash-lite-latest" }
+  ],
+  "retryPolicy": {
+    "maxRetries": 5,
+    "strategy": "exponential",
+    "baseDelayMs": 3000,
+    "maxDelayMs": 60000,
+    "jitterEnabled": true
+  },
+  "errorPatterns": {
+    "customPatterns": [
+      "Quota exceeded",
+      "RESOURCE_EXHAUSTED",
+      "input tokens per minute limit exceeded",
+      "Please retry in",
+      "rate-limits"
+    ]
+  },
+  "configReload": {
+    "enabled": true,
+    "watchFile": true
+  }
+}
