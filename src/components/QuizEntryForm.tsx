@@ -68,6 +68,14 @@ export function QuizEntryForm({ currentMemberId }: QuizEntryFormProps) {
       return;
     }
 
+    if (organizerEmail.trim()) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(organizerEmail.trim())) {
+        setErrorBanner("Ongeldig e-mailadres voor organisatie.");
+        return;
+      }
+    }
+
     setLoading(true);
     try {
       const startsAt = new Date(`${date}T${time}:00`);
@@ -141,6 +149,7 @@ export function QuizEntryForm({ currentMemberId }: QuizEntryFormProps) {
           <label className="block text-xs font-bold text-slate-700 mb-1">Kwis Titel *</label>
           <input
             type="text"
+            maxLength={100}
             value={title}
             onChange={(e) => {
               setTitle(e.target.value);
@@ -191,6 +200,7 @@ export function QuizEntryForm({ currentMemberId }: QuizEntryFormProps) {
             <label className="block text-xs font-bold text-slate-700 mb-1">Locatie / Zaal *</label>
             <input
               type="text"
+              maxLength={120}
               value={location}
               onChange={(e) => {
                 setLocation(e.target.value);

@@ -15,6 +15,44 @@ export interface CreateQuizInput {
   flyerImageUrl?: string;
 }
 
+export interface QuizValidationResult {
+  isValid: boolean;
+  errors: Record<string, string>;
+}
+
+export function validateQuizFields(data: {
+  title?: string;
+  location?: string;
+  organizerEmail?: string | null;
+  entryFee?: string | null;
+}): QuizValidationResult {
+  const errors: Record<string, string> = {};
+
+  if (data.title && data.title.trim().length > 100) {
+    errors.title = "Titel mag maximaal 100 tekens bevatten";
+  }
+
+  if (data.location && data.location.trim().length > 120) {
+    errors.location = "Locatie mag maximaal 120 tekens bevatten";
+  }
+
+  if (data.entryFee && data.entryFee.trim().length > 40) {
+    errors.entryFee = "Inschrijfgeld mag maximaal 40 tekens bevatten";
+  }
+
+  if (data.organizerEmail && data.organizerEmail.trim().length > 0) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(data.organizerEmail.trim())) {
+      errors.organizerEmail = "Ongeldig e-mailadres voor organisatie";
+    }
+  }
+
+  return {
+    isValid: Object.keys(errors).length === 0,
+    errors,
+  };
+}
+
 export async function createQuiz(
   data: CreateQuizInput,
   creatorId: string
