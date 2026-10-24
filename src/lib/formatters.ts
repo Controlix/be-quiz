@@ -1,42 +1,35 @@
+import { format, parse, isValid } from "date-fns";
+import { nlBE } from "date-fns/locale";
+
 export function formatEuropeanDate(date: Date | string): string {
-  const d = new Date(date);
-  const day = String(d.getUTCDate()).padStart(2, "0");
-  const month = String(d.getUTCMonth() + 1).padStart(2, "0");
-  const year = d.getUTCFullYear();
-  return `${day}/${month}/${year}`;
+  const d = typeof date === "string" ? new Date(date) : date;
+  if (!isValid(d)) return "";
+  return format(d, "dd/MM/yyyy");
 }
 
 export function formatEuropeanTime(date: Date | string): string {
-  const d = new Date(date);
-  const hours = String(d.getUTCHours()).padStart(2, "0");
-  const minutes = String(d.getUTCMinutes()).padStart(2, "0");
-  return `${hours}:${minutes}`;
+  const d = typeof date === "string" ? new Date(date) : date;
+  if (!isValid(d)) return "";
+  return format(d, "HH:mm");
 }
 
 export function formatEuropeanDateTime(
   date: Date | string,
   includeWeekday = true
 ): string {
-  const d = new Date(date);
-  const datePart = formatEuropeanDate(d);
-  const timePart = formatEuropeanTime(d);
-
+  const d = typeof date === "string" ? new Date(date) : date;
+  if (!isValid(d)) return "";
   if (includeWeekday) {
-    const weekday = new Intl.DateTimeFormat("nl-BE", {
-      weekday: "short",
-      timeZone: "UTC",
-    }).format(d);
-    return `${weekday} ${datePart} om ${timePart}`;
+    return format(d, "EEE dd/MM/yyyy 'om' HH:mm", { locale: nlBE });
   }
-
-  return `${datePart} ${timePart}`;
+  return format(d, "dd/MM/yyyy HH:mm");
 }
 
 export function formatEuropeanDateString(val: string): string {
   if (!val) return "";
   if (/^\d{4}-\d{2}-\d{2}$/.test(val)) {
-    const [y, m, d] = val.split("-");
-    return `${d}/${m}/${y}`;
+    const parsedIso = parse(val, "yyyy-MM-dd", new Date());
+    if (isValid(parsedIso)) return format(parsedIso, "dd/MM/yyyy");
   }
   const digits = val.replace(/\D/g, "").slice(0, 8);
   if (digits.length <= 2) return digits;
@@ -52,11 +45,17 @@ export function formatEuropeanTimeString(val: string): string {
 }
 
 export function parseEuropeanDateTime(dateStr: string, timeStr: string): Date | null {
-  const [d, m, y] = dateStr.split("/").map(Number);
-  const [hh, mm] = timeStr.split(":").map(Number);
-  if (!d || !m || !y || isNaN(hh) || isNaN(mm)) {
-    return null;
-  }
-  const date = new Date(y, m - 1, d, hh, mm);
-  return isNaN(date.getTime()) ? null : date;
+  const cleanDate = dateStr.trim();
+  const cleanTime = timeStr.trim();
+  const combined = `${cleanDate} ${cleanTime}`;
+
+  // Try parsing dd/MM/yyyy HH:mm
+  const parsed = parse(combined, "dd/MM/yyyy HH:mm", new Date());
+  if (isValid(parsed)) return parsed;
+
+  // Fallback if ISO format was passed
+  const parsedIso = parse(combined, "yyyy-MM-dd HH:mm", new Date());
+  if (isValid(parsedIso)) return parsedIso;
+
+  return null;
 }

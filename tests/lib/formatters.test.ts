@@ -9,7 +9,7 @@ import {
 } from "../../src/lib/formatters";
 
 describe("European Date & Time Formatters", () => {
-  const testDate = new Date("2026-11-14T20:05:00Z");
+  const testDate = new Date(2026, 10, 14, 20, 5); // 14 Nov 2026, 20:05 local time
 
   it("formats date strictly as DD/MM/YYYY", () => {
     expect(formatEuropeanDate(testDate)).toBe("14/11/2026");
