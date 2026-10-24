@@ -1,11 +1,18 @@
 import Link from "next/link";
-import { ArrowLeft, Settings, Shield } from "lucide-react";
+import { redirect } from "next/navigation";
+import { ArrowLeft, Settings } from "lucide-react";
 import { prisma } from "@/lib/db";
+import { getSessionMember } from "@/lib/auth";
 import { TeamSettingsClient } from "@/components/TeamSettingsClient";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminSettingsPage() {
+  const currentMember = await getSessionMember();
+  if (currentMember && currentMember.role !== "ADMIN") {
+    redirect("/quizzes");
+  }
+
   const setting = await prisma.teamSetting.findUnique({
     where: { id: "singleton" },
   });

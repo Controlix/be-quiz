@@ -1,11 +1,18 @@
 import Link from "next/link";
-import { ArrowLeft, UserPlus, Users, Copy, Check } from "lucide-react";
+import { redirect } from "next/navigation";
+import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/db";
+import { getSessionMember } from "@/lib/auth";
 import { MemberRosterClient } from "@/components/MemberRosterClient";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminMembersPage() {
+  const currentMember = await getSessionMember();
+  if (currentMember && currentMember.role !== "ADMIN") {
+    redirect("/quizzes");
+  }
+
   const members = await prisma.member.findMany({
     include: {
       invite: true,

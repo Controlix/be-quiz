@@ -16,7 +16,8 @@ export async function GET(req: NextRequest) {
     include: { member: true },
   });
 
-  if (!invite) {
+  // Enforce valid, unused, unexpired invite
+  if (!invite || invite.usedAt !== null || (invite.expiresAt && invite.expiresAt < new Date())) {
     return NextResponse.redirect(new URL("/auth/login?error=invalid_token", req.url));
   }
 

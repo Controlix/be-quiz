@@ -1,15 +1,20 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/db";
+import { getSessionMember } from "@/lib/auth";
 import { QuizEntryForm } from "@/components/QuizEntryForm";
 
 export const dynamic = "force-dynamic";
 
 export default async function NewQuizPage() {
-  const adminMember = await prisma.member.findFirst({
+  const sessionMember = await getSessionMember();
+  const currentMember = sessionMember || (await prisma.member.findFirst({
     where: { role: "ADMIN" },
-  });
-  const currentMemberId = adminMember?.id || "admin-seed-id";
+  })) || {
+    id: "admin-seed-id",
+    name: "Marc",
+    role: "ADMIN",
+  };
 
   return (
     <div className="flex-1 flex flex-col p-4 pb-20">
@@ -24,7 +29,7 @@ export default async function NewQuizPage() {
         <span className="text-xs text-slate-400 font-medium">Nieuwe Quiz</span>
       </div>
 
-      <QuizEntryForm currentMemberId={currentMemberId} />
+      <QuizEntryForm currentMemberId={currentMember.id} />
     </div>
   );
 }

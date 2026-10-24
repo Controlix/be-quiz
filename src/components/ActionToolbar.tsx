@@ -17,6 +17,7 @@ interface ActionToolbarProps {
   isPaid: boolean;
   paidByName?: string;
   teamName: string;
+  contactName?: string;
   onRegisterToggle: () => void;
   onPaymentToggle: () => void;
 }
@@ -32,6 +33,7 @@ export function ActionToolbar({
   isPaid,
   paidByName,
   teamName,
+  contactName = "Marc",
   onRegisterToggle,
   onPaymentToggle,
 }: ActionToolbarProps) {
@@ -40,7 +42,7 @@ export function ActionToolbar({
   const mailtoUrl = generateRegistrationMailto(
     { title: quizTitle, startsAt: quizDate, organizerEmail: organizerEmail || null },
     { name: teamName },
-    "Marc"
+    contactName
   );
 
   const googleCalUrl = generateGoogleCalendarUrl(

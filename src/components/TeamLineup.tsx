@@ -26,9 +26,16 @@ export function partitionLineup(
 interface TeamLineupProps {
   attendees: LineupMember[];
   maxTeamSize: number;
+  isAdmin?: boolean;
+  onAdminOverrideDecline?: (memberId: string) => void;
 }
 
-export function TeamLineup({ attendees, maxTeamSize }: TeamLineupProps) {
+export function TeamLineup({
+  attendees,
+  maxTeamSize,
+  isAdmin = false,
+  onAdminOverrideDecline,
+}: TeamLineupProps) {
   const { active, reserves } = partitionLineup(attendees, maxTeamSize);
   const isComplete = active.length >= maxTeamSize;
 
@@ -62,7 +69,18 @@ export function TeamLineup({ attendees, maxTeamSize }: TeamLineupProps) {
               </span>
               <span className="font-medium text-slate-800">{member.name}</span>
             </div>
-            <span className="text-xs text-slate-400">Speler</span>
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-slate-400">Speler</span>
+              {isAdmin && onAdminOverrideDecline && (
+                <button
+                  type="button"
+                  onClick={() => onAdminOverrideDecline(member.id)}
+                  className="text-[10px] text-red-600 hover:text-red-700 font-semibold px-1.5 py-0.5 rounded bg-red-50 hover:bg-red-100"
+                >
+                  Afzeggen
+                </button>
+              )}
+            </div>
           </li>
         ))}
         {Array.from({ length: Math.max(0, maxTeamSize - active.length) }).map((_, idx) => (
@@ -89,7 +107,18 @@ export function TeamLineup({ attendees, maxTeamSize }: TeamLineupProps) {
                 className="flex items-center justify-between text-xs py-1 px-2 rounded-lg bg-amber-50 text-amber-900 border border-amber-200"
               >
                 <span className="font-medium">{member.name}</span>
-                <span className="font-semibold text-amber-700">{formatReserveBadge(idx)}</span>
+                <div className="flex items-center gap-2">
+                  <span className="font-semibold text-amber-700">{formatReserveBadge(idx)}</span>
+                  {isAdmin && onAdminOverrideDecline && (
+                    <button
+                      type="button"
+                      onClick={() => onAdminOverrideDecline(member.id)}
+                      className="text-[10px] text-red-600 hover:text-red-700 font-semibold px-1 py-0.5 rounded bg-red-100"
+                    >
+                      Verwijder
+                    </button>
+                  )}
+                </div>
               </li>
             ))}
           </ul>

@@ -70,7 +70,7 @@ export function QuizEntryForm({ currentMemberId }: QuizEntryFormProps) {
 
     setLoading(true);
     try {
-      const startsAt = new Date(`${date}T${time}:00Z`);
+      const startsAt = new Date(`${date}T${time}:00`);
 
       const res = await createQuizAction(
         {

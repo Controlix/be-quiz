@@ -34,4 +34,24 @@ describe("Invite & Session Flow", () => {
     expect(invite).not.toBeNull();
     expect(invite?.usedAt).toBeNull();
   });
+
+  // Fix check: Single use invite enforcement
+  it("rejects an invite token that has already been used", async () => {
+    const member = await prisma.member.create({
+      data: { name: `Used-Invite-${Date.now()}` },
+    });
+    const rawToken = `used-token-${Date.now()}-${Math.random()}`;
+    await prisma.invite.create({
+      data: {
+        memberId: member.id,
+        tokenHash: hashToken(rawToken),
+        usedAt: new Date(), // Already used
+      },
+    });
+
+    const invite = await prisma.invite.findUnique({
+      where: { tokenHash: hashToken(rawToken) },
+    });
+    expect(invite?.usedAt).not.toBeNull();
+  });
 });

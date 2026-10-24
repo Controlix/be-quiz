@@ -6,15 +6,23 @@ import { TeamLineup, LineupMember } from "@/components/TeamLineup";
 import { RsvpControl } from "@/components/RsvpControl";
 import { ActionToolbar } from "@/components/ActionToolbar";
 import { joinQuizRsvpAction, declineQuizRsvpAction } from "@/actions/rsvpActions";
+import { adminOverrideDeclineAction } from "@/actions/adminActions";
 import { setRegisteredAction, toggleFeePaidAction } from "@/actions/registrationActions";
-import { ArrowLeft, MapPin, Calendar, Coins } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, Coins, Settings } from "lucide-react";
 
 interface QuizDetailClientProps {
   quiz: any;
   currentMemberId: string;
+  currentMemberName?: string;
+  isAdmin?: boolean;
 }
 
-export function QuizDetailClient({ quiz, currentMemberId }: QuizDetailClientProps) {
+export function QuizDetailClient({
+  quiz,
+  currentMemberId,
+  currentMemberName = "Lid",
+  isAdmin = false,
+}: QuizDetailClientProps) {
   const team = quiz.team;
   const initialAttendees: LineupMember[] = (team?.rsvps || [])
     .filter((r: any) => r.status === "ATTENDING")
@@ -40,13 +48,20 @@ export function QuizDetailClient({ quiz, currentMemberId }: QuizDetailClientProp
       if (!attendees.some((a) => a.id === currentMemberId)) {
         setAttendees((prev) => [
           ...prev,
-          { id: currentMemberId, name: "Marc (jij)", queuedSince: new Date() },
+          { id: currentMemberId, name: `${currentMemberName} (jij)`, queuedSince: new Date() },
         ]);
       }
       await joinQuizRsvpAction(team.id, currentMemberId);
     } else {
       setAttendees((prev) => prev.filter((a) => a.id !== currentMemberId));
       await declineQuizRsvpAction(team.id, currentMemberId);
+    }
+  };
+
+  const handleAdminOverrideDecline = async (memberId: string) => {
+    if (window.confirm("Ben je zeker dat je deze speler namens hen wilt afzeggen?")) {
+      setAttendees((prev) => prev.filter((a) => a.id !== memberId));
+      await adminOverrideDeclineAction(team.id, memberId, currentMemberId);
     }
   };
 
@@ -83,7 +98,18 @@ export function QuizDetailClient({ quiz, currentMemberId }: QuizDetailClientProp
           <ArrowLeft className="w-4 h-4" />
           <span>Overzicht</span>
         </Link>
-        <span className="text-xs text-slate-400 font-medium">Quiz Details</span>
+        <div className="flex items-center gap-2">
+          {isAdmin && (
+            <Link
+              href={`/quizzes/${quiz.id}/edit`}
+              className="inline-flex items-center gap-1 text-xs text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded-lg font-medium"
+            >
+              <Settings className="w-3.5 h-3.5" />
+              <span>Admin</span>
+            </Link>
+          )}
+          <span className="text-xs text-slate-400 font-medium">Quiz Details</span>
+        </div>
       </div>
 
       {/* Flyer Banner Placeholder */}
@@ -121,7 +147,12 @@ export function QuizDetailClient({ quiz, currentMemberId }: QuizDetailClientProp
       />
 
       {/* Lineup & Reserve List */}
-      <TeamLineup attendees={attendees} maxTeamSize={team?.maxTeamSize || 4} />
+      <TeamLineup
+        attendees={attendees}
+        maxTeamSize={team?.maxTeamSize || 4}
+        isAdmin={isAdmin}
+        onAdminOverrideDecline={handleAdminOverrideDecline}
+      />
 
       {/* Actions (Email, Payment, WhatsApp) */}
       <ActionToolbar
@@ -135,6 +166,7 @@ export function QuizDetailClient({ quiz, currentMemberId }: QuizDetailClientProp
         isPaid={isPaid}
         paidByName={team?.paidBy?.name}
         teamName={team?.name || "De Quizvrienden"}
+        contactName={currentMemberName}
         onRegisterToggle={handleRegisterToggle}
         onPaymentToggle={handlePaymentToggle}
       />
