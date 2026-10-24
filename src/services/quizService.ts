@@ -1,6 +1,18 @@
 import { prisma } from "@/lib/db";
 import { Quiz, Team } from "@prisma/client";
 
+export function formatStructuredEntryFee(
+  amount?: number | string,
+  unit: "TEAM" | "PERSON" = "TEAM"
+): string | undefined {
+  if (amount === undefined || amount === null) return undefined;
+  const cleanAmount = String(amount).replace(/[^0-9.,]/g, "").trim();
+  if (!cleanAmount) return undefined;
+
+  const unitLabel = unit === "PERSON" ? "persoon" : "ploeg";
+  return `€${cleanAmount} / ${unitLabel}`;
+}
+
 export interface CreateQuizInput {
   title: string;
   startsAt: Date;

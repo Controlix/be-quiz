@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { FlyerUploader } from "@/components/FlyerUploader";
 import { Stepper } from "@/components/ui/Stepper";
 import { createQuizAction } from "@/actions/quizActions";
+import { formatStructuredEntryFee } from "@/services/quizService";
 import { VisionExtractionResult } from "@/services/visionService";
 import { Calendar, MapPin, Users, Coins, Mail, Link as LinkIcon, AlertCircle } from "lucide-react";
 
@@ -26,7 +27,8 @@ export function QuizEntryForm({ currentMemberId }: QuizEntryFormProps) {
   const [maxTeamSize, setMaxTeamSize] = useState("4");
   const [organizerEmail, setOrganizerEmail] = useState("");
   const [registrationUrl, setRegistrationUrl] = useState("");
-  const [entryFee, setEntryFee] = useState("");
+  const [entryFeeAmount, setEntryFeeAmount] = useState("");
+  const [entryFeeUnit, setEntryFeeUnit] = useState<"TEAM" | "PERSON">("TEAM");
   const [notes, setNotes] = useState("");
   const [flyerImageUrl, setFlyerImageUrl] = useState<string | undefined>();
   const [missingFields, setMissingFields] = useState<string[]>([]);
@@ -47,7 +49,12 @@ export function QuizEntryForm({ currentMemberId }: QuizEntryFormProps) {
     if (result.data.maxTeamSize) setMaxTeamSize(String(result.data.maxTeamSize));
     if (result.data.organizerEmail) setOrganizerEmail(result.data.organizerEmail);
     if (result.data.registrationUrl) setRegistrationUrl(result.data.registrationUrl);
-    if (result.data.entryFee) setEntryFee(result.data.entryFee);
+    if (result.data.entryFee) {
+      const isPerson = /persoon|pp|p\.p\./i.test(result.data.entryFee);
+      const match = result.data.entryFee.match(/[0-9]+([.,][0-9]+)?/);
+      setEntryFeeAmount(match ? match[0] : "");
+      setEntryFeeUnit(isPerson ? "PERSON" : "TEAM");
+    }
 
     setMissingFields(result.missingFields || []);
   };
@@ -80,6 +87,7 @@ export function QuizEntryForm({ currentMemberId }: QuizEntryFormProps) {
     setLoading(true);
     try {
       const startsAt = new Date(`${date}T${time}:00`);
+      const formattedEntryFee = formatStructuredEntryFee(entryFeeAmount, entryFeeUnit);
 
       const res = await createQuizAction(
         {
@@ -89,7 +97,7 @@ export function QuizEntryForm({ currentMemberId }: QuizEntryFormProps) {
           maxTeamSize: Number(maxTeamSize),
           organizerEmail: organizerEmail || undefined,
           registrationUrl: registrationUrl || undefined,
-          entryFee: entryFee || undefined,
+          entryFee: formattedEntryFee,
           notes: notes || undefined,
           flyerImageUrl,
         },
@@ -228,7 +236,7 @@ export function QuizEntryForm({ currentMemberId }: QuizEntryFormProps) {
         </div>
 
         {/* Contact Email & Fee */}
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-xs font-medium text-slate-600 mb-1">Inschrijf Email</label>
             <input
@@ -236,18 +244,45 @@ export function QuizEntryForm({ currentMemberId }: QuizEntryFormProps) {
               value={organizerEmail}
               onChange={(e) => setOrganizerEmail(e.target.value)}
               placeholder="organisatie@quiz.be"
-              className="w-full text-xs p-2 rounded-xl border border-slate-200"
+              className="w-full text-xs p-2.5 rounded-xl border border-slate-200"
             />
           </div>
           <div>
             <label className="block text-xs font-medium text-slate-600 mb-1">Inschrijvingsgeld</label>
-            <input
-              type="text"
-              value={entryFee}
-              onChange={(e) => setEntryFee(e.target.value)}
-              placeholder="bv. €20 / ploeg"
-              className="w-full text-xs p-2 rounded-xl border border-slate-200"
-            />
+            <div className="flex items-center gap-1.5">
+              <div className="relative flex-1">
+                <span className="absolute left-2.5 top-1/2 -translate-y-1/2 text-xs font-bold text-slate-400">€</span>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  maxLength={10}
+                  value={entryFeeAmount}
+                  onChange={(e) => setEntryFeeAmount(e.target.value)}
+                  placeholder="20"
+                  className="w-full text-xs pl-6 pr-2.5 py-2.5 rounded-xl border border-slate-200 font-medium"
+                />
+              </div>
+              <div className="flex bg-slate-100 p-0.5 rounded-xl text-xs font-semibold shrink-0">
+                <button
+                  type="button"
+                  onClick={() => setEntryFeeUnit("TEAM")}
+                  className={`py-1.5 px-2.5 rounded-lg transition-all text-[11px] ${
+                    entryFeeUnit === "TEAM" ? "bg-white text-blue-600 shadow-xs" : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  / ploeg
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setEntryFeeUnit("PERSON")}
+                  className={`py-1.5 px-2.5 rounded-lg transition-all text-[11px] ${
+                    entryFeeUnit === "PERSON" ? "bg-white text-blue-600 shadow-xs" : "text-slate-500 hover:text-slate-800"
+                  }`}
+                >
+                  / persoon
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
