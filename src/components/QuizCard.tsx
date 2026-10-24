@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { MockQuiz } from "@/lib/mockData";
+import { formatEuropeanDateTime } from "@/lib/formatters";
 import { Calendar, MapPin, Users, CheckCircle, Clock, AlertTriangle } from "lucide-react";
 
 interface QuizCardProps {
@@ -12,13 +13,7 @@ export function QuizCard({ quiz }: QuizCardProps) {
   const isRegistered = quiz.team.registeredAt !== null;
   const isCancelled = quiz.status === "CANCELLED";
 
-  const dateStr = new Intl.DateTimeFormat("nl-BE", {
-    weekday: "short",
-    day: "numeric",
-    month: "short",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(quiz.startsAt));
+  const dateStr = formatEuropeanDateTime(quiz.startsAt);
 
   return (
     <Link href={`/quizzes/${quiz.id}`} className="block">

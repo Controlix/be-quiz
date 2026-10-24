@@ -1,15 +1,11 @@
+import { formatEuropeanDateTime } from "@/lib/formatters";
+
 export function generateRegistrationMailto(
   quiz: { title: string; startsAt: Date; organizerEmail: string | null },
   team: { name: string },
   contactName: string
 ): string {
-  const formattedDate = new Intl.DateTimeFormat("nl-BE", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(quiz.startsAt));
+  const formattedDate = formatEuropeanDateTime(quiz.startsAt);
 
   // Decision D2: Team name only, NO player names and NO player counts
   const subject = encodeURIComponent(`Inschrijving quiz: ${quiz.title} - ${team.name}`);

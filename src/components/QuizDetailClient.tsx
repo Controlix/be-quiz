@@ -8,6 +8,7 @@ import { ActionToolbar } from "@/components/ActionToolbar";
 import { joinQuizRsvpAction, declineQuizRsvpAction } from "@/actions/rsvpActions";
 import { adminOverrideDeclineAction } from "@/actions/adminActions";
 import { setRegisteredAction, toggleFeePaidAction } from "@/actions/registrationActions";
+import { formatEuropeanDateTime } from "@/lib/formatters";
 import { ArrowLeft, MapPin, Calendar, Coins, Settings } from "lucide-react";
 
 interface QuizDetailClientProps {
@@ -79,13 +80,7 @@ export function QuizDetailClient({
   const isReserve = currentUserIndex >= (team?.maxTeamSize || 4);
   const reservePosition = isReserve ? currentUserIndex - (team?.maxTeamSize || 4) + 1 : null;
 
-  const dateStr = new Intl.DateTimeFormat("nl-BE", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    hour: "2-digit",
-    minute: "2-digit",
-  }).format(new Date(quiz.startsAt));
+  const dateStr = formatEuropeanDateTime(quiz.startsAt);
 
   return (
     <div className="flex-1 flex flex-col p-4 pb-20">
