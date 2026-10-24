@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Mail, Share2, Calendar, DollarSign, Check, Copy } from "lucide-react";
-import { generateRegistrationMailto } from "@/lib/mailto";
+import { generateRegistrationMailto, getRegistrationEmailPlainText } from "@/lib/mailto";
 import { generateGoogleCalendarUrl } from "@/lib/ical";
 import { generateWhatsAppShareUrl } from "@/lib/whatsapp";
 
@@ -58,9 +58,11 @@ export function ActionToolbar({
   );
 
   const handleCopy = () => {
-    // Extract body from mailtoUrl
-    const match = mailtoUrl.match(/body=([^&]*)/);
-    const body = match ? decodeURIComponent(match[1]) : "";
+    const body = getRegistrationEmailPlainText(
+      { title: quizTitle, startsAt: quizDate },
+      { name: teamName },
+      contactName
+    );
     navigator.clipboard.writeText(body);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
