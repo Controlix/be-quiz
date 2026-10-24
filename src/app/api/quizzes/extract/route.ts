@@ -11,14 +11,6 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Geen bestand ontvangen" }, { status: 400 });
     }
 
-    const allowedMimes = ["image/jpeg", "image/png", "image/webp"];
-    if (!allowedMimes.includes(file.type)) {
-      return NextResponse.json(
-        { error: "Ongeldig bestandsformaat. Enkel JPG, PNG of WEBP toegestaan." },
-        { status: 400 }
-      );
-    }
-
     if (file.size > 4 * 1024 * 1024) {
       return NextResponse.json(
         { error: "Afbeelding is te groot (maximum 4MB toegestaan)." },
@@ -27,14 +19,34 @@ export async function POST(req: NextRequest) {
     }
 
     const buffer = Buffer.from(await file.arrayBuffer());
-    const flyerImageUrl = await saveUploadedFlyer(buffer, file.type);
-    const extraction = await extractQuizDetailsFromImage(buffer, file.type);
+    const allowedMimes = ["image/jpeg", "image/png", "image/webp"];
+    
+    // Normalize mime type from header or magic bytes
+    let mimeType = file.type;
+    if (!allowedMimes.includes(mimeType)) {
+      if (buffer.length >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
+        mimeType = "image/jpeg";
+      } else if (buffer.length >= 4 && buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47) {
+        mimeType = "image/png";
+      } else if (buffer.length >= 12 && buffer.toString("ascii", 0, 4) === "RIFF" && buffer.toString("ascii", 8, 12) === "WEBP") {
+        mimeType = "image/webp";
+      } else {
+        return NextResponse.json(
+          { error: "Ongeldig bestandsformaat. Enkel JPG, PNG of WEBP toegestaan." },
+          { status: 400 }
+        );
+      }
+    }
+
+    const flyerImageUrl = await saveUploadedFlyer(buffer, mimeType);
+    const extraction = await extractQuizDetailsFromImage(buffer, mimeType);
 
     return NextResponse.json({
       flyerImageUrl,
       ...extraction,
     });
   } catch (err: any) {
+    console.error("Flyer extraction error:", err);
     return NextResponse.json(
       { error: "Serverfout bij het verwerken van de afbeelding." },
       { status: 500 }

@@ -61,9 +61,16 @@ export function FlyerUploader({ onExtractionComplete }: FlyerUploaderProps) {
     setLoading(true);
 
     try {
-      const resizedBlob = await resizeImageCanvas(file);
+      let uploadPayload: Blob | File = file;
+      try {
+        uploadPayload = await resizeImageCanvas(file);
+      } catch (resizeErr) {
+        console.warn("Client-side canvas resize skipped, using original file:", resizeErr);
+        uploadPayload = file;
+      }
+
       const formData = new FormData();
-      formData.append("file", resizedBlob, "flyer.jpg");
+      formData.append("file", uploadPayload, file.name || "flyer.jpg");
 
       const response = await fetch("/api/quizzes/extract", {
         method: "POST",
@@ -88,6 +95,8 @@ export function FlyerUploader({ onExtractionComplete }: FlyerUploaderProps) {
     if (file) {
       await processFile(file);
     }
+    // Reset input value so re-uploading the same file triggers onChange
+    e.target.value = "";
   };
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -111,7 +120,8 @@ export function FlyerUploader({ onExtractionComplete }: FlyerUploaderProps) {
     if (loading) return;
 
     const file = e.dataTransfer.files?.[0];
-    if (file && file.type.startsWith("image/")) {
+    const isImage = file && (file.type.startsWith("image/") || /\.(jpg|jpeg|png|webp)$/i.test(file.name));
+    if (isImage) {
       await processFile(file);
     } else if (file) {
       setError("Gelieve een geldige afbeelding (JPG, PNG, WEBP) te uploaden.");
@@ -145,7 +155,6 @@ export function FlyerUploader({ onExtractionComplete }: FlyerUploaderProps) {
         ref={inputRef}
         type="file"
         accept="image/jpeg,image/png,image/webp"
-        capture="environment"
         className="hidden"
         onChange={handleFileChange}
       />

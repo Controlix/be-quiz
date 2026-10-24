@@ -25,7 +25,15 @@ export function parseVisionExtractionResponse(rawInput: string): VisionExtractio
   }
 
   try {
-    const parsed = JSON.parse(rawInput);
+    let cleanInput = rawInput.trim();
+    if (cleanInput.startsWith("```json")) {
+      cleanInput = cleanInput.replace(/^```json\s*/i, "").replace(/\s*```$/, "");
+    } else if (cleanInput.startsWith("```")) {
+      cleanInput = cleanInput.replace(/^```\s*/, "").replace(/\s*```$/, "");
+    }
+    cleanInput = cleanInput.trim();
+
+    const parsed = JSON.parse(cleanInput);
     const missing: string[] = [];
 
     if (!parsed.title || typeof parsed.title !== "string" || !parsed.title.trim()) {
@@ -68,10 +76,24 @@ export function parseVisionExtractionResponse(rawInput: string): VisionExtractio
   }
 }
 
+function detectImageMimeType(buffer: Buffer, fallback: string): string {
+  if (buffer.length >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
+    return "image/jpeg";
+  }
+  if (buffer.length >= 4 && buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47) {
+    return "image/png";
+  }
+  if (buffer.length >= 12 && buffer.toString("ascii", 0, 4) === "RIFF" && buffer.toString("ascii", 8, 12) === "WEBP") {
+    return "image/webp";
+  }
+  return fallback || "image/jpeg";
+}
+
 export async function extractQuizDetailsFromImage(
   imageBuffer: Buffer,
   mimeType: string
 ): Promise<VisionExtractionResult> {
+  const effectiveMimeType = detectImageMimeType(imageBuffer, mimeType);
   const geminiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
   const openAiKey = process.env.AI_API_KEY || process.env.OPENAI_API_KEY;
 
@@ -96,7 +118,7 @@ export async function extractQuizDetailsFromImage(
                   },
                   {
                     inline_data: {
-                      mime_type: mimeType,
+                      mime_type: effectiveMimeType,
                       data: imageBuffer.toString("base64"),
                     },
                   },

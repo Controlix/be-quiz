@@ -22,6 +22,9 @@ export function middleware(request: NextRequest) {
   const sessionToken = request.cookies.get("session_token")?.value;
 
   if (!sessionToken) {
+    if (pathname.startsWith("/api/")) {
+      return NextResponse.json({ error: "Niet aangemeld" }, { status: 401 });
+    }
     const loginUrl = new URL("/auth/login", request.url);
     return NextResponse.redirect(loginUrl);
   }
