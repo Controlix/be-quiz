@@ -98,7 +98,7 @@ export default function QuizDetailPage() {
       <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-4 shadow-sm space-y-2 text-sm text-slate-700">
         <div className="flex items-center gap-2">
           <Calendar className="w-4 h-4 text-blue-600 shrink-0" />
-          <span className="font-medium">{dateStr}</span>
+          <span suppressHydrationWarning className="font-medium">{dateStr}</span>
         </div>
         <div className="flex items-center gap-2">
           <MapPin className="w-4 h-4 text-blue-600 shrink-0" />

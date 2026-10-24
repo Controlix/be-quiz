@@ -17,22 +17,19 @@ export interface MockQuiz {
   };
 }
 
-const now = Date.now();
-const oneDay = 86400000;
-
 export const INITIAL_MOCK_QUIZZES: MockQuiz[] = [
   {
     id: "quiz-1",
     title: "De Grote Herfstquiz",
-    startsAt: new Date(now + 5 * oneDay),
+    startsAt: new Date("2026-11-14T20:00:00Z"),
     location: "Zaal Centrum, Gent",
     entryFee: "€20 / ploeg",
     status: "OPEN",
     team: {
       name: "De Quizvrienden",
       maxTeamSize: 4,
-      registeredAt: new Date(now - 1 * oneDay),
-      paidAt: new Date(now - 1 * oneDay),
+      registeredAt: new Date("2026-11-01T12:00:00Z"),
+      paidAt: new Date("2026-11-01T12:00:00Z"),
       paidByName: "Marc",
       rsvps: [
         { id: "r1", memberName: "Marc", status: "ATTENDING" },
@@ -46,7 +43,7 @@ export const INITIAL_MOCK_QUIZZES: MockQuiz[] = [
   {
     id: "quiz-2",
     title: "Scouts & Gidsen Kwis",
-    startsAt: new Date(now + 14 * oneDay),
+    startsAt: new Date("2026-11-28T19:30:00Z"),
     location: "Parochiehuis, Aalst",
     entryFee: "€25 / ploeg",
     status: "OPEN",
@@ -65,15 +62,15 @@ export const INITIAL_MOCK_QUIZZES: MockQuiz[] = [
   {
     id: "quiz-3",
     title: "Chiro Zomerquiz",
-    startsAt: new Date(now - 20 * oneDay),
+    startsAt: new Date("2026-08-15T20:00:00Z"),
     location: "Gemeentelijke Feestzaal, Lokeren",
     entryFee: "€20 / ploeg",
     status: "OPEN",
     team: {
       name: "De Quizvrienden",
       maxTeamSize: 4,
-      registeredAt: new Date(now - 25 * oneDay),
-      paidAt: new Date(now - 24 * oneDay),
+      registeredAt: new Date("2026-08-01T10:00:00Z"),
+      paidAt: new Date("2026-08-02T14:00:00Z"),
       paidByName: "Sarah",
       rsvps: [
         { id: "r9", memberName: "Marc", status: "ATTENDING" },
