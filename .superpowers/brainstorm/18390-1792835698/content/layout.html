@@ -1,0 +1,134 @@
+<h2>Quiz App — Concept & Schermenoverzicht</h2>
+<p class="subtitle">Interactief overzicht van de voorgestelde flow voor jullie kwisgroep</p>
+
+<div class="section">
+  <div class="split">
+    <!-- Screen 1: Dashboard -->
+    <div class="mockup" style="max-width: 380px; margin: 0 auto; border: 2px solid var(--border); border-radius: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.08);">
+      <div class="mockup-header" style="background: var(--bg-secondary); font-weight: bold; display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 1rem;">
+        <span>📱 KwisOverzicht</span>
+        <button style="background: var(--accent); color: white; border: none; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer;">+ Flyer Uploaden</button>
+      </div>
+      <div class="mockup-body" style="padding: 1rem; background: var(--bg-primary);">
+        
+        <!-- Filter Tabs -->
+        <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+          <span style="background: var(--accent); color: white; padding: 4px 12px; border-radius: 12px; font-size: 0.75rem; font-weight: 500;">Gepland (2)</span>
+          <span style="background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-secondary); padding: 4px 12px; border-radius: 12px; font-size: 0.75rem;">In Beraad (1)</span>
+          <span style="background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-secondary); padding: 4px 12px; border-radius: 12px; font-size: 0.75rem;">Voorbije</span>
+        </div>
+
+        <!-- Quiz Card 1: Ingeschreven -->
+        <div style="background: var(--bg-secondary); border-radius: 12px; padding: 1rem; margin-bottom: 0.75rem; border: 1px solid var(--border);">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+            <h4 style="font-size: 0.95rem; font-weight: 600;">De Grote Herfstquiz</h4>
+            <span style="background: rgba(52, 199, 89, 0.15); color: var(--success); font-weight: 600; font-size: 0.7rem; padding: 2px 8px; border-radius: 4px;">✓ Ingeschreven</span>
+          </div>
+          <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.4rem;">📅 Vr 14 Nov • 20:00 • 📍 Zaal Centrum, Gent</p>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px dashed var(--border); font-size: 0.75rem;">
+            <span>👥 <strong>4/4</strong> spelers (1 reserve)</span>
+            <span style="color: var(--success);">💰 Betaald door Marc (€20)</span>
+          </div>
+        </div>
+
+        <!-- Quiz Card 2: Zoekt nog spelers -->
+        <div style="background: var(--bg-secondary); border-radius: 12px; padding: 1rem; border: 1px solid var(--warning);">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.5rem;">
+            <h4 style="font-size: 0.95rem; font-weight: 600;">Scouts & Gidsen Kwis</h4>
+            <span style="background: rgba(255, 159, 10, 0.15); color: var(--warning); font-weight: 600; font-size: 0.7rem; padding: 2px 8px; border-radius: 4px;">Nog 1 speler nodig</span>
+          </div>
+          <p style="font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 0.4rem;">📅 Za 28 Nov • 19:30 • 📍 Parochiehuis, Aalst</p>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.75rem; padding-top: 0.5rem; border-top: 1px dashed var(--border); font-size: 0.75rem;">
+            <span>👥 <strong>3/4</strong> spelers</span>
+            <span style="color: var(--text-secondary);">Nog niet ingeschreven</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Screen 2: Quiz Detail View -->
+    <div class="mockup" style="max-width: 380px; margin: 0 auto; border: 2px solid var(--border); border-radius: 20px; box-shadow: 0 8px 24px rgba(0,0,0,0.08);">
+      <div class="mockup-header" style="background: var(--bg-secondary); font-weight: bold; display: flex; justify-content: space-between; padding: 0.75rem 1rem;">
+        <span>‹ Terug</span>
+        <span>De Grote Herfstquiz</span>
+        <span>⋯</span>
+      </div>
+      <div class="mockup-body" style="padding: 1rem; background: var(--bg-primary);">
+        
+        <!-- Flyer banner thumbnail -->
+        <div style="background: var(--bg-tertiary); border-radius: 8px; height: 110px; display: flex; align-items: center; justify-content: center; font-size: 0.8rem; color: var(--text-secondary); margin-bottom: 1rem; border: 1px dashed var(--border);">
+          🖼️ [Flyer Foto Preview / Tik om te vergroten]
+        </div>
+
+        <!-- RSVP Action Box -->
+        <div style="background: var(--bg-secondary); border-radius: 12px; padding: 0.85rem; margin-bottom: 0.85rem; border: 1px solid var(--border);">
+          <div style="font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem;">Ga je mee? (Jouw status: <span style="color: var(--success);">Ingeschreven</span>)</div>
+          <div style="display: flex; gap: 0.5rem; margin-bottom: 0.5rem;">
+            <button style="flex: 1; background: var(--accent); color: white; border: none; padding: 6px; border-radius: 6px; font-size: 0.8rem; font-weight: 600;">✓ Ik doe mee</button>
+            <button style="flex: 1; background: var(--bg-tertiary); color: var(--text-primary); border: none; padding: 6px; border-radius: 6px; font-size: 0.8rem;">Kan niet</button>
+          </div>
+          <label style="display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; color: var(--text-secondary); cursor: pointer;">
+            <input type="checkbox" checked /> 🚗 Ik kan rijden (3 plaatsen beschikbaar)
+          </label>
+        </div>
+
+        <!-- Attendees list -->
+        <div style="background: var(--bg-secondary); border-radius: 12px; padding: 0.85rem; margin-bottom: 0.85rem; border: 1px solid var(--border);">
+          <div style="display: flex; justify-content: space-between; font-size: 0.8rem; font-weight: 600; margin-bottom: 0.5rem;">
+            <span>Opstelling (4 / max 4)</span>
+            <span style="color: var(--success);">Ploeg Compleet</span>
+          </div>
+          <ul style="list-style: none; font-size: 0.8rem; display: flex; flex-direction: column; gap: 0.35rem;">
+            <li>1. Marc <span style="font-size: 0.7rem; color: var(--accent);">(Rijdt 🚗)</span></li>
+            <li>2. Sarah <span style="font-size: 0.7rem; color: var(--text-secondary);">(Rijdt mee)</span></li>
+            <li>3. Tom <span style="font-size: 0.7rem; color: var(--text-secondary);">(Rijdt mee)</span></li>
+            <li>4. Elena <span style="font-size: 0.7rem; color: var(--text-secondary);">(Rijdt mee)</span></li>
+          </ul>
+
+          <div style="margin-top: 0.6rem; padding-top: 0.5rem; border-top: 1px solid var(--border); font-size: 0.75rem; color: var(--warning);">
+            <strong>Reserve (1):</strong> Thomas (sluit aan indien iemand afzegt)
+          </div>
+        </div>
+
+        <!-- Direct Actions -->
+        <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+          <button style="background: var(--success); color: white; border: none; padding: 8px; border-radius: 8px; font-size: 0.8rem; font-weight: 600; cursor: pointer;">
+            ✉️ Schrijf Ploeg In (Open Mail)
+          </button>
+          <div style="display: flex; gap: 0.5rem;">
+            <button style="flex: 1; background: #25D366; color: white; border: none; padding: 6px; border-radius: 6px; font-size: 0.75rem; font-weight: 600; cursor: pointer;">
+              💬 Deel WhatsApp
+            </button>
+            <button style="flex: 1; background: var(--bg-secondary); border: 1px solid var(--border); color: var(--text-primary); padding: 6px; border-radius: 6px; font-size: 0.75rem; cursor: pointer;">
+              📅 In Agenda
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="section">
+  <h3>Kies je voorkeur voor navigatiestructuur:</h3>
+  <p class="subtitle">Hoe wil je dat je vrienden zich door de app bewegen?</p>
+  
+  <div class="options">
+    <div class="option selected" data-choice="tabs" onclick="toggleSelect(this)">
+      <div class="letter">A</div>
+      <div class="content">
+        <h3>Vaste Tabbladen onderaan (Quizzen • Agenda • Vrienden / Team)</h3>
+        <p>Traditionele app-stijl. Iedereen kan vlot schakelen tussen het overzicht van quizzen, een kalenderweergave en het beheren van de spelersgroep.</p>
+      </div>
+    </div>
+    <div class="option" data-choice="feed" onclick="toggleSelect(this)">
+      <div class="letter">B</div>
+      <div class="content">
+        <h3>Eenvoudige Feed (Alles in 1 tijdlijn)</h3>
+        <p>Minimale interface. Slechts één scrollbare lijst van chronologische quizzen, waar een tik direct de details en acties opent.</p>
+      </div>
+    </div>
+  </div>
+</div>
