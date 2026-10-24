@@ -4,6 +4,12 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "KwisVrienden",
   description: "Quiz coördinatie app voor vrienden",
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "KwisVrienden",
+  },
 };
 
 export const viewport: Viewport = {
