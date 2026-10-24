@@ -25,7 +25,7 @@ describe("Name + 4-Digit PIN Authentication", () => {
     await setMemberPin(member.id, "1234");
     expect(await verifyMemberPin(member.id, "1234")).toBe(true);
 
-    await adminResetMemberPinAction(member.id);
+    await resetMemberPin(member.id);
     expect(await verifyMemberPin(member.id, "1234")).toBe(false);
 
     const refreshed = await prisma.member.findUnique({ where: { id: member.id } });

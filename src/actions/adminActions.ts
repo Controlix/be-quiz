@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/db";
 import { hashToken, generateSecureToken } from "@/lib/crypto";
+import { getSessionMember } from "@/lib/auth";
 import { adminOverrideDecline, updateTeamCapacity } from "@/services/rsvpService";
 import { adminResetRegistration } from "@/services/registrationService";
 import { revalidatePath } from "next/cache";
@@ -11,11 +12,18 @@ export { adminResetMemberPinAction };
 
 export async function adminCancelQuizAction(quizId: string) {
   try {
+    const currentMember = await getSessionMember();
+    if (!currentMember || currentMember.role !== "ADMIN") {
+      return { success: false, error: "Niet geautoriseerd." };
+    }
+
     await prisma.quiz.update({
       where: { id: quizId },
       data: { status: "CANCELLED" },
     });
-    revalidatePath("/quizzes");
+    try {
+      revalidatePath("/quizzes");
+    } catch {}
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -24,8 +32,15 @@ export async function adminCancelQuizAction(quizId: string) {
 
 export async function adminResetRegistrationAction(teamId: string) {
   try {
+    const currentMember = await getSessionMember();
+    if (!currentMember || currentMember.role !== "ADMIN") {
+      return { success: false, error: "Niet geautoriseerd." };
+    }
+
     await adminResetRegistration(teamId);
-    revalidatePath("/quizzes");
+    try {
+      revalidatePath("/quizzes");
+    } catch {}
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -34,8 +49,15 @@ export async function adminResetRegistrationAction(teamId: string) {
 
 export async function adminOverrideDeclineAction(teamId: string, memberId: string, adminId: string) {
   try {
+    const currentMember = await getSessionMember();
+    if (!currentMember || currentMember.role !== "ADMIN") {
+      return { success: false, error: "Niet geautoriseerd." };
+    }
+
     await adminOverrideDecline(teamId, memberId, adminId);
-    revalidatePath("/quizzes");
+    try {
+      revalidatePath("/quizzes");
+    } catch {}
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -44,11 +66,18 @@ export async function adminOverrideDeclineAction(teamId: string, memberId: strin
 
 export async function adminUpdateTeamCapacityAction(teamId: string, newMaxTeamSize: number) {
   try {
+    const currentMember = await getSessionMember();
+    if (!currentMember || currentMember.role !== "ADMIN") {
+      return { success: false, error: "Niet geautoriseerd." };
+    }
+
     if (newMaxTeamSize < 1 || newMaxTeamSize > 10) {
       return { success: false, error: "Ploeggrootte moet tussen 1 en 10 liggen" };
     }
     await updateTeamCapacity(teamId, newMaxTeamSize);
-    revalidatePath("/quizzes");
+    try {
+      revalidatePath("/quizzes");
+    } catch {}
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -57,6 +86,11 @@ export async function adminUpdateTeamCapacityAction(teamId: string, newMaxTeamSi
 
 export async function adminAddMemberAction(name: string) {
   try {
+    const currentMember = await getSessionMember();
+    if (!currentMember || currentMember.role !== "ADMIN") {
+      return { success: false, error: "Niet geautoriseerd." };
+    }
+
     const member = await prisma.member.create({
       data: {
         name,
@@ -77,7 +111,9 @@ export async function adminAddMemberAction(name: string) {
     const appUrl = process.env.APP_URL || "http://localhost:3000";
     const inviteUrl = `${appUrl}/auth/join?token=${rawToken}`;
 
-    revalidatePath("/admin/members");
+    try {
+      revalidatePath("/admin/members");
+    } catch {}
     return { success: true, inviteUrl, memberId: member.id };
   } catch (err: any) {
     return { success: false, error: err.message };
@@ -86,12 +122,19 @@ export async function adminAddMemberAction(name: string) {
 
 export async function adminUpdateDefaultTeamNameAction(newName: string) {
   try {
+    const currentMember = await getSessionMember();
+    if (!currentMember || currentMember.role !== "ADMIN") {
+      return { success: false, error: "Niet geautoriseerd." };
+    }
+
     await prisma.teamSetting.upsert({
       where: { id: "singleton" },
       update: { defaultTeamName: newName },
       create: { id: "singleton", defaultTeamName: newName },
     });
-    revalidatePath("/quizzes");
+    try {
+      revalidatePath("/quizzes");
+    } catch {}
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message };

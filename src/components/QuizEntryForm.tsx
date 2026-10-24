@@ -86,7 +86,7 @@ export function QuizEntryForm({ currentMemberId }: QuizEntryFormProps) {
 
     setLoading(true);
     try {
-      const startsAt = new Date(`${date}T${time}:00`);
+      const startsAt = new Date(`${date}T${time}:00Z`);
       const formattedEntryFee = formatStructuredEntryFee(entryFeeAmount, entryFeeUnit);
 
       const res = await createQuizAction(

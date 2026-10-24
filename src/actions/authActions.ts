@@ -7,6 +7,7 @@ import {
   setMemberPin,
   resetMemberPin,
   createSession,
+  getSessionMember,
   SESSION_COOKIE_NAME,
 } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
@@ -77,8 +78,15 @@ export async function adminResetMemberPinAction(
   memberId: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
+    const currentMember = await getSessionMember();
+    if (!currentMember || currentMember.role !== "ADMIN") {
+      return { success: false, error: "Niet geautoriseerd." };
+    }
+
     await resetMemberPin(memberId);
-    revalidatePath("/admin/members");
+    try {
+      revalidatePath("/admin/members");
+    } catch {}
     return { success: true };
   } catch (err: any) {
     return { success: false, error: err.message || "Fout bij resetten van PIN." };

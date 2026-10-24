@@ -1,20 +1,16 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { prisma } from "@/lib/db";
 import { getSessionMember } from "@/lib/auth";
 import { QuizEntryForm } from "@/components/QuizEntryForm";
 
 export const dynamic = "force-dynamic";
 
 export default async function NewQuizPage() {
-  const sessionMember = await getSessionMember();
-  const currentMember = sessionMember || (await prisma.member.findFirst({
-    where: { role: "ADMIN" },
-  })) || {
-    id: "admin-seed-id",
-    name: "Marc",
-    role: "ADMIN",
-  };
+  const currentMember = await getSessionMember();
+  if (!currentMember) {
+    redirect("/auth/login");
+  }
 
   return (
     <div className="flex-1 flex flex-col p-4 pb-20">

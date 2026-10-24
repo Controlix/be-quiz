@@ -19,7 +19,7 @@ export default async function EditQuizPage({ params }: EditQuizPageProps) {
 
   // Server-side admin role check
   const currentMember = await getSessionMember();
-  if (currentMember && currentMember.role !== "ADMIN") {
+  if (!currentMember || currentMember.role !== "ADMIN") {
     redirect(`/quizzes/${id}`);
   }
 

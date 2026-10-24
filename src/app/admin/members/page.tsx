@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic";
 
 export default async function AdminMembersPage() {
   const currentMember = await getSessionMember();
-  if (currentMember && currentMember.role !== "ADMIN") {
+  if (!currentMember || currentMember.role !== "ADMIN") {
     redirect("/quizzes");
   }
 
