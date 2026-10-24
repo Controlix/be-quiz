@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Share2, Calendar, DollarSign, Check, Copy } from "lucide-react";
+import { Mail, Share2, Calendar, Check, Copy } from "lucide-react";
 import { generateRegistrationMailto, getRegistrationEmailPlainText } from "@/lib/mailto";
 import { generateGoogleCalendarUrl } from "@/lib/ical";
 import { generateWhatsAppShareUrl } from "@/lib/whatsapp";
@@ -127,7 +127,9 @@ export function ActionToolbar({
               : "bg-white border-slate-200 text-slate-700 hover:bg-slate-50"
           }`}
         >
-          <DollarSign className={`w-4 h-4 mb-1 ${isPaid ? "text-emerald-600" : "text-slate-400"}`} />
+          <span className={`text-sm font-bold mb-1 leading-none ${isPaid ? "text-emerald-600" : "text-slate-400"}`}>
+            €
+          </span>
           <span className="text-[11px] font-bold leading-tight">
             {isPaid ? "Betaald ✓" : "Inschrijfgeld"}
           </span>

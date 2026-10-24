@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { TimelineTabs, TabCategory, categorizeQuizForTabs } from "@/components/TimelineTabs";
 import { QuizCard } from "@/components/QuizCard";
-import { Plus, Trophy } from "lucide-react";
+import { Plus, Trophy, LogOut } from "lucide-react";
 
 interface QuizzesDashboardProps {
   initialQuizzes: any[];
@@ -37,13 +37,23 @@ export function QuizzesDashboard({ initialQuizzes }: QuizzesDashboardProps) {
           </div>
         </div>
 
-        <Link
-          href="/quizzes/new"
-          className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-2 rounded-xl shadow-sm active:scale-95 transition-all"
-        >
-          <Plus className="w-3.5 h-3.5" />
-          <span>Nieuwe Quiz</span>
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            href="/quizzes/new"
+            className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-2 rounded-xl shadow-sm active:scale-95 transition-all"
+          >
+            <Plus className="w-3.5 h-3.5" />
+            <span>Nieuwe Quiz</span>
+          </Link>
+
+          <a
+            href="/auth/logout"
+            title="Afmelden"
+            className="p-2 text-slate-400 hover:text-slate-700 hover:bg-slate-100 rounded-xl transition-colors"
+          >
+            <LogOut className="w-4 h-4" />
+          </a>
+        </div>
       </div>
 
       {/* Tabs */}
