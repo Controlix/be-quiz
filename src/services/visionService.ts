@@ -72,71 +72,116 @@ export async function extractQuizDetailsFromImage(
   imageBuffer: Buffer,
   mimeType: string
 ): Promise<VisionExtractionResult> {
-  const apiKey = process.env.AI_API_KEY;
-  if (!apiKey) {
-    // Graceful offline mock response for local testing without external key
-    return {
-      isValid: true,
-      missingFields: [],
-      data: {
-        title: "Gedetecteerde Quiz",
-        date: "2026-12-05",
-        time: "20:00",
-        location: "Kwiszaal, Gent",
-        maxTeamSize: 4,
-        organizerEmail: "info@quizgent.be",
-        entryFee: "€20 / ploeg",
-      },
-    };
-  }
+  const geminiKey = process.env.GEMINI_API_KEY || process.env.GOOGLE_GENERATIVE_AI_API_KEY;
+  const openAiKey = process.env.AI_API_KEY || process.env.OPENAI_API_KEY;
 
-  // Vision API call with 15s timeout
-  const controller = new AbortController();
-  const timeoutId = setTimeout(() => controller.abort(), 15000);
+  // 1. Google Gemini Vision (Active & configured)
+  if (geminiKey) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
 
-  try {
-    const response = await fetch("https://api.openai.com/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${apiKey}`,
-      },
-      signal: controller.signal,
-      body: JSON.stringify({
-        model: "gpt-4o-mini",
-        messages: [
-          {
-            role: "system",
-            content:
-              "Extract pub quiz details from this flyer poster. Output strict JSON with keys: title (string), date (YYYY-MM-DD), time (HH:mm), location (string), maxTeamSize (integer), organizerEmail (string or null), registrationUrl (string or null), entryFee (string e.g. €20 / ploeg or null).",
-          },
-          {
-            role: "user",
-            content: [
+    try {
+      const response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          signal: controller.signal,
+          body: JSON.stringify({
+            contents: [
               {
-                type: "image_url",
-                image_url: {
-                  url: `data:${mimeType};base64,${imageBuffer.toString("base64")}`,
-                },
+                parts: [
+                  {
+                    text: "Extract pub quiz details from this flyer poster. If the year is omitted or past, assume 2026. Output strict JSON with keys: title (string), date (YYYY-MM-DD), time (HH:mm), location (string with venue and city), maxTeamSize (integer e.g. 4 or 5 or 6), organizerEmail (string or null), registrationUrl (string or null), entryFee (string e.g. '€20 / ploeg' or null).",
+                  },
+                  {
+                    inline_data: {
+                      mime_type: mimeType,
+                      data: imageBuffer.toString("base64"),
+                    },
+                  },
+                ],
               },
             ],
-          },
-        ],
-        response_format: { type: "json_object" },
-      }),
-    });
+            generationConfig: {
+              response_mime_type: "application/json",
+            },
+          }),
+        }
+      );
 
-    clearTimeout(timeoutId);
+      clearTimeout(timeoutId);
 
-    if (!response.ok) {
+      if (!response.ok) {
+        return parseVisionExtractionResponse("TIMEOUT");
+      }
+
+      const data = await response.json();
+      const content = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
+      return parseVisionExtractionResponse(content);
+    } catch (err: any) {
+      clearTimeout(timeoutId);
       return parseVisionExtractionResponse("TIMEOUT");
     }
-
-    const data = await response.json();
-    const content = data.choices[0]?.message?.content || "";
-    return parseVisionExtractionResponse(content);
-  } catch (err: any) {
-    clearTimeout(timeoutId);
-    return parseVisionExtractionResponse("TIMEOUT");
   }
+
+  // 2. OpenAI Vision (Fallback)
+  if (openAiKey) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 15000);
+
+    try {
+      const response = await fetch("https://api.openai.com/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${openAiKey}`,
+        },
+        signal: controller.signal,
+        body: JSON.stringify({
+          model: "gpt-4o-mini",
+          messages: [
+            {
+              role: "system",
+              content:
+                "Extract pub quiz details from this flyer poster. Output strict JSON with keys: title (string), date (YYYY-MM-DD), time (HH:mm), location (string), maxTeamSize (integer), organizerEmail (string or null), registrationUrl (string or null), entryFee (string or null).",
+            },
+            {
+              role: "user",
+              content: [
+                {
+                  type: "image_url",
+                  image_url: {
+                    url: `data:${mimeType};base64,${imageBuffer.toString("base64")}`,
+                  },
+                },
+              ],
+            },
+          ],
+          response_format: { type: "json_object" },
+        }),
+      });
+
+      clearTimeout(timeoutId);
+
+      if (!response.ok) {
+        return parseVisionExtractionResponse("TIMEOUT");
+      }
+
+      const data = await response.json();
+      const content = data.choices[0]?.message?.content || "";
+      return parseVisionExtractionResponse(content);
+    } catch (err: any) {
+      clearTimeout(timeoutId);
+      return parseVisionExtractionResponse("TIMEOUT");
+    }
+  }
+
+  // 3. Fallback when no API keys are present
+  return {
+    isValid: false,
+    missingFields: ["title", "date", "time", "location", "maxTeamSize"],
+    data: {},
+    error: "Geen AI Vision API sleutel geconfigureerd in .env. Voer de gegevens manueel in.",
+  };
 }
