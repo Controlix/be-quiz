@@ -28,6 +28,7 @@ model Member {
   id              String      @id @default(cuid())
   name            String
   role            Role        @default(USER)
+  pinHash         String?
   createdAt       DateTime    @default(now())
 
   sessions        Session[]
@@ -132,6 +133,6 @@ model Rsvp {
 
 model TeamSetting {
   id              String   @id @default("singleton")
-  defaultTeamName String   @default("De Quizvrienden")
+  defaultTeamName String   @default("Ben in Black")
   updatedAt       DateTime @updatedAt
 }

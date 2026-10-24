@@ -6,6 +6,9 @@ import { adminOverrideDecline, updateTeamCapacity } from "@/services/rsvpService
 import { adminResetRegistration } from "@/services/registrationService";
 import { revalidatePath } from "next/cache";
 
+import { adminResetMemberPinAction } from "@/actions/authActions";
+export { adminResetMemberPinAction };
+
 export async function adminCancelQuizAction(quizId: string) {
   try {
     await prisma.quiz.update({

@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { UserPlus, Copy, Check, Users } from "lucide-react";
-import { adminAddMemberAction } from "@/actions/adminActions";
+import { UserPlus, Copy, Check, Users, KeyRound } from "lucide-react";
+import { adminAddMemberAction, adminResetMemberPinAction } from "@/actions/adminActions";
 
 interface MemberRosterClientProps {
   initialMembers: any[];
@@ -37,6 +37,20 @@ export function MemberRosterClient({ initialMembers }: MemberRosterClientProps) 
     navigator.clipboard.writeText(text);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
+  };
+
+  const handleResetPin = async (memberId: string, memberName: string) => {
+    if (window.confirm(`Weet je zeker dat je de PIN van ${memberName} wilt resetten?`)) {
+      const res = await adminResetMemberPinAction(memberId);
+      if (res.success) {
+        setMembers((prev) =>
+          prev.map((m) => (m.id === memberId ? { ...m, pinHash: null } : m))
+        );
+        alert(`PIN van ${memberName} is gereset. Bij de volgende aanmelding kan een nieuwe PIN worden gekozen.`);
+      } else {
+        alert(res.error || "Kon PIN niet resetten.");
+      }
+    }
   };
 
   return (
@@ -96,9 +110,18 @@ export function MemberRosterClient({ initialMembers }: MemberRosterClientProps) 
           {members.map((m) => (
             <li key={m.id} className="py-2.5 flex items-center justify-between text-sm">
               <span className="font-medium text-slate-800">{m.name}</span>
-              <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
-                {m.role}
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                  {m.role}
+                </span>
+                <button
+                  type="button"
+                  onClick={() => handleResetPin(m.id, m.name)}
+                  className="text-[11px] text-amber-700 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 font-semibold px-2 py-1 rounded-lg border border-amber-200 transition-colors"
+                >
+                  Reset PIN
+                </button>
+              </div>
             </li>
           ))}
         </ul>
