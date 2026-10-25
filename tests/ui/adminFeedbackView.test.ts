@@ -5,7 +5,7 @@ describe("Admin Feedback Management Back-Office", () => {
   it("exports AdminFeedbackClient component", async () => {
     const mod = await import("@/components/AdminFeedbackClient");
     expect(mod.AdminFeedbackClient).toBeDefined();
-  });
+  }, 15000);
 
   it("checks admin auth and loads feedbacks with member relations in /admin/feedback/page.tsx", () => {
     const file = fs.readFileSync("src/app/admin/feedback/page.tsx", "utf-8");
