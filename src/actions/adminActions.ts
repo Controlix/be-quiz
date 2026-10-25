@@ -8,6 +8,7 @@ import { adminResetRegistration } from "@/services/registrationService";
 import { revalidatePath } from "next/cache";
 
 import { adminResetMemberPinAction } from "@/actions/authActions";
+import { getAppOriginFromHeaders } from "@/lib/requestUrl";
 export { adminResetMemberPinAction };
 
 export async function adminCancelQuizAction(quizId: string) {
@@ -108,7 +109,7 @@ export async function adminAddMemberAction(name: string) {
       },
     });
 
-    const appUrl = process.env.APP_URL || "http://localhost:3000";
+    const appUrl = await getAppOriginFromHeaders();
     const inviteUrl = `${appUrl}/auth/join?token=${rawToken}`;
 
     try {

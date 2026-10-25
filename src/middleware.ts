@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
+import { getRequestOrigin } from "@/lib/requestUrl";
 
 export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -25,7 +26,8 @@ export function middleware(request: NextRequest) {
     if (pathname.startsWith("/api/")) {
       return NextResponse.json({ error: "Niet aangemeld" }, { status: 401 });
     }
-    const loginUrl = new URL("/auth/login", request.url);
+    const origin = getRequestOrigin(request);
+    const loginUrl = new URL("/auth/login", origin);
     return NextResponse.redirect(loginUrl);
   }
 

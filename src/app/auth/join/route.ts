@@ -2,12 +2,14 @@ import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/db";
 import { hashToken } from "@/lib/crypto";
 import { createSession, SESSION_COOKIE_NAME, SESSION_DURATION_MS } from "@/lib/auth";
+import { getRequestOrigin } from "@/lib/requestUrl";
 
 export async function GET(req: NextRequest) {
+  const origin = getRequestOrigin(req);
   const token = req.nextUrl.searchParams.get("token");
 
   if (!token) {
-    return NextResponse.redirect(new URL("/auth/login?error=missing_token", req.url));
+    return NextResponse.redirect(new URL("/auth/login?error=missing_token", origin));
   }
 
   const tokenHash = hashToken(token);
@@ -20,7 +22,7 @@ export async function GET(req: NextRequest) {
 
   // Enforce valid, unused, unexpired invite (allow master token in dev)
   if (!invite || (!isDevMasterToken && invite.usedAt !== null) || (invite.expiresAt && invite.expiresAt < new Date())) {
-    return NextResponse.redirect(new URL("/auth/login?error=invalid_token", req.url));
+    return NextResponse.redirect(new URL("/auth/login?error=invalid_token", origin));
   }
 
   // Mark invite as claimed
@@ -33,7 +35,7 @@ export async function GET(req: NextRequest) {
 
   const { token: sessionToken } = await createSession(invite.memberId);
 
-  const response = NextResponse.redirect(new URL("/quizzes", req.url));
+  const response = NextResponse.redirect(new URL("/quizzes", origin));
   response.cookies.set({
     name: SESSION_COOKIE_NAME,
     value: sessionToken,
