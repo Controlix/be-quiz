@@ -38,6 +38,7 @@ model Member {
   teamsRegistered Team[]      @relation("TeamRegistrar")
   teamsPaid       Team[]      @relation("TeamPayer")
   overridesGiven  Rsvp[]      @relation("RsvpOverrider")
+  feedbacks       Feedback[]
 }
 
 model Invite {
@@ -135,4 +136,28 @@ model TeamSetting {
   id              String   @id @default("singleton")
   defaultTeamName String   @default("Ben in Black")
   updatedAt       DateTime @updatedAt
+}
+
+enum FeedbackCategory {
+  BUG
+  IDEA
+  QUESTION
+}
+
+model Feedback {
+  id         String           @id @default(cuid())
+  category   FeedbackCategory @default(BUG)
+  message    String
+  pageUrl    String
+  userAgent  String?
+  screenshot String?
+  memberId   String?
+  member     Member?          @relation(fields: [memberId], references: [id], onDelete: SetNull)
+  isResolved Boolean          @default(false)
+  resolvedAt DateTime?
+  createdAt  DateTime         @default(now())
+  updatedAt  DateTime         @updatedAt
+
+  @@index([createdAt])
+  @@index([isResolved])
 }
