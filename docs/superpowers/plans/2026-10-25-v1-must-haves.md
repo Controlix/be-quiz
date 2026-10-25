@@ -38,7 +38,7 @@
 - Consumes: `ActionToolbarProps` (`isRegistered`, `onRegisterToggle`, `mailtoUrl`)
 - Produces: Decoupled mailto click (immediate browser trigger) and dedicated registration toggle button
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```tsx
 // tests/ui/actionToolbarRegistration.test.tsx
@@ -103,21 +103,21 @@ describe("ActionToolbar - Decoupled Registration", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/ui/actionToolbarRegistration.test.tsx`
 Expected: FAIL with "Unable to find an element with the role 'button' and name `/Mail verzonden\? Bevestig registratie/i`"
 
-- [ ] **Step 3: Update `src/components/ActionToolbar.tsx`**
+- [x] **Step 3: Update `src/components/ActionToolbar.tsx`**
 
 Remove the `window.confirm` block in `<a href={mailtoUrl}>`. Add the explicit confirmation button `Mail verzonden? Bevestig registratie` when `!isRegistered`, and when `isRegistered` render the undo button `Inschrijving heropenen / annuleren`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/ui/actionToolbarRegistration.test.tsx`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/ActionToolbar.tsx tests/ui/actionToolbarRegistration.test.tsx
@@ -137,7 +137,7 @@ git commit -m "fix(registration): decouple mailto trigger from registration conf
 - Consumes: Prisma database connection (`@/lib/db`)
 - Produces: `FeedbackCategory` enum, `Feedback` model, `saveUploadedFeedbackImage(buffer: Buffer, mimeType: string): Promise<string>` and `deleteFeedbackImage(relativeUrl: string): Promise<void>`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 // tests/db/feedbackSchema.test.ts
@@ -182,12 +182,12 @@ describe("Feedback Schema & Storage", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/db/feedbackSchema.test.ts`
 Expected: FAIL (Cannot find module `@/lib/feedbackStorage` or `prisma.feedback` does not exist)
 
-- [ ] **Step 3: Implement Schema & Storage**
+- [x] **Step 3: Implement Schema & Storage**
 
 1. In `prisma/schema.prisma`, define:
 ```prisma
@@ -221,12 +221,12 @@ Run: `npx prisma db push` and `npx prisma generate`.
 2. Create `src/lib/feedbackStorage.ts`:
 Implement `saveUploadedFeedbackImage(buffer, mimeType)` saving into `public/uploads/feedback/` and `deleteFeedbackImage(relativeUrl)` safely unlinking files.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/db/feedbackSchema.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add prisma/schema.prisma src/lib/feedbackStorage.ts tests/db/feedbackSchema.test.ts
@@ -245,7 +245,7 @@ git commit -m "feat(feedback): add Feedback model to prisma schema and storage h
 - Consumes: `prisma.feedback`, `getSessionMember()`, `saveUploadedFeedbackImage`, `deleteFeedbackImage`
 - Produces: `submitFeedbackAction(formData: FormData)`, `toggleFeedbackResolvedAction(feedbackId: string)`, `deleteFeedbackAction(feedbackId: string)`
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```ts
 // tests/services/feedbackActions.test.ts
@@ -318,24 +318,24 @@ describe("Feedback Actions", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/services/feedbackActions.test.ts`
 Expected: FAIL with "Cannot find module '@/actions/feedbackActions'"
 
-- [ ] **Step 3: Implement `src/actions/feedbackActions.ts`**
+- [x] **Step 3: Implement `src/actions/feedbackActions.ts`**
 
 Implement:
 - `submitFeedbackAction(formData)`: reads `message`, `category`, `pageUrl`, `userAgent`, optional screenshot `file`; validates message length >= 3; associates current member if authenticated; creates `Feedback` record; revalidates `/admin/feedback`.
 - `toggleFeedbackResolvedAction(feedbackId)`: verifies member is admin, toggles `isResolved` and `resolvedAt`, revalidates `/admin/feedback`.
 - `deleteFeedbackAction(feedbackId)`: verifies member is admin, removes screenshot file via `deleteFeedbackImage`, deletes DB record, revalidates `/admin/feedback`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/services/feedbackActions.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/actions/feedbackActions.ts tests/services/feedbackActions.test.ts
@@ -356,11 +356,11 @@ git commit -m "feat(feedback): implement feedback submission and management serv
 - Consumes: `submitFeedbackAction`, dynamic `import("html2canvas")`
 - Produces: Floating action button + feedback drawer modal mounted globally in the app
 
-- [ ] **Step 1: Install `html2canvas` dependency**
+- [x] **Step 1: Install `html2canvas` dependency**
 
 Run: `npm install html2canvas` and `npm install -D @types/html2canvas`
 
-- [ ] **Step 2: Write the failing test**
+- [x] **Step 2: Write the failing test**
 
 ```tsx
 // tests/ui/feedbackWidget.test.tsx
@@ -405,12 +405,12 @@ describe("FeedbackWidget UI", () => {
 });
 ```
 
-- [ ] **Step 3: Run test to verify it fails**
+- [x] **Step 3: Run test to verify it fails**
 
 Run: `npx vitest run tests/ui/feedbackWidget.test.tsx`
 Expected: FAIL with "Cannot find module '@/components/FeedbackWidget'"
 
-- [ ] **Step 4: Implement `src/components/FeedbackWidget.tsx` and attach to `src/app/layout.tsx`**
+- [x] **Step 4: Implement `src/components/FeedbackWidget.tsx` and attach to `src/app/layout.tsx`**
 
 1. Create `src/components/FeedbackWidget.tsx`:
 - Render floating pill button fixed at bottom-right (`fixed bottom-5 right-5 z-40 bg-slate-900 text-white rounded-full px-4 py-2.5 shadow-lg active:scale-95`).
@@ -423,12 +423,12 @@ Expected: FAIL with "Cannot find module '@/components/FeedbackWidget'"
   - On success: show confirmation toast and auto-close after 2 seconds.
 2. In `src/app/layout.tsx`, render `<FeedbackWidget />`.
 
-- [ ] **Step 5: Run test to verify it passes**
+- [x] **Step 5: Run test to verify it passes**
 
 Run: `npx vitest run tests/ui/feedbackWidget.test.tsx`
 Expected: PASS
 
-- [ ] **Step 6: Commit**
+- [x] **Step 6: Commit**
 
 ```bash
 git add package.json package-lock.json src/components/FeedbackWidget.tsx src/app/layout.tsx tests/ui/feedbackWidget.test.tsx
@@ -448,7 +448,7 @@ git commit -m "feat(feedback): add floating FeedbackWidget with html2canvas view
 - Consumes: `getSessionMember()`, `prisma.feedback.count({ where: { isResolved: false } })`
 - Produces: `/admin` page and Admin navigation link in header
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```tsx
 // tests/ui/adminNav.test.tsx
@@ -470,12 +470,12 @@ describe("Admin Navigation Header", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/ui/adminNav.test.tsx`
 Expected: FAIL with "Unable to find an element with the role 'link' and name `/Beheer/i`"
 
-- [ ] **Step 3: Implement `/admin/page.tsx` and header link in `QuizzesDashboard.tsx`**
+- [x] **Step 3: Implement `/admin/page.tsx` and header link in `QuizzesDashboard.tsx`**
 
 1. Create `src/app/admin/page.tsx`:
 - Server component checking `getSessionMember()`. If role is not `ADMIN`, redirect to `/quizzes`.
@@ -490,12 +490,12 @@ Expected: FAIL with "Unable to find an element with the role 'link' and name `/B
 2. In `src/app/quizzes/page.tsx`: pass `isAdmin={currentMember.role === "ADMIN"}` to `QuizzesDashboard`.
 3. In `src/components/QuizzesDashboard.tsx`: add prop `isAdmin?: boolean` and render the "Beheer" link button next to "Nieuwe Quiz" when `isAdmin` is true.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/ui/adminNav.test.tsx`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/app/admin/page.tsx src/app/quizzes/page.tsx src/components/QuizzesDashboard.tsx tests/ui/adminNav.test.tsx
@@ -515,7 +515,7 @@ git commit -m "feat(admin): create central /admin hub and add Beheer header link
 - Consumes: `prisma.feedback.findMany(...)`, `toggleFeedbackResolvedAction`, `deleteFeedbackAction`
 - Produces: Desktop back-office page `/admin/feedback` for filtering, viewing screenshots, and resolving feedback
 
-- [ ] **Step 1: Write the failing test**
+- [x] **Step 1: Write the failing test**
 
 ```tsx
 // tests/ui/adminFeedbackView.test.tsx
@@ -576,12 +576,12 @@ describe("AdminFeedbackClient View", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npx vitest run tests/ui/adminFeedbackView.test.tsx`
 Expected: FAIL with "Cannot find module '@/components/AdminFeedbackClient'"
 
-- [ ] **Step 3: Implement `src/app/admin/feedback/page.tsx` and `src/components/AdminFeedbackClient.tsx`**
+- [x] **Step 3: Implement `src/app/admin/feedback/page.tsx` and `src/components/AdminFeedbackClient.tsx`**
 
 1. Create `src/app/admin/feedback/page.tsx`:
 - Guard with `getSessionMember()`; redirect non-admins to `/quizzes`.
@@ -593,12 +593,12 @@ Expected: FAIL with "Cannot find module '@/components/AdminFeedbackClient'"
 - Show screenshot thumbnail if present, with click-to-open fullscreen image lightbox.
 - Action buttons: "Markeer als opgelost" / "Heropenen" calling `toggleFeedbackResolvedAction`, and "Verwijderen" calling `deleteFeedbackAction`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npx vitest run tests/ui/adminFeedbackView.test.tsx`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/app/admin/feedback/page.tsx src/components/AdminFeedbackClient.tsx tests/ui/adminFeedbackView.test.tsx
@@ -612,21 +612,21 @@ git commit -m "feat(admin): build /admin/feedback management back-office view wi
 **Files:**
 - Modify: `docs/superpowers/feedback/user-test-remarks.md:109-140`
 
-- [ ] **Step 1: Run complete test suite**
+- [x] **Step 1: Run complete test suite**
 
 Run: `npm test`
 Expected: All test suites PASS (including all existing 22 files and the 5 newly added test files).
 
-- [ ] **Step 2: Run production Next.js build verification**
+- [x] **Step 2: Run production Next.js build verification**
 
 Run: `npm run build`
 Expected: Production build succeeds with 0 errors.
 
-- [ ] **Step 3: Update `docs/superpowers/feedback/user-test-remarks.md`**
+- [x] **Step 3: Update `docs/superpowers/feedback/user-test-remarks.md`**
 
 Mark Item 15 and Item 16 as `Status: Completed`, detailing the implementation and test coverage.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add docs/superpowers/feedback/user-test-remarks.md
