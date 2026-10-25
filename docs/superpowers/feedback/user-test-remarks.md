@@ -163,14 +163,13 @@ This document serves as the single source of truth for:
     * Support both typing the date directly (`DD/MM/YYYY`) and tapping a calendar icon/button to open an interactive visual date picker.
     * Provide an easy time selection mechanism alongside text entry (e.g. native time picker dropdown / time input, or quick preset buttons like `19:30`, `20:00`, `20:30`, `14:00`).
 
-### E. Post-Quiz Evaluation & Retrospectief (van gebruikersfeedback)
-17. **Quiz Score & Ervaringsevaluatie (Aanrader voor volgende editie):**
-    * **Doel:** Weten of een voorbije kwis een succes was en of het team volgend jaar opnieuw wil deelnemen.
-    * **Trigger:** Wanneer een kwis voorbij is (datum & tijd verstreken), toont het kwisdetail een evaluatie-sectie voor deelnemers.
-    * **Mogelijke indicatoren & velden:**
-      * **Plezier / Score:** 1-5 sterren of smileys (hoe leuk was de kwis).
-      * **Aanrader voor volgend jaar:** Duidelijke toggle of badge (*"Volgende keer opnieuw meedoen? Ja / Twijfel / Nee"*).
-      * **Moeilijkheidsgraad & Sfeer:** Korte tags of indicatie (bv. *"Moeilijk"*, *"Toegankelijk"*, *"Vlotte presentatie"*, *"Lange pauzes"*).
-      * **Korte opmerking / review:** Optionele notitie (bv. *"Toffe muziekronde en lekkere hapjes, zeker herhalen"*).
-      * **Resultaat / Einduitslag:** Behaalde plaats van het team noteren (bv. *"6e van de 30 ploegen"*).
-    * **Overzicht in historiek:** In de "Voorbije Kwissen" lijst direct een label/score tonen zodat het team in één oogopslag ziet welke kwissen aanraders zijn.
+### E. Post-Quiz Evaluation & Historische Inzichten (van gebruikersfeedback)
+17. **Lichte Kwis-Score (1 tot 5) & Historische Suggestie bij Invoeren:**
+    * **Simpele opzet (laagdrempelig):**
+      * Zodra een kwis voorbij is, kunnen deelnemers simpelweg een score van **1 tot 5 sterren (of smileys)** geven om aan te geven hoe leuk de kwis was.
+      * Geen zware vragenlijsten: één snelle tik volstaat om de ervaring van het team vast te leggen.
+    * **Slimme herkenning bij het invoeren van een nieuwe kwis:**
+      * Wanneer je een flyer scant of een titel/locatie intypt (bv. *"Den Dries Kwies 4"*), controleert het systeem automatisch of het team in voorbije jaren al heeft deelgenomen aan eerdere edities.
+      * **Direct inzicht op het invoerscherm:**
+        * *"💡 Jullie deden al eerder mee aan deze kwis! Vorige score: ⭐⭐⭐⭐☆ (4/5)"*
+      * Dit geeft de beheerder of indiener meteen het nodige houvast om te beslissen: *"Ja, deze willen we absoluut opnieuw doen"* of *"Nee, vorig jaar viel deze tegen (2/5), we slaan over"*.
