@@ -103,42 +103,57 @@ export async function extractQuizDetailsFromImage(
     const timeoutId = setTimeout(() => controller.abort(), 15000);
 
     try {
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          signal: controller.signal,
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [
-                  {
-                    text: "Extract pub quiz details from this flyer poster. If the year is omitted or past, assume 2026. Output strict JSON with keys: title (string), date (YYYY-MM-DD), time (HH:mm), location (string with venue and city), maxTeamSize (integer e.g. 4 or 5 or 6), organizerEmail (string or null), registrationUrl (string or null), entryFee (string e.g. '€20 / ploeg' or null).",
-                  },
-                  {
-                    inline_data: {
-                      mime_type: effectiveMimeType,
-                      data: imageBuffer.toString("base64"),
+      const candidateModels = ["gemini-3.5-flash-lite", "gemini-2.5-flash"];
+      let data: any = null;
+
+      for (const model of candidateModels) {
+        const response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${geminiKey}`,
+          {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            signal: controller.signal,
+            body: JSON.stringify({
+              contents: [
+                {
+                  parts: [
+                    {
+                      text: "Extract pub quiz details from this flyer poster. If the year is omitted or past, assume 2026. Output strict JSON with keys: title (string), date (YYYY-MM-DD), time (HH:mm), location (string with venue and city), maxTeamSize (integer e.g. 4 or 5 or 6), organizerEmail (string or null), registrationUrl (string or null), entryFee (string e.g. '€20 / ploeg' or null).",
                     },
-                  },
-                ],
+                    {
+                      inline_data: {
+                        mime_type: effectiveMimeType,
+                        data: imageBuffer.toString("base64"),
+                      },
+                    },
+                  ],
+                },
+              ],
+              generationConfig: {
+                response_mime_type: "application/json",
               },
-            ],
-            generationConfig: {
-              response_mime_type: "application/json",
-            },
-          }),
+            }),
+          }
+        );
+
+        if (response.ok) {
+          data = await response.json();
+          break;
+        } else if (response.status === 404) {
+          // Model deprecated or not found for this account/project, try fallback model
+          continue;
+        } else {
+          clearTimeout(timeoutId);
+          return parseVisionExtractionResponse("TIMEOUT");
         }
-      );
+      }
 
       clearTimeout(timeoutId);
 
-      if (!response.ok) {
+      if (!data) {
         return parseVisionExtractionResponse("TIMEOUT");
       }
 
-      const data = await response.json();
       const content = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
       return parseVisionExtractionResponse(content);
     } catch (err: any) {
