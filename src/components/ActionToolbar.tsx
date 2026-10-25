@@ -57,13 +57,34 @@ export function ActionToolbar({
     appUrl
   );
 
+  const copyFallback = (text: string) => {
+    try {
+      const textArea = document.createElement("textarea");
+      textArea.value = text;
+      textArea.style.position = "fixed";
+      textArea.style.left = "-999999px";
+      textArea.style.top = "-999999px";
+      document.body.appendChild(textArea);
+      textArea.focus();
+      textArea.select();
+      document.execCommand("copy");
+      document.body.removeChild(textArea);
+    } catch (err) {
+      console.warn("Clipboard copy fallback failed:", err);
+    }
+  };
+
   const handleCopy = () => {
     const body = getRegistrationEmailPlainText(
       { title: quizTitle, startsAt: quizDate },
       { name: teamName },
       contactName
     );
-    navigator.clipboard.writeText(body);
+    if (typeof navigator !== "undefined" && navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(body).catch(() => copyFallback(body));
+    } else {
+      copyFallback(body);
+    }
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
