@@ -47,29 +47,29 @@ export function FeedbackWidget({ currentMemberName }: FeedbackWidgetProps) {
     setSubmitSuccess(false);
     setError(null);
     setMessage("");
+    handleRemoveScreenshot();
 
     // Attempt automatic viewport snapshot
     if (typeof window !== "undefined") {
       try {
         setIsCapturing(true);
-        const html2canvasModule = await import("html2canvas");
-        const html2canvas = html2canvasModule.default;
+        const html2canvasModule = await import("html2canvas-pro");
+        const html2canvas = html2canvasModule.default || html2canvasModule;
         
         const canvas = await html2canvas(document.body, {
           logging: false,
+          useCORS: true,
           ignoreElements: (element) => element.classList?.contains("feedback-widget-root"),
         });
 
-        canvas.toBlob(
-          (blob) => {
-            if (blob) {
-              setScreenshotBlob(blob);
-              setScreenshotPreview(URL.createObjectURL(blob));
-            }
-          },
-          "image/jpeg",
-          0.85
-        );
+        const blob = await new Promise<Blob | null>((resolve) => {
+          canvas.toBlob(resolve, "image/jpeg", 0.85);
+        });
+
+        if (blob) {
+          setScreenshotBlob(blob);
+          setScreenshotPreview(URL.createObjectURL(blob));
+        }
       } catch (captureErr) {
         console.warn("Screenshot capture skipped or failed:", captureErr);
       } finally {

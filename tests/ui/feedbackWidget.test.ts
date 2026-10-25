@@ -7,9 +7,9 @@ describe("FeedbackWidget UI Component", () => {
     expect(mod.FeedbackWidget).toBeDefined();
   });
 
-  it("dynamically imports html2canvas and handles feedback submission", () => {
+  it("dynamically imports html2canvas-pro and handles feedback submission", () => {
     const file = fs.readFileSync("src/components/FeedbackWidget.tsx", "utf-8");
-    expect(file).toContain("html2canvas");
+    expect(file).toContain("html2canvas-pro");
     expect(file).toContain("submitFeedbackAction");
     expect(file).toContain("Meld feedback of een bug");
     expect(file).toContain("Bedankt voor je feedback!");
