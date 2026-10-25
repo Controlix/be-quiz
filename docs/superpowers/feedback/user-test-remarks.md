@@ -162,3 +162,15 @@ This document serves as the single source of truth for:
 16. **Date & Time Input Flexibility (Calendar Picker & Time Selector):**
     * Support both typing the date directly (`DD/MM/YYYY`) and tapping a calendar icon/button to open an interactive visual date picker.
     * Provide an easy time selection mechanism alongside text entry (e.g. native time picker dropdown / time input, or quick preset buttons like `19:30`, `20:00`, `20:30`, `14:00`).
+
+### E. Post-Quiz Evaluation & Retrospectief (van gebruikersfeedback)
+17. **Quiz Score & Ervaringsevaluatie (Aanrader voor volgende editie):**
+    * **Doel:** Weten of een voorbije kwis een succes was en of het team volgend jaar opnieuw wil deelnemen.
+    * **Trigger:** Wanneer een kwis voorbij is (datum & tijd verstreken), toont het kwisdetail een evaluatie-sectie voor deelnemers.
+    * **Mogelijke indicatoren & velden:**
+      * **Plezier / Score:** 1-5 sterren of smileys (hoe leuk was de kwis).
+      * **Aanrader voor volgend jaar:** Duidelijke toggle of badge (*"Volgende keer opnieuw meedoen? Ja / Twijfel / Nee"*).
+      * **Moeilijkheidsgraad & Sfeer:** Korte tags of indicatie (bv. *"Moeilijk"*, *"Toegankelijk"*, *"Vlotte presentatie"*, *"Lange pauzes"*).
+      * **Korte opmerking / review:** Optionele notitie (bv. *"Toffe muziekronde en lekkere hapjes, zeker herhalen"*).
+      * **Resultaat / Einduitslag:** Behaalde plaats van het team noteren (bv. *"6e van de 30 ploegen"*).
+    * **Overzicht in historiek:** In de "Voorbije Kwissen" lijst direct een label/score tonen zodat het team in één oogopslag ziet welke kwissen aanraders zijn.
