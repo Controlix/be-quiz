@@ -1,11 +1,20 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { submitFeedbackAction, toggleFeedbackResolvedAction, deleteFeedbackAction } from "@/actions/feedbackActions";
+import { describe, it, expect, beforeEach, vi } from "vitest";
 import { prisma } from "@/lib/db";
+
+// Mock getSessionMember
+let mockSessionMember: any = null;
+vi.mock("@/lib/auth", () => ({
+  getSessionMember: vi.fn(async () => mockSessionMember),
+}));
+
+// Import actions after mock
+import { submitFeedbackAction, toggleFeedbackResolvedAction, deleteFeedbackAction } from "@/actions/feedbackActions";
 
 describe("Feedback Actions", () => {
   let createdId: string | null = null;
 
   beforeEach(async () => {
+    mockSessionMember = null;
     if (createdId) {
       await prisma.feedback.deleteMany({ where: { id: createdId } });
       createdId = null;
@@ -41,7 +50,40 @@ describe("Feedback Actions", () => {
     expect(item?.isResolved).toBe(false);
   });
 
-  it("toggles resolved status and deletes feedback", async () => {
+  it("blocks unauthenticated or non-admin users from toggling resolved or deleting feedback", async () => {
+    const item = await prisma.feedback.create({
+      data: {
+        category: "BUG",
+        message: "Auth check test item",
+        pageUrl: "/quizzes",
+      },
+    });
+    createdId = item.id;
+
+    // 1. Unauthenticated (mockSessionMember = null)
+    mockSessionMember = null;
+    const unauthToggle = await toggleFeedbackResolvedAction(item.id);
+    expect(unauthToggle.success).toBe(false);
+    expect(unauthToggle.error).toBe("Niet geautoriseerd.");
+
+    const unauthDelete = await deleteFeedbackAction(item.id);
+    expect(unauthDelete.success).toBe(false);
+    expect(unauthDelete.error).toBe("Niet geautoriseerd.");
+
+    // 2. Regular user (role = USER)
+    mockSessionMember = { id: "user-1", name: "User", role: "USER" };
+    const userToggle = await toggleFeedbackResolvedAction(item.id);
+    expect(userToggle.success).toBe(false);
+    expect(userToggle.error).toBe("Niet geautoriseerd.");
+
+    const userDelete = await deleteFeedbackAction(item.id);
+    expect(userDelete.success).toBe(false);
+    expect(userDelete.error).toBe("Niet geautoriseerd.");
+  });
+
+  it("allows admin to toggle resolved status and delete feedback", async () => {
+    mockSessionMember = { id: "admin-1", name: "Marc", role: "ADMIN" };
+
     const item = await prisma.feedback.create({
       data: {
         category: "IDEA",

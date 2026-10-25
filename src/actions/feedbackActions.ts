@@ -70,7 +70,7 @@ export async function submitFeedbackAction(formData: FormData) {
 export async function toggleFeedbackResolvedAction(feedbackId: string) {
   try {
     const currentMember = await getSessionMember().catch(() => null);
-    if (currentMember && currentMember.role !== "ADMIN") {
+    if (!currentMember || currentMember.role !== "ADMIN") {
       return { success: false, error: "Niet geautoriseerd." };
     }
 
@@ -105,7 +105,7 @@ export async function toggleFeedbackResolvedAction(feedbackId: string) {
 export async function deleteFeedbackAction(feedbackId: string) {
   try {
     const currentMember = await getSessionMember().catch(() => null);
-    if (currentMember && currentMember.role !== "ADMIN") {
+    if (!currentMember || currentMember.role !== "ADMIN") {
       return { success: false, error: "Niet geautoriseerd." };
     }
 

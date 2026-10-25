@@ -56,6 +56,7 @@ export function AdminFeedbackClient({ initialFeedbacks }: AdminFeedbackClientPro
   const resolvedCount = feedbacks.filter((f) => f.isResolved).length;
 
   const handleToggleResolved = async (id: string) => {
+    const originalFeedbacks = feedbacks;
     setFeedbacks((prev) =>
       prev.map((f) =>
         f.id === id
@@ -67,13 +68,32 @@ export function AdminFeedbackClient({ initialFeedbacks }: AdminFeedbackClientPro
           : f
       )
     );
-    await toggleFeedbackResolvedAction(id);
+    try {
+      const res = await toggleFeedbackResolvedAction(id);
+      if (!res.success) {
+        setFeedbacks(originalFeedbacks);
+        window.alert(res.error || "Kon status niet bijwerken.");
+      }
+    } catch (err: any) {
+      setFeedbacks(originalFeedbacks);
+      window.alert(err.message || "Er ging iets mis bij het bijwerken.");
+    }
   };
 
   const handleDelete = async (id: string) => {
     if (window.confirm("Ben je zeker dat je deze melding wilt verwijderen?")) {
+      const originalFeedbacks = feedbacks;
       setFeedbacks((prev) => prev.filter((f) => f.id !== id));
-      await deleteFeedbackAction(id);
+      try {
+        const res = await deleteFeedbackAction(id);
+        if (!res.success) {
+          setFeedbacks(originalFeedbacks);
+          window.alert(res.error || "Kon melding niet verwijderen.");
+        }
+      } catch (err: any) {
+        setFeedbacks(originalFeedbacks);
+        window.alert(err.message || "Er ging iets mis bij het verwijderen.");
+      }
     }
   };
 
@@ -118,7 +138,7 @@ export function AdminFeedbackClient({ initialFeedbacks }: AdminFeedbackClientPro
         >
           <span>Openstaand</span>
           {openCount > 0 && (
-            <span className="bg-rose-500 text-white text-[10px] px-1.5 py-0.2 rounded-full font-bold">
+            <span className="bg-rose-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-bold">
               {openCount}
             </span>
           )}
