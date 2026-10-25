@@ -4,13 +4,14 @@ import { useState } from "react";
 import Link from "next/link";
 import { TimelineTabs, TabCategory, categorizeQuizForTabs } from "@/components/TimelineTabs";
 import { QuizCard } from "@/components/QuizCard";
-import { Plus, Trophy, LogOut } from "lucide-react";
+import { Plus, Trophy, LogOut, Shield } from "lucide-react";
 
 interface QuizzesDashboardProps {
   initialQuizzes: any[];
+  isAdmin?: boolean;
 }
 
-export function QuizzesDashboard({ initialQuizzes }: QuizzesDashboardProps) {
+export function QuizzesDashboard({ initialQuizzes, isAdmin = false }: QuizzesDashboardProps) {
   const [activeTab, setActiveTab] = useState<TabCategory>("IN_BERAAD");
 
   const counts: Record<TabCategory, number> = {
@@ -38,6 +39,17 @@ export function QuizzesDashboard({ initialQuizzes }: QuizzesDashboardProps) {
         </div>
 
         <div className="flex items-center gap-2">
+          {isAdmin && (
+            <Link
+              href="/admin"
+              title="Admin Beheer"
+              className="inline-flex items-center gap-1 bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-2.5 py-2 rounded-xl transition-colors"
+            >
+              <Shield className="w-3.5 h-3.5 text-blue-600" />
+              <span>Beheer</span>
+            </Link>
+          )}
+
           <Link
             href="/quizzes/new"
             className="inline-flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white text-xs font-semibold px-3 py-2 rounded-xl shadow-sm active:scale-95 transition-all"

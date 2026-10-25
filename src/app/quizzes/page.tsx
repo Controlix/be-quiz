@@ -12,5 +12,10 @@ export default async function QuizzesPage() {
   }
 
   const quizzes = await getAllQuizzes();
-  return <QuizzesDashboard initialQuizzes={quizzes} />;
+  return (
+    <QuizzesDashboard
+      initialQuizzes={quizzes}
+      isAdmin={currentMember.role === "ADMIN"}
+    />
+  );
 }
