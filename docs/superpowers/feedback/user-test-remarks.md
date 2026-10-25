@@ -1,8 +1,22 @@
 # Pub Quiz App (BE-Quiz) — Feedback & Feature Roadmap
 
 This document serves as the single source of truth for:
-1. **v1 Priority Fixes & Polish** (Items from user testing ready to implement now)
-2. **v2 Feature Backlog** (Items postponed during original requirements capture + today's user testing)
+1. **Design & Platform Philosophy** (Mobile Player Focus vs. Desktop Admin Back-Office)
+2. **v1 Priority Fixes & Polish** (Items from user testing ready to implement now)
+3. **v2 Feature Backlog** (Items postponed during original requirements capture + today's user testing)
+
+---
+
+## Guiding Principle: Mobile Player Experience vs. Desktop Admin Back-Office
+* **Flyer Upload (Core Web App Feature):**
+  * Flyer upload (AI Vision scanning, drag-and-drop, clipboard paste, and mobile camera/gallery upload) is and remains a core, first-class feature in the web application on both mobile and desktop.
+* **Mobile Focus (Team Players):**
+  * The mobile web experience is optimized for fast, thumb-friendly interaction for quiz team members.
+  * Core actions: viewing upcoming quizzes, RSVPing (*"Ik doe mee"* / *"Ik pas"*), seeing team lineups & reserves, quick WhatsApp sharing, 1-tap native calendar sync, snapping/uploading flyers, and a simple floating feedback submission tool.
+  * Keeps the mobile UI lightweight, clean, and distraction-free without complex administrative overhead.
+* **Desktop Focus (Admin & Back-Office):**
+  * Heavy administrative tasks are naturally suited for a desktop browser with keyboard and larger screen space.
+  * Desktop actions: detailed quiz entry and editing, bulk flyer upload analysis, member roster management & role assignments, reviewing user-submitted feedback and screenshots, and configuring shared team calendars or settings.
 
 ---
 
@@ -93,6 +107,28 @@ This document serves as the single source of truth for:
   * All friends are invited afresh via their invite links.
 * **Status:** Completed
 
+### 15. Registration Confirmation Timing / Decoupled Mail Confirmation (Bug & UX)
+* **Feedback:** When clicking "Schrijf ploeg in", the confirmation question ("Heb je de mail verzonden naar de organisatie?") appears synchronously before the mail client opens. The user must be able to first inspect and send the email in their mail client before confirming the registration in the app.
+* **Root Cause:** In `src/components/ActionToolbar.tsx`, `window.confirm` is evaluated inside the synchronous `onClick` handler on the `<a href={mailtoUrl}>`, blocking the browser from dispatching the mail client until the dialog is closed.
+* **Requirement:**
+  1. Clicking "Schrijf ploeg in (Open Mail)" should trigger the mail client immediately without a blocking popup.
+  2. Once the mail is opened/sent, the app should provide an explicit, separate confirmation step (e.g. a follow-up banner or button: *"Mail verstuurd? Bevestig registratie"*, or decoupling the mail trigger from the registration confirmation) so users can return to the app and confirm after sending.
+* **Status:** Completed
+
+### 16. In-App User Feedback & Bug Reporting Widget (with Optional Screenshot)
+* **Feedback:** During the testing period (and ongoing rollout), friends and members using the app should have an easy, low-friction way directly within the app to submit feedback, report a bug/glitch, or share remarks, optionally attaching or auto-capturing a screenshot of the current page.
+* **Requirement:**
+  1. **Floating / Accessible Trigger:** A subtle, mobile-friendly "Feedback" / "Meld een probleem" button (e.g. bottom-corner floating pill or persistent header action).
+  2. **Feedback Modal / Drawer:**
+     * Category selector: *Bug / Probleem*, *Verbetersuggestie*, *Algemene opmerking*.
+     * Free-text area for thoughts/remarks.
+     * Optional screenshot: upload an image or allow auto-capturing the current screen viewport (via canvas / file upload).
+     * Automatically capture metadata: current page URL, active member name, user agent (device / browser / OS).
+  3. **Storage & Review:**
+     * Persist submitted feedback in a `Feedback` table in Prisma DB.
+     * **Desktop Admin View:** A dedicated desktop back-office view (e.g. `/admin/feedback`) where the admin can comfortably browse feedback, filter by category, see device details, and view/zoom attached screenshots.
+* **Status:** Completed
+
 ---
 
 ## Part 2: Consolidated v2 Feature Backlog
@@ -104,15 +140,21 @@ This document serves as the single source of truth for:
 ### B. Logistics & Coordination (from initial requirements review)
 3. **Carpooling & Ride-Sharing:** Allow members to indicate if they can drive (with seat counts) and assign passengers to cars, replacing ride discussions in WhatsApp.
 4. **Public / Unauthenticated Share Preview:** A minimal read-only preview link for WhatsApp so non-members can view public event details (date, venue, spots left) without seeing personal friend rosters or requiring a login.
+5. **Shared Team Calendar & 1-Tap Native Calendar Subscription (`webcal://`):**
+   * Provide a live `webcal://` feed URL so team members can subscribe once on their mobile devices (Apple Calendar / Android native calendar) and have all scheduled quizzes auto-sync to their phone in the background.
+   * Optional backend Google Calendar sync via Google Calendar API to a shared team calendar.
 
 ### C. Member Management & Administration (from initial requirements review)
-5. **Member Deactivation / Soft-Delete:** Ability for an admin to deactivate or archive departed members without corrupting historical quiz records.
-6. **Member Contact Details & Editing:** Ability to add email addresses, phone numbers, and edit member names post-creation.
-7. **Admin Role Management (Promote / Demote):** Interactive buttons in `/admin/members` to promote members to `ADMIN` or demote an Admin back to `USER` (with self-demotion protection).
-8. **Hard Delete with Confirmation:** A permanent deletion action for quizzes created entirely by mistake (as opposed to cancelling/archiving).
+6. **Member Deactivation / Soft-Delete:** Ability for an admin to deactivate or archive departed members without corrupting historical quiz records.
+7. **Member Contact Details & Editing:** Ability to add email addresses, phone numbers, and edit member names post-creation.
+8. **Admin Role Management (Promote / Demote):** Interactive buttons in `/admin/members` to promote members to `ADMIN` or demote an Admin back to `USER` (with self-demotion protection).
+9. **Hard Delete with Confirmation:** A permanent deletion action for quizzes created entirely by mistake (as opposed to cancelling/archiving).
 
 ### D. User Experience & Enhancements (from user testing)
-9. **Flyer Image Display on Quiz Detail View:** Displaying the actual uploaded flyer poster as a rich banner on the quiz details screen, with a tap-to-expand fullscreen modal.
-10. **Maps Integration (Navigation):** Tapping the venue/address on cards or detail views opens Google Maps / Apple Maps / Waze with direct route navigation.
-11. **Duplicate Quiz Detection on Entry:** Warn the user when adding a quiz if another quiz already exists on the same date or at the same venue to prevent accidental duplicates.
-12. **Direct Registration Toggle (Without Email):** Ability to directly mark a quiz team as registered (e.g. via a *"Markeer als ingeschreven"* button) for instances where registration was handled in person, via telephone, WhatsApp, or Facebook Messenger, without triggering the `mailto:` email hand-off.
+10. **Flyer Image Display on Quiz Detail View:** Displaying the actual uploaded flyer poster as a rich banner on the quiz details screen, with a tap-to-expand fullscreen modal.
+11. **Maps Integration (Navigation):** Tapping the venue/address on cards or detail views opens Google Maps / Apple Maps / Waze with direct route navigation.
+12. **Duplicate Quiz Detection on Entry:** Warn the user when adding a quiz if another quiz already exists on the same date or at the same venue to prevent accidental duplicates.
+13. **Direct Registration Toggle (Without Email):** Ability to directly mark a quiz team as registered (e.g. via a *"Markeer als ingeschreven"* button) for instances where registration was handled in person, via telephone, WhatsApp, or Facebook Messenger, without triggering the `mailto:` email hand-off.
+14. **Date & Time Input Flexibility (Calendar Picker & Time Selector):**
+    * Support both typing the date directly (`DD/MM/YYYY`) and tapping a calendar icon/button to open an interactive visual date picker.
+    * Provide an easy time selection mechanism alongside text entry (e.g. native time picker dropdown / time input, or quick preset buttons like `19:30`, `20:00`, `20:30`, `14:00`).
