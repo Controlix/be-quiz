@@ -149,12 +149,13 @@ This document serves as the single source of truth for:
 7. **Member Contact Details & Editing:** Ability to add email addresses, phone numbers, and edit member names post-creation.
 8. **Admin Role Management (Promote / Demote):** Interactive buttons in `/admin/members` to promote members to `ADMIN` or demote an Admin back to `USER` (with self-demotion protection).
 9. **Hard Delete with Confirmation:** A permanent deletion action for quizzes created entirely by mistake (as opposed to cancelling/archiving).
+10. **WhatsApp Share for Member Invites:** When adding a new member in `/admin/members` (or viewing a member with an active invite/unset PIN), offer a direct 1-tap "Deel via WhatsApp" action alongside copying the link, pre-filling a welcoming message with their personal join link.
 
 ### D. User Experience & Enhancements (from user testing)
-10. **Flyer Image Display on Quiz Detail View:** Displaying the actual uploaded flyer poster as a rich banner on the quiz details screen, with a tap-to-expand fullscreen modal.
-11. **Maps Integration (Navigation):** Tapping the venue/address on cards or detail views opens Google Maps / Apple Maps / Waze with direct route navigation.
-12. **Duplicate Quiz Detection on Entry:** Warn the user when adding a quiz if another quiz already exists on the same date or at the same venue to prevent accidental duplicates.
-13. **Direct Registration Toggle (Without Email):** Ability to directly mark a quiz team as registered (e.g. via a *"Markeer als ingeschreven"* button) for instances where registration was handled in person, via telephone, WhatsApp, or Facebook Messenger, without triggering the `mailto:` email hand-off.
-14. **Date & Time Input Flexibility (Calendar Picker & Time Selector):**
+11. **Flyer Image Display on Quiz Detail View:** Displaying the actual uploaded flyer poster as a rich banner on the quiz details screen, with a tap-to-expand fullscreen modal.
+12. **Maps Integration (Navigation):** Tapping the venue/address on cards or detail views opens Google Maps / Apple Maps / Waze with direct route navigation.
+13. **Duplicate Quiz Detection on Entry:** Warn the user when adding a quiz if another quiz already exists on the same date or at the same venue to prevent accidental duplicates.
+14. **Direct Registration Toggle (Without Email):** Ability to directly mark a quiz team as registered (e.g. via a *"Markeer als ingeschreven"* button) for instances where registration was handled in person, via telephone, WhatsApp, or Facebook Messenger, without triggering the `mailto:` email hand-off.
+15. **Date & Time Input Flexibility (Calendar Picker & Time Selector):**
     * Support both typing the date directly (`DD/MM/YYYY`) and tapping a calendar icon/button to open an interactive visual date picker.
     * Provide an easy time selection mechanism alongside text entry (e.g. native time picker dropdown / time input, or quick preset buttons like `19:30`, `20:00`, `20:30`, `14:00`).
