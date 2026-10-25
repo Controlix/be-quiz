@@ -163,13 +163,13 @@ This document serves as the single source of truth for:
     * Support both typing the date directly (`DD/MM/YYYY`) and tapping a calendar icon/button to open an interactive visual date picker.
     * Provide an easy time selection mechanism alongside text entry (e.g. native time picker dropdown / time input, or quick preset buttons like `19:30`, `20:00`, `20:30`, `14:00`).
 
-### E. Post-Quiz Evaluation & Historische Inzichten (van gebruikersfeedback)
-17. **Lichte Kwis-Score (1 tot 5) & Historische Suggestie bij Invoeren:**
-    * **Simpele opzet (laagdrempelig):**
-      * Zodra een kwis voorbij is, kunnen deelnemers simpelweg een score van **1 tot 5 sterren (of smileys)** geven om aan te geven hoe leuk de kwis was.
-      * Geen zware vragenlijsten: één snelle tik volstaat om de ervaring van het team vast te leggen.
-    * **Slimme herkenning bij het invoeren van een nieuwe kwis:**
-      * Wanneer je een flyer scant of een titel/locatie intypt (bv. *"Den Dries Kwies 4"*), controleert het systeem automatisch of het team in voorbije jaren al heeft deelgenomen aan eerdere edities.
-      * **Direct inzicht op het invoerscherm:**
-        * *"💡 Jullie deden al eerder mee aan deze kwis! Vorige score: ⭐⭐⭐⭐☆ (4/5)"*
-      * Dit geeft de beheerder of indiener meteen het nodige houvast om te beslissen: *"Ja, deze willen we absoluut opnieuw doen"* of *"Nee, vorig jaar viel deze tegen (2/5), we slaan over"*.
+### E. Post-Quiz Evaluation & Historical Insights (from user testing)
+17. **Lightweight Quiz Rating (1 to 5 Stars/Smileys) & Historical Match on Entry:**
+    * **Simplicity & Zero Overhead:**
+      * Once a quiz has ended (date and start time passed), participating team members can quickly rate the quiz on a **1 to 5 scale (stars or smileys)**: how enjoyable was the event?
+      * No cumbersome questionnaires or forms: a single tap records the team's impression.
+    * **Smart Historical Suggestion When Entering a New Quiz:**
+      * When an admin scans a flyer or types in a quiz title and location (e.g. *"Den Dries Kwies 4"*), the system automatically checks whether the team has participated in prior editions in past years.
+      * **Immediate Context on the Entry Screen:**
+        * *"💡 You previously participated in this quiz! Previous rating: ⭐⭐⭐⭐☆ (4/5)"*
+      * Provides immediate decision support when deciding whether to add and register for a recurring annual pub quiz.
