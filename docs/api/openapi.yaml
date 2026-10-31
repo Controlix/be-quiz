@@ -14,12 +14,63 @@ servers:
 tags:
   - name: Core Authentication
     description: Essential user session and onboarding endpoints (always active in Core)
+  - name: Core Storage
+    description: Media and flyer image upload persistence endpoints (always active in Core)
   - name: Integrations - Calendar
-    description: Dynamic iCalendar feed generation (requires `calendar` capability)
+    description: Dynamic iCalendar feed generation (requires `icalExport` capability)
   - name: Integrations - Vision
     description: AI flyer OCR and detail extraction (requires `vision` capability)
 
 paths:
+  /api/quizzes/upload-flyer:
+    post:
+      tags:
+        - Core Storage
+      summary: Upload and store event flyer image
+      description: >
+        Uploads and persists a flyer image using the active storage adapter
+        (Vercel Blob in serverless or local filesystem in development).
+        Core capability requiring zero AI keys.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Flyer image file (.jpg, .png, .webp, max 4MB)
+      responses:
+        "200":
+          description: Flyer successfully uploaded
+          content:
+            application/json:
+              schema:
+                type: object
+                required:
+                  - flyerImageUrl
+                properties:
+                  flyerImageUrl:
+                    type: string
+                    description: Public or served URL of the stored flyer image
+                    example: "/uploads/flyers/1730371200000-flyer.webp"
+        "400":
+          description: Missing or invalid file (format not supported or size > 4MB)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "500":
+          description: Storage failure
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
   /auth/join:
     get:
       tags:

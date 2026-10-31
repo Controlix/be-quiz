@@ -101,9 +101,10 @@ src/
 
 ### 5.3 UI Adaptations
 1. **Quiz Creation (`src/components/QuizEntryForm.tsx`):**
-   - Reads `capabilities.vision`.
-   - If `vision` is active: renders `FlyerUploader` alongside manual inputs and connects OCR autofill.
-   - If `vision` is inactive: renders a clean, focused form (title, startsAt, location, maxTeamSize, entryFee, notes) with zero flyer/OCR dropzone.
+   - **Flyer Attachment (Core):** Users can always upload/attach an event flyer image (`.jpg`, `.png`, `.webp`). An image upload endpoint (`POST /api/quizzes/upload-flyer`) persists the file via the storage provider (Vercel Blob in serverless or local filesystem) and assigns `flyerImageUrl`.
+   - **AI Auto-Fill (Auxiliary):** Reads `capabilities.vision`.
+     - If `vision` is `true`: The form offers automated AI scanning to parse title, date, time, venue, team size, and fee from the flyer into the input fields.
+     - If `vision` is `false`: The user attaches the flyer image as an informational visual reference and fills in the form fields manually (no AI scanning buttons or OCR spinners).
 2. **Event Actions & Core Controls (`src/components/ActionToolbar.tsx`):**
    - **Core Controls (Preserved Always):** The Team Registration status toggle and Entry Fee payment status toggle belong to the **Core Domain**. They remain fully visible and operational even if all auxiliary integrations are disabled.
    - **Auxiliary Integration Buttons (Conditionally Rendered):**
@@ -112,10 +113,11 @@ src/
      - `Email Registration` button only renders if `capabilities.emailRegistration` is `true` (and `organizerEmail` is set).
    - If auxiliary sharing/calendar buttons are disabled, the action toolbar adjusts its layout to cleanly display only the core Payment and Registration cards without empty gaps.
 3. **Quiz Detail View (`src/components/QuizDetailClient.tsx`):**
-   - If a quiz already contains a `flyerImageUrl`, the image thumbnail/lightbox continues to render as static visual content (using standard `<img>`, requiring zero external services). New uploads or OCR scans are only offered if `capabilities.vision` is active.
+   - When a quiz has an attached flyer (`flyerImageUrl`), it displays the flyer poster as a rich image card/thumbnail so teammates can inspect event details.
 
 ### 5.4 Route Handlers Guardrails & OpenAPI Synchronization
-- `src/app/api/quizzes/extract/route.ts`: Checks `getCapabilities().vision`. If false, returns `501 Not Implemented` with `{ error: "AI vision extraction is disabled in this deployment." }`.
+- `src/app/api/quizzes/upload-flyer/route.ts`: Core storage endpoint. Accepts multipart form data with image file, saves via storage provider, and returns `{ flyerImageUrl: string }`.
+- `src/app/api/quizzes/extract/route.ts`: Vision endpoint. Checks `getCapabilities().vision`. If false, returns `501 Not Implemented` with `{ error: "AI vision extraction is disabled in this deployment." }`.
 - `src/app/api/quizzes/[id]/calendar.ics/route.ts`: Checks `getCapabilities().icalExport`. If false, returns `501 Not Implemented` or `404 Not Found`.
 - **OpenAPI Drift Prevention:** An automated Vitest test suite (`tests/api/openapi-sync.test.ts`) verifies:
   1. Every route handler in `src/app/api/**` and `src/app/auth/**` is fully registered with matching HTTP methods in `docs/api/openapi.yaml`.
