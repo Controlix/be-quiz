@@ -46,7 +46,7 @@
   export function getCapabilities(env?: NodeJS.ProcessEnv): AppCapabilities;
   ```
 
-- [ ] **Step 1: Write the failing tests for capability resolution**
+- [x] **Step 1: Write the failing tests for capability resolution**
 
 Create `tests/features/capabilities.test.ts`:
 ```typescript
@@ -89,22 +89,22 @@ describe("Capability Registry", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npm test tests/features/capabilities.test.ts`
 Expected: FAIL (module not found)
 
-- [ ] **Step 3: Implement `types.ts` and `capabilities.ts`**
+- [x] **Step 3: Implement `types.ts` and `capabilities.ts`**
 
 In `src/features/capabilities/types.ts`: define `AppCapabilities`.
 In `src/features/capabilities/capabilities.ts`: implement `getCapabilities(env = process.env): AppCapabilities` checking strict equality `=== "true"` for `ENABLE_AI_VISION`, `ENABLE_ICAL_EXPORT`, `ENABLE_WHATSAPP_SHARE`, and `ENABLE_EMAIL_REGISTRATION`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test tests/features/capabilities.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/features/capabilities tests/features/capabilities.test.ts
@@ -129,7 +129,7 @@ git commit -m "feat(capabilities): implement central deployment capability regis
   - `src/features/calendar/index.ts` re-exporting `buildQuizCalendarFeed`
   - `src/features/sharing/index.ts` re-exporting WhatsApp and mailto helpers
 
-- [ ] **Step 1: Write architectural boundary test**
+- [x] **Step 1: Write architectural boundary test**
 
 Create `tests/features/core-isolation.test.ts`:
 ```typescript
@@ -150,22 +150,22 @@ describe("Core Domain Isolation Invariant", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it passes or fails**
+- [x] **Step 2: Run test to verify it passes or fails**
 
 Run: `npm test tests/features/core-isolation.test.ts`
 
-- [ ] **Step 3: Create module entry points in `src/features/`**
+- [x] **Step 3: Create module entry points in `src/features/`**
 
 Create `src/features/vision/index.ts` exporting functions from `visionService.ts` and `storage.ts`.
 Create `src/features/calendar/index.ts` exporting functions from `ical.ts`.
 Create `src/features/sharing/index.ts` exporting functions from `whatsapp.ts` and `mailto.ts`.
 
-- [ ] **Step 4: Run test to verify boundary consistency**
+- [x] **Step 4: Run test to verify boundary consistency**
 
 Run: `npm test tests/features/core-isolation.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/features/ tests/features/core-isolation.test.ts
@@ -182,7 +182,7 @@ git commit -m "refactor(modules): isolate integration modules and enforce core i
 **Interfaces:**
 - Consumes: `docs/api/openapi.yaml`, file system routes in `src/app/api/` and `src/app/auth/`
 
-- [ ] **Step 1: Write the failing OpenAPI synchronization test**
+- [x] **Step 1: Write the failing OpenAPI synchronization test**
 
 Create `tests/api/openapi-sync.test.ts`:
 ```typescript
@@ -240,12 +240,12 @@ describe("OpenAPI Synchronization", () => {
 });
 ```
 
-- [ ] **Step 2: Run test to verify it passes or flags issues**
+- [x] **Step 2: Run test to verify it passes or flags issues**
 
 Run: `npm test tests/api/openapi-sync.test.ts`
 Expected: PASS
 
-- [ ] **Step 3: Commit**
+- [x] **Step 3: Commit**
 
 ```bash
 git add tests/api/openapi-sync.test.ts
@@ -269,7 +269,7 @@ git commit -m "test(api): add automated OpenAPI contract and route synchronizati
   - `POST /api/quizzes/upload-flyer`: Returns `{ flyerImageUrl: string }`
   - Returns 501 when integration is disabled for `/extract` or `calendar.ics`
 
-- [ ] **Step 1: Write tests for upload-flyer and disabled guardrails**
+- [x] **Step 1: Write tests for upload-flyer and disabled guardrails**
 
 Create `tests/api/upload-flyer.test.ts`:
 Verify that `POST /api/quizzes/upload-flyer` accepts an image file, saves it, and returns `{ flyerImageUrl }`.
@@ -278,22 +278,22 @@ In `tests/api/guardrails.test.ts`:
 Assert that `/api/quizzes/extract` returns 501 when `vision` is false.
 Assert that `/api/quizzes/[id]/calendar.ics` returns 501 when `icalExport` is false.
 
-- [ ] **Step 2: Run tests to verify they fail**
+- [x] **Step 2: Run tests to verify they fail**
 
 Run: `npm test tests/api/upload-flyer.test.ts tests/api/guardrails.test.ts`
 Expected: FAIL
 
-- [ ] **Step 3: Implement `upload-flyer/route.ts` and guardrails**
+- [x] **Step 3: Implement `upload-flyer/route.ts` and guardrails**
 
 Implement `src/app/api/quizzes/upload-flyer/route.ts` using `saveUploadedFlyer`.
 Add 501 capability checks in `extract/route.ts` and `calendar.ics/route.ts`.
 
-- [ ] **Step 4: Run tests to verify they pass**
+- [x] **Step 4: Run tests to verify they pass**
 
 Run: `npm test tests/api/upload-flyer.test.ts tests/api/guardrails.test.ts`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/app/api/ tests/api/upload-flyer.test.ts tests/api/guardrails.test.ts
@@ -317,27 +317,27 @@ git commit -m "feat(api): add core upload-flyer endpoint and capability guardrai
   export function useCapabilities(): AppCapabilities;
   ```
 
-- [ ] **Step 1: Write test for CapabilitiesProvider and useCapabilities hook**
+- [x] **Step 1: Write test for CapabilitiesProvider and useCapabilities hook**
 
 Create `tests/features/CapabilitiesContext.test.tsx` using Vitest / React testing library.
 Assert that child components reading `useCapabilities()` receive the provided capabilities object.
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npm test tests/features/CapabilitiesContext.test.tsx`
 Expected: FAIL
 
-- [ ] **Step 3: Implement `CapabilitiesContext.tsx` and re-export in `index.ts`**
+- [x] **Step 3: Implement `CapabilitiesContext.tsx` and re-export in `index.ts`**
 
 Implement `createContext<AppCapabilities>`, `CapabilitiesProvider`, and `useCapabilities`.
 In `src/app/layout.tsx`, invoke `getCapabilities()` on the server and wrap children in `<CapabilitiesProvider capabilities={getCapabilities()}>`.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test tests/features/CapabilitiesContext.test.tsx`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/features/capabilities/ src/app/layout.tsx tests/features/CapabilitiesContext.test.tsx
@@ -356,29 +356,29 @@ git commit -m "feat(ui): add client CapabilitiesProvider and useCapabilities hoo
 **Interfaces:**
 - Consumes: `useCapabilities` from `@/features/capabilities`
 
-- [ ] **Step 1: Write test for adaptive flyer attachment**
+- [x] **Step 1: Write test for adaptive flyer attachment**
 
 Create `tests/components/QuizEntryFormAdaptive.test.tsx`:
 - Assert flyer image attachment is available regardless of `capabilities.vision`.
 - When `capabilities.vision` is `true`: OCR extraction trigger / auto-fill is rendered.
 - When `capabilities.vision` is `false`: Only manual attachment and image preview are rendered (no AI extraction trigger).
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npm test tests/components/QuizEntryFormAdaptive.test.tsx`
 
-- [ ] **Step 3: Update `FlyerUploader.tsx` and `QuizEntryForm.tsx`**
+- [x] **Step 3: Update `FlyerUploader.tsx` and `QuizEntryForm.tsx`**
 
 In `FlyerUploader.tsx`:
 Allow attaching the image and calling `/api/quizzes/upload-flyer`.
 Read `capabilities.vision`: only call `/api/quizzes/extract` or show "AI Scanning" when `vision` is true.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test tests/components/QuizEntryFormAdaptive.test.tsx`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/FlyerUploader.tsx src/components/QuizEntryForm.tsx tests/components/QuizEntryFormAdaptive.test.tsx
@@ -399,18 +399,18 @@ git commit -m "feat(ui): decouple core flyer upload from optional AI vision auto
 - Consumes: `useCapabilities` from `@/features/capabilities`
 - Produces: Preserves core payment and registration controls while hiding inactive calendar and sharing buttons, and renders flyer poster when present.
 
-- [ ] **Step 1: Write tests for ActionToolbar and QuizDetail flyer display**
+- [x] **Step 1: Write tests for ActionToolbar and QuizDetail flyer display**
 
 Create `tests/components/ActionToolbarAdaptive.test.tsx` and `tests/components/QuizDetailFlyer.test.tsx`:
 1. Assert Registration card and Payment toggle button ARE rendered unconditionally in `ActionToolbar`.
 2. Assert `ActionToolbar` only renders Calendar, WhatsApp, and Email buttons when their respective flags are true.
 3. Assert `QuizDetailClient` renders the flyer image when `quiz.flyerImageUrl` is populated.
 
-- [ ] **Step 2: Run test to verify it fails**
+- [x] **Step 2: Run test to verify it fails**
 
 Run: `npm test tests/components/ActionToolbarAdaptive.test.tsx tests/components/QuizDetailFlyer.test.tsx`
 
-- [ ] **Step 3: Update `ActionToolbar.tsx` and `QuizDetailClient.tsx`**
+- [x] **Step 3: Update `ActionToolbar.tsx` and `QuizDetailClient.tsx`**
 
 In `ActionToolbar.tsx`:
 Read `const { icalExport, whatsappShare, emailRegistration } = useCapabilities();`.
@@ -422,12 +422,12 @@ Keep Registration and Payment controls rendered unconditionally.
 In `QuizDetailClient.tsx`:
 Render the flyer poster banner/thumbnail if `quiz.flyerImageUrl` is present.
 
-- [ ] **Step 4: Run test to verify it passes**
+- [x] **Step 4: Run test to verify it passes**
 
 Run: `npm test tests/components/ActionToolbarAdaptive.test.tsx tests/components/QuizDetailFlyer.test.tsx`
 Expected: PASS
 
-- [ ] **Step 5: Commit**
+- [x] **Step 5: Commit**
 
 ```bash
 git add src/components/ActionToolbar.tsx src/components/QuizDetailClient.tsx tests/components/
@@ -442,7 +442,7 @@ git commit -m "feat(ui): adapt action toolbar and display attached flyer in deta
 - Modify: `.env.example`
 - Run all test suites & build verification
 
-- [ ] **Step 1: Update `.env.example`**
+- [x] **Step 1: Update `.env.example`**
 
 Add documentation and defaults for:
 ```bash
@@ -453,17 +453,17 @@ ENABLE_WHATSAPP_SHARE=false     # Set to true to enable WhatsApp roster formatti
 ENABLE_EMAIL_REGISTRATION=false # Set to true to enable organizer email registration helper
 ```
 
-- [ ] **Step 2: Run all test suites**
+- [x] **Step 2: Run all test suites**
 
 Run: `npm test`
 Expected: All test suites PASS (including OpenAPI sync, guardrails, core isolation, and adaptive UI tests).
 
-- [ ] **Step 3: Run production build check**
+- [x] **Step 3: Run production build check**
 
 Run: `npm run build`
 Expected: Next.js compiles with zero errors or type warnings.
 
-- [ ] **Step 4: Commit**
+- [x] **Step 4: Commit**
 
 ```bash
 git add .env.example
