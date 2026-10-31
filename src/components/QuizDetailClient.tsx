@@ -125,14 +125,30 @@ export function QuizDetailClient({
         </div>
       </div>
 
-      {/* Flyer Banner Placeholder */}
-      <div className="w-full h-32 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex flex-col items-center justify-center text-white p-4 mb-4 shadow-sm relative overflow-hidden">
-        <span className="text-3xl mb-1">🏆</span>
-        <h2 className="text-lg font-bold text-center drop-shadow-sm">{quiz.title}</h2>
-        <span className="text-xs bg-white/20 backdrop-blur-xs px-2.5 py-0.5 rounded-full mt-1">
-          {team?.name || "De Quizvrienden"}
-        </span>
-      </div>
+      {/* Flyer Banner / Poster */}
+      {quiz.flyerImageUrl ? (
+        <div className="w-full rounded-2xl overflow-hidden mb-4 border border-slate-200 shadow-sm bg-slate-900 relative">
+          <img
+            src={quiz.flyerImageUrl}
+            alt={`Flyer voor ${quiz.title}`}
+            className="w-full max-h-64 object-cover object-top"
+          />
+          <div className="p-3 bg-gradient-to-t from-black/80 via-black/40 to-transparent absolute bottom-0 left-0 right-0 text-white">
+            <h2 className="text-base font-bold drop-shadow-sm">{quiz.title}</h2>
+            <span className="text-[11px] bg-white/20 backdrop-blur-xs px-2 py-0.5 rounded-full mt-0.5 inline-block">
+              {team?.name || "De Quizvrienden"}
+            </span>
+          </div>
+        </div>
+      ) : (
+        <div className="w-full h-32 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex flex-col items-center justify-center text-white p-4 mb-4 shadow-sm relative overflow-hidden">
+          <span className="text-3xl mb-1">🏆</span>
+          <h2 className="text-lg font-bold text-center drop-shadow-sm">{quiz.title}</h2>
+          <span className="text-xs bg-white/20 backdrop-blur-xs px-2.5 py-0.5 rounded-full mt-1">
+            {team?.name || "De Quizvrienden"}
+          </span>
+        </div>
+      )}
 
       {/* Meta Details Card */}
       <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-4 shadow-sm space-y-2 text-sm text-slate-700">
