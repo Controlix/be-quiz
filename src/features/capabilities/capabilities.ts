@@ -1,6 +1,8 @@
 import { AppCapabilities } from "./types";
 
-export function getCapabilities(env: NodeJS.ProcessEnv = process.env): AppCapabilities {
+export function getCapabilities(
+  env: NodeJS.ProcessEnv | Record<string, string | undefined> = process.env
+): AppCapabilities {
   return {
     vision: env.ENABLE_AI_VISION === "true",
     icalExport: env.ENABLE_ICAL_EXPORT === "true",
