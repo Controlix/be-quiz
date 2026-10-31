@@ -2,8 +2,9 @@
 
 This document serves as the single source of truth for:
 1. **Design & Platform Philosophy** (Mobile Player Focus vs. Desktop Admin Back-Office)
-2. **v1 Priority Fixes & Polish** (Items from user testing ready to implement now)
-3. **v2 Feature Backlog** (Items postponed during original requirements capture + today's user testing)
+2. **v1 Priority Fixes & Polish** (Items from user testing ready to implement now — Completed)
+3. **v1.1 Feature Milestone** (Non-breaking UX, Admin & Polish enhancements ready to ship)
+4. **v2 Feature Backlog** (Architectural overhauls, external API integrations & complex features)
 
 ---
 
@@ -131,40 +132,88 @@ This document serves as the single source of truth for:
 
 ---
 
-## Part 2: Consolidated v2 Feature Backlog
+## Part 2: v1.1 Feature Milestone (Non-Breaking UX & Admin Polish)
 
-### A. Teams & Capacity (from initial requirements review)
-1. **Multiple Teams per Quiz (e.g. Team A / Team B):** When more friends want to join than the maximum team limit (e.g. 8 people for a 4-person quiz), allow fielding a second team instead of putting everyone on reserve. *(The schema already decouples `Team` from `Quiz` to make this seamless).*
-2. **Guest Players:** Ability to add an external guest or partner to the lineup who is not an official registered app member.
+### 1. Admin Edit Quiz Details (Error Correction)
+* **Feedback:** If a user makes a mistake during manual entry or flyer scan (e.g. incorrect venue, wrong start time, typo in title), admins cannot fix it without direct database intervention.
+* **Requirement:** Extend `/quizzes/[id]/edit` (restricted to admins) to allow updating all quiz metadata:
+  * Title, date, start time, location/venue, entry fee, organizer email, registration URL, and notes.
+* **Scope:** `EditQuizClient.tsx`, `quizService.ts`, and a new server action `adminUpdateQuizDetailsAction`.
 
-### B. Logistics & Coordination (from initial requirements review)
-3. **Carpooling & Ride-Sharing:** Allow members to indicate if they can drive (with seat counts) and assign passengers to cars, replacing ride discussions in WhatsApp.
-4. **Public / Unauthenticated Share Preview:** A minimal read-only preview link for WhatsApp so non-members can view public event details (date, venue, spots left) without seeing personal friend rosters or requiring a login.
-5. **Shared Team Calendar & 1-Tap Native Calendar Subscription (`webcal://`):**
-   * Provide a live `webcal://` feed URL so team members can subscribe once on their mobile devices (Apple Calendar / Android native calendar) and have all scheduled quizzes auto-sync to their phone in the background.
-   * Optional backend Google Calendar sync via Google Calendar API to a shared team calendar.
+### 2. Declined Players Visibility (Afgemeld)
+* **Feedback:** When teammates decline (*"Ik pas"*), they disappear from the UI, leaving others wondering who has already responded.
+* **Requirement:**
+  * Display which team members declined on the quiz details screen so teammates know who is unavailable without asking in WhatsApp.
+  * Visible to all logged-in members as a clean, compact section (e.g. subtle name chips or collapsible list) positioned below the active lineup and reserve players.
+* **Scope:** `QuizDetailClient.tsx` and `TeamLineup.tsx`.
 
-### C. Member Management & Administration (from initial requirements review)
-6. **Member Deactivation / Soft-Delete:** Ability for an admin to deactivate or archive departed members without corrupting historical quiz records.
-7. **Member Contact Details & Editing:** Ability to add email addresses, phone numbers, and edit member names post-creation.
-8. **Admin Role Management (Promote / Demote):** Interactive buttons in `/admin/members` to promote members to `ADMIN` or demote an Admin back to `USER` (with self-demotion protection).
-9. **Hard Delete with Confirmation:** A permanent deletion action for quizzes created entirely by mistake (as opposed to cancelling/archiving).
-10. **WhatsApp Share for Member Invites:** When adding a new member in `/admin/members` (or viewing a member with an active invite/unset PIN), offer a direct 1-tap "Deel via WhatsApp" action alongside copying the link, pre-filling a welcoming message with their personal join link.
-11. **Secure PIN Storage Upgrade & Seamless Migration (Bcrypt / Salted Hash):**
-    * Upgrade PIN hashing from unsalted SHA-256 to a secure, brute-force-resistant mechanism (e.g. `bcrypt` or per-user salted hashing) so that 4-digit PINs cannot be precomputed or looked up via rainbow tables if database access is ever compromised.
-    * Provide a seamless migration (precomputing existing hashes or migrating on login) so no PINs are invalidated and zero users are disrupted.
+### 3. Dynamic Capacity Icon for Player Count
+* **Feedback:** The static group icon (`👥`) doesn't give an immediate visual hint on whether a quiz is full or still seeking players.
+* **Requirement:**
+  * Dynamically update the icon displayed alongside the player ratio (`attending / max`, e.g. on quiz cards and headers):
+    * **Full / Complete:** Display a full/complete indicator (e.g. `UserCheck` or checkmark badge).
+    * **Open / Seeking:** Display an open/seeking indicator (e.g. `UserPlus` or `Users` with spots remaining).
+* **Scope:** `QuizCard.tsx` and `TeamLineup.tsx`.
 
-### D. User Experience & Enhancements (from user testing)
-12. **Flyer Image Display on Quiz Detail View:** Displaying the actual uploaded flyer poster as a rich banner on the quiz details screen, with a tap-to-expand fullscreen modal.
-13. **Maps Integration (Navigation):** Tapping the venue/address on cards or detail views opens Google Maps / Apple Maps / Waze with direct route navigation.
-14. **Duplicate Quiz Detection on Entry:** Warn the user when adding a quiz if another quiz already exists on the same date or at the same venue to prevent accidental duplicates.
-15. **Direct Registration Toggle (Without Email):** Ability to directly mark a quiz team as registered (e.g. via a *"Markeer als ingeschreven"* button) for instances where registration was handled in person, via telephone, WhatsApp, or Facebook Messenger, without triggering the `mailto:` email hand-off.
-16. **Date & Time Input Flexibility (Calendar Picker & Time Selector):**
-    * Support both typing the date directly (`DD/MM/YYYY`) and tapping a calendar icon/button to open an interactive visual date picker.
-    * Provide an easy time selection mechanism alongside text entry (e.g. native time picker dropdown / time input, or quick preset buttons like `19:30`, `20:00`, `20:30`, `14:00`).
+### 4. Venue Maps Integration & Navigation
+* **Feedback:** Users have to manually copy-paste the venue address into their navigation app.
+* **Requirement:** Tapping the venue/address on quiz cards or detail views opens Google Maps / Apple Maps / Waze with direct route navigation.
+* **Scope:** `QuizCard.tsx` and `QuizDetailClient.tsx`.
 
-### E. Post-Quiz Evaluation & Historical Insights (from user testing)
-17. **Lightweight Quiz Rating (1 to 5 Stars/Smileys) & Historical Match on Entry:**
+### 5. Direct Registration Toggle (Without Email)
+* **Feedback:** Not all pub quizzes require or offer email registration; some are registered on Facebook, by phone, or in person.
+* **Requirement:** Provide a direct *"Markeer als ingeschreven"* button alongside the mailto flow so an admin or player can mark the team as officially registered without opening an email client.
+* **Scope:** `ActionToolbar.tsx` and registration server actions.
+
+### 6. Flyer Image Display on Quiz Detail View
+* **Feedback:** The uploaded flyer image is stored but never displayed again once the quiz is created.
+* **Requirement:** Display the uploaded flyer image as an attractive banner or thumbnail on the quiz detail page, with a tap-to-expand fullscreen modal for inspection.
+* **Scope:** `QuizDetailClient.tsx`.
+
+### 7. WhatsApp Share for Member Invites
+* **Feedback:** Copying invite links manually is tedious when onboarding friends via WhatsApp.
+* **Requirement:** In `/admin/members` (when adding a member or viewing an active invite link), provide a direct 1-tap "Deel via WhatsApp" button that pre-fills a friendly greeting and their join link.
+* **Scope:** `/admin/members` management screen.
+
+### 8. Date & Time Input Flexibility (Calendar Picker & Time Selector)
+* **Feedback:** Typing dates manually in `DD/MM/YYYY` format can be slow on mobile.
+* **Requirement:**
+  * Support both typing the date directly and tapping a calendar icon/button to open an interactive visual date picker.
+  * Provide an easy time selection mechanism alongside text entry (e.g. native time picker dropdown or quick preset buttons like `19:30`, `20:00`, `20:30`, `14:00`).
+* **Scope:** `QuizEntryForm.tsx` and `EditQuizClient.tsx`.
+
+### 9. Duplicate Quiz Detection on Entry
+* **Feedback:** Accidental duplicate quizzes can split RSVPs and cause confusion.
+* **Requirement:** Warn the user when creating a quiz if another quiz already exists on the same date or at the same venue.
+* **Scope:** `QuizEntryForm.tsx` and `quizService.ts`.
+
+---
+
+## Part 3: v2 Major Feature & Architecture Backlog
+
+### A. Integrations & Logistics
+1. **Shared Team Google Calendar (Google Cloud):**
+   * Replace the individual "Add to my Google Calendar" button with direct integration to the team's shared Google Calendar in Google Cloud.
+   * Scheduled quizzes are automatically pushed to, updated, or removed from the shared team calendar (via Google Calendar API / Service Account and Shared Calendar ID).
+   * Optional live `webcal://` feed URL for native Apple/Android calendar subscriptions.
+2. **Carpooling & Ride-Sharing:** Allow members to indicate if they can drive (with seat counts) and assign passengers to cars, replacing ride discussions in WhatsApp.
+3. **Public / Unauthenticated Share Preview:** A minimal read-only preview link for WhatsApp so non-members can view public event details (date, venue, spots left) without seeing personal friend rosters or requiring a login.
+
+### B. Teams & Headcount
+4. **Multiple Teams per Quiz (e.g. Team A / Team B):** When more friends want to join than the maximum team limit (e.g. 8 people for a 4-person quiz), allow fielding a second team instead of putting everyone on reserve. *(The schema already decouples `Team` from `Quiz` to make this seamless).*
+5. **Guest Players:** Ability to add an external guest or partner to the lineup who is not an official registered app member.
+
+### C. Member Management & Security
+6. **Secure PIN Storage Upgrade & Seamless Migration (Bcrypt / Salted Hash):**
+   * Upgrade PIN hashing from unsalted SHA-256 to a secure, brute-force-resistant mechanism (e.g. `bcrypt` or per-user salted hashing) so that 4-digit PINs cannot be precomputed or looked up via rainbow tables if database access is ever compromised.
+   * Provide a seamless migration (precomputing existing hashes or migrating on login) so no PINs are invalidated and zero users are disrupted.
+7. **Member Deactivation / Soft-Delete:** Ability for an admin to deactivate or archive departed members without corrupting historical quiz records.
+8. **Member Contact Details & Editing:** Ability to add email addresses, phone numbers, and edit member names post-creation.
+9. **Admin Role Management (Promote / Demote):** Interactive buttons in `/admin/members` to promote members to `ADMIN` or demote an Admin back to `USER` (with self-demotion protection).
+10. **Hard Delete with Confirmation:** A permanent deletion action for quizzes created entirely by mistake (as opposed to cancelling/archiving).
+
+### D. Post-Quiz Evaluation & Historical Insights
+11. **Lightweight Quiz Rating (1 to 5 Stars/Smileys) & Historical Match on Entry:**
     * **Simplicity & Zero Overhead:**
       * Once a quiz has ended (date and start time passed), participating team members can quickly rate the quiz on a **1 to 5 scale (stars or smileys)**: how enjoyable was the event?
       * No cumbersome questionnaires or forms: a single tap records the team's impression.

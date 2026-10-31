@@ -1,0 +1,229 @@
+openapi: 3.1.0
+info:
+  title: be-quiz API
+  version: 1.0.0
+  description: >
+    HTTP API for the be-quiz team coordination application.
+    Covers core authentication endpoints and modular auxiliary integration endpoints
+    (calendar sync, AI vision extraction) which adapt based on deployment capabilities.
+
+servers:
+  - url: /
+    description: Current deployment host
+
+tags:
+  - name: Core Authentication
+    description: Essential user session and onboarding endpoints (always active in Core)
+  - name: Integrations - Calendar
+    description: Dynamic iCalendar feed generation (requires `calendar` capability)
+  - name: Integrations - Vision
+    description: AI flyer OCR and detail extraction (requires `vision` capability)
+
+paths:
+  /auth/join:
+    get:
+      tags:
+        - Core Authentication
+      summary: Redeem invite onboarding link
+      description: >
+        Validates a single-use onboarding invite token, creates a persistent session,
+        sets the secure HTTP-only session cookie, and redirects the user to the quiz dashboard.
+      parameters:
+        - name: token
+          in: query
+          required: true
+          description: Unique invite token hash
+          schema:
+            type: string
+      responses:
+        "307":
+          description: Invite successfully redeemed; redirects to /quizzes with session cookie set.
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+              description: Encrypted session token cookie
+            Location:
+              schema:
+                type: string
+                example: /quizzes
+        "400":
+          description: Invalid or expired invite token
+        "404":
+          description: Invite token not found
+
+  /auth/logout:
+    get:
+      tags:
+        - Core Authentication
+      summary: Log out current user
+      description: Invalidates active database session and clears authentication cookie.
+      responses:
+        "307":
+          description: Redirects to login page after clearing cookie.
+          headers:
+            Set-Cookie:
+              schema:
+                type: string
+              description: Expired session cookie
+            Location:
+              schema:
+                type: string
+                example: /auth/login
+
+  /api/quizzes/{id}/calendar.ics:
+    get:
+      tags:
+        - Integrations - Calendar
+      summary: Download iCalendar (.ics) feed for a quiz
+      description: >
+        Generates an RFC 5545 `.ics` event file for syncing with Google Calendar,
+        Apple Calendar, or Outlook.
+        Only active when `calendar` capability is enabled (`ENABLE_CALENDAR !== "false"`).
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: Quiz ID
+          schema:
+            type: string
+      responses:
+        "200":
+          description: iCalendar event file stream
+          headers:
+            Content-Type:
+              schema:
+                type: string
+                example: text/calendar; charset=utf-8
+            Content-Disposition:
+              schema:
+                type: string
+                example: attachment; filename="pub-quiz-de-vagant.ics"
+          content:
+            text/calendar:
+              schema:
+                type: string
+        "404":
+          description: Quiz not found
+        "501":
+          description: Calendar integration disabled in current deployment profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "Calendar feed integration is disabled in this deployment."
+
+  /api/quizzes/extract:
+    post:
+      tags:
+        - Integrations - Vision
+      summary: Extract quiz details from flyer image using AI Vision
+      description: >
+        Uploads flyer image to storage (local filesystem or Vercel Blob) and uses multi-modal AI
+        (Google Gemini / OpenAI Vision) to parse title, date, time, venue, team size, fee, and organizer info.
+        Only active when `vision` capability is enabled (`ENABLE_AI_VISION === "true"` or AI key configured).
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required:
+                - file
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Flyer image file (.jpg, .png, .webp, max 4MB)
+      responses:
+        "200":
+          description: Extraction successful
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VisionExtractionResponse"
+        "400":
+          description: Invalid file format, missing file, or file too large (>4MB)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+        "501":
+          description: Vision integration disabled in current deployment profile
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+              example:
+                error: "AI vision extraction is disabled in this deployment."
+        "500":
+          description: Internal processing or upstream AI error
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+components:
+  schemas:
+    ErrorResponse:
+      type: object
+      required:
+        - error
+      properties:
+        error:
+          type: string
+          description: Error message
+
+    VisionExtractionResponse:
+      type: object
+      required:
+        - isValid
+        - missingFields
+        - data
+      properties:
+        flyerImageUrl:
+          type: string
+          nullable: true
+          description: Relative or absolute URL of stored flyer image
+          example: "/uploads/flyers/1730371200000-flyer.webp"
+        isValid:
+          type: boolean
+          description: True if all required fields were successfully recognized
+          example: true
+        missingFields:
+          type: array
+          items:
+            type: string
+          description: List of standard fields that could not be extracted with high confidence
+          example: []
+        data:
+          type: object
+          properties:
+            title:
+              type: string
+              example: "Pub Quiz De Vagant"
+            date:
+              type: string
+              example: "2026-11-14"
+            time:
+              type: string
+              example: "20:00"
+            location:
+              type: string
+              example: "Markt 1, 9000 Gent"
+            maxTeamSize:
+              type: integer
+              example: 4
+            organizerEmail:
+              type: string
+              nullable: true
+              example: "quiz@devagant.be"
+            registrationUrl:
+              type: string
+              nullable: true
+              example: "https://devagant.be/inschrijven"
+            entryFee:
+              type: string
+              nullable: true
+              example: "€20 / ploeg"

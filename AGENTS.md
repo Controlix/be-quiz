@@ -7,3 +7,19 @@ This version has breaking changes — APIs, conventions, and file structure may 
 This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
 
 <!-- END:nextjs-agent-rules -->
+
+## Project Documentation & Architecture Guidelines
+
+Before planning, modifying, or implementing any features, database models, or structural changes, always consult the documentation in `docs/`:
+
+- **Architecture Overview (`docs/architecture/overview.md`):** Consult for high-level system design, service layer patterns, subsystem interactions, and architectural invariants.
+- **API Documentation (`docs/api/openapi.yaml`):** All HTTP route handlers, parameters, payloads, response schemas, and status codes must be maintained directly in the OpenAPI 3.1 specification (`docs/api/openapi.yaml`) as the single source of truth. Avoid creating redundant markdown endpoint documentation.
+- **Database Schema & ERD (`docs/database/schema.md`):** Consult for database models, relationships, field types, constraints, and cascading rules before writing Prisma migrations or queries.
+- **Architecture Decision Records (`docs/adr/`):** Check existing ADRs to align with established architectural decisions, and document new significant decisions by adding records here.
+- **Maintain Documentation Consistency:** Whenever making architectural changes, modifying the database schema in `prisma/schema.prisma`, or altering core services, update the corresponding documents in `docs/` as part of the task.
+
+## User Communication & Interaction Preferences
+
+- **Frequent Progress Feedback:** During tasks that involve multiple steps or take time (such as exploring code, executing multi-file edits, running subagents, or executing tests/builds), provide frequent, step-by-step progress feedback explaining what is currently happening. Avoid long sequences of silent tool execution so the user always has clear visibility into active work.
+
+
