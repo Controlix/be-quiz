@@ -130,6 +130,18 @@ This document serves as the single source of truth for:
      * **Desktop Admin View:** A dedicated desktop back-office view (e.g. `/admin/feedback`) where the admin can comfortably browse feedback, filter by category, see device details, and view/zoom attached screenshots.
 * **Status:** Completed
 
+### 17. Orphaned Uploads & Storage Garbage Collection (Bug / Storage Leak)
+* **Problem / Feedback:** When users drop, upload, or paste a flyer in `FlyerUploader` but do not submit/save the quiz (or upload multiple images while testing), files are immediately written to storage and never deleted.
+* **Observed Evidence:**
+  * **Locally:** 22 out of 27 files in `public/uploads/` were unreferenced orphans before being pruned.
+  * **Production (Vercel Blob):** In `be-quiz-blob`, 22 out of 24 files (totaling 4.17 MB) are unreferenced orphans, while the production database only has 2 active quiz flyer URLs.
+* **Root Cause:** Eager upload on file selection writes directly to storage before quiz submission, with zero cleanup or TTL garbage collection for unreferenced files.
+* **Requirement:**
+  1. **Dual Storage Pruning:** Extend the prune service to support both local filesystem (`public/uploads`) and cloud storage (`@vercel/blob` via `list()` and `del()`).
+  2. **Safe Retention Window (TTL):** Delete only files that are **unreferenced in the database AND older than 24 hours** (ensuring in-progress quiz creation forms are never interrupted).
+  3. **Automated Maintenance Execution:** Expose an authenticated cron route (e.g. `GET /api/cron/prune-uploads` secured by `CRON_SECRET`) for Vercel Cron, alongside the `npm run prune-uploads` CLI script.
+* **Status:** Open / Ready to Plan
+
 ---
 
 ## Part 2: v1.1 Feature Milestone (Non-Breaking UX & Admin Polish)
