@@ -12,6 +12,12 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 Before planning, modifying, or implementing any features, database models, or structural changes, always consult the documentation in `docs/`:
 
+- **Roadmap & Feature Backlog (`docs/roadmap.md`):** The single source of truth for active priorities, current milestones (e.g. v1.1), and future feature backlogs (v2). When picking up or finishing features, keep this document updated with their status.
+- **User Feedback & Remarks Lifecycle (`docs/superpowers/feedback/`):**
+  - **NEVER append endlessly to a single feedback file.**
+  - **Intake:** Record new testing remarks or feedback batches in dated files under `docs/superpowers/feedback/inbox/YYYY-MM-DD-<topic>.md`.
+  - **Triage:** Distill actionable tasks into `docs/roadmap.md`.
+  - **Archive:** When a milestone ships and its items are completed, archive the resolved items into `docs/superpowers/feedback/archive-<milestone>-completed.md` so that `docs/roadmap.md` stays lean, actionable, and free of historical clutter.
 - **Architecture Overview (`docs/architecture/overview.md`):** Consult for high-level system design, service layer patterns, subsystem interactions, and architectural invariants.
 - **API Documentation (`docs/api/openapi.yaml`):** All HTTP route handlers, parameters, payloads, response schemas, and status codes must be maintained directly in the OpenAPI 3.1 specification (`docs/api/openapi.yaml`) as the single source of truth. Avoid creating redundant markdown endpoint documentation.
 - **Database Schema & ERD (`docs/database/schema.md`):** Consult for database models, relationships, field types, constraints, and cascading rules before writing Prisma migrations or queries.
