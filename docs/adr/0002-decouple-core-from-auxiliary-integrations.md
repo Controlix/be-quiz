@@ -34,6 +34,15 @@ This monolithic coupling created tight dependencies on external APIs and environ
 ## Decision
 We chose **Option 1 (Capability-Driven Modular Core within Monolith)** for our current architecture. 
 
+### Configuration Strategy: Strictly Explicit Opt-In Flags
+To ensure predictable, deterministic deployments without hidden side-effects or surprise API costs, auxiliary integrations use **strictly explicit opt-in flags**:
+- `ENABLE_AI_VISION=true`: Activates flyer upload and multi-modal AI extraction.
+- `ENABLE_ICAL_EXPORT=true`: Activates dynamic `.ics` calendar event generation (distinguishing it from future shared team Google Calendar sync).
+- `ENABLE_WHATSAPP_SHARE=true`: Activates roster formatting and WhatsApp sharing.
+- `ENABLE_EMAIL_REGISTRATION=true`: Activates the organizer `mailto:` email registration helper.
+
+**Auto-detection is rejected:** If a flag is unset or set to any value other than `"true"`, the integration is completely disabled by default. The presence of an API key (e.g. `GEMINI_API_KEY`) alone will never silently activate an auxiliary integration.
+
 It provides immediate deployment flexibility with zero third-party dependencies required for the core app, dynamically adapts the UI to only show active capabilities, and establishes clean adapter boundaries so we can seamlessly migrate to Option 2 or Option 3 later if operational scale requires it.
 
 ## Consequences

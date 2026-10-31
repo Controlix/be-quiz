@@ -68,20 +68,21 @@ The purpose of this refactoring is to decouple the **Core Domain** (Quiz lifecyc
 A centralized module defining the deployment capabilities:
 ```typescript
 export interface AppCapabilities {
-  vision: boolean;    // AI flyer OCR extraction & flyer storage
-  calendar: boolean;  // Dynamic .ics calendar sync
-  sharing: boolean;   // WhatsApp roster broadcast & email registration drafts
+  vision: boolean;            // ENABLE_AI_VISION === "true"
+  icalExport: boolean;        // ENABLE_ICAL_EXPORT === "true"
+  whatsappShare: boolean;     // ENABLE_WHATSAPP_SHARE === "true"
+  emailRegistration: boolean; // ENABLE_EMAIL_REGISTRATION === "true"
 }
 ```
-- **Resolution Strategy & Precedence:**
-  - `vision`:
-    - If `ENABLE_AI_VISION === "false"`, explicitly `false`.
-    - If `ENABLE_AI_VISION === "true"`, explicitly `true`.
-    - If unset, automatically evaluates to `true` if any supported AI key is present (`GEMINI_API_KEY`, `GOOGLE_GENERATIVE_AI_API_KEY`, `AI_API_KEY`, `OPENAI_API_KEY`), otherwise `false`.
-  - `calendar`: Enabled if `ENABLE_CALENDAR !== "false"` (default: `true`).
-  - `sharing`: Enabled if `ENABLE_SHARING !== "false"` (default: `true`).
+- **Resolution Strategy (Strictly Explicit Opt-In):**
+  - Every integration capability defaults to `false` unless its environment variable is strictly equal to `"true"`.
+  - Auto-detection based on API keys alone is explicitly disallowed to prevent unexpected runtime behavior or accidental API costs.
+  - `vision`: `env.ENABLE_AI_VISION === "true"` (and requires a valid `GEMINI_API_KEY` or `OPENAI_API_KEY` to process requests).
+  - `icalExport`: `env.ENABLE_ICAL_EXPORT === "true"`.
+  - `whatsappShare`: `env.ENABLE_WHATSAPP_SHARE === "true"`.
+  - `emailRegistration`: `env.ENABLE_EMAIL_REGISTRATION === "true"`.
 - **Exported Helpers:**
-  - `getCapabilities(): AppCapabilities` (Server-side evaluation)
+  - `getCapabilities(env?: NodeJS.ProcessEnv): AppCapabilities` (Server-side evaluation)
   - `useCapabilities(): AppCapabilities` (Client-side hook / context provider for client components)
 
 ### 5.2 Directory Boundaries
@@ -89,9 +90,9 @@ Reorganize auxiliary code into modular feature folders:
 ```text
 src/
 ├── features/
-│   ├── capabilities/       # Capability registry, hooks, context provider
+│   ├── capabilities/       # Capability registry, types, hooks, context provider
 │   ├── vision/             # Vision service, flyer OCR prompt, storage adapters
-│   ├── calendar/           # iCal feed generator and formatter
+│   ├── calendar/           # iCal feed generator and formatter (.ics export)
 │   └── sharing/            # WhatsApp text generator, mailto drafts
 ├── services/               # Core business domain logic (quizService, rsvpService, paymentService, registrationService)
 ├── actions/                # Next.js Server Actions (mutations & controller layer)
@@ -106,16 +107,16 @@ src/
 2. **Event Actions & Core Controls (`src/components/ActionToolbar.tsx`):**
    - **Core Controls (Preserved Always):** The Team Registration status toggle and Entry Fee payment status toggle belong to the **Core Domain**. They remain fully visible and operational even if all auxiliary integrations are disabled.
    - **Auxiliary Integration Buttons (Conditionally Rendered):**
-     - `Add to Calendar` button only renders if `capabilities.calendar` is `true`.
-     - `WhatsApp Roster` button only renders if `capabilities.sharing` is `true`.
-     - `Email Registration` button only renders if `capabilities.sharing` is `true` (and `organizerEmail` is set).
-   - If auxiliary sharing/calendar buttons are disabled, the action toolbar adjusts its grid layout to cleanly display only the core Payment and Registration cards without empty gaps.
+     - `Add to Calendar` button only renders if `capabilities.icalExport` is `true`.
+     - `WhatsApp Roster` button only renders if `capabilities.whatsappShare` is `true`.
+     - `Email Registration` button only renders if `capabilities.emailRegistration` is `true` (and `organizerEmail` is set).
+   - If auxiliary sharing/calendar buttons are disabled, the action toolbar adjusts its layout to cleanly display only the core Payment and Registration cards without empty gaps.
 3. **Quiz Detail View (`src/components/QuizDetailClient.tsx`):**
    - If a quiz already contains a `flyerImageUrl`, the image thumbnail/lightbox continues to render as static visual content (using standard `<img>`, requiring zero external services). New uploads or OCR scans are only offered if `capabilities.vision` is active.
 
 ### 5.4 Route Handlers Guardrails & OpenAPI Synchronization
 - `src/app/api/quizzes/extract/route.ts`: Checks `getCapabilities().vision`. If false, returns `501 Not Implemented` with `{ error: "AI vision extraction is disabled in this deployment." }`.
-- `src/app/api/quizzes/[id]/calendar.ics/route.ts`: Checks `getCapabilities().calendar`. If false, returns `501 Not Implemented` or `404 Not Found`.
+- `src/app/api/quizzes/[id]/calendar.ics/route.ts`: Checks `getCapabilities().icalExport`. If false, returns `501 Not Implemented` or `404 Not Found`.
 - **OpenAPI Drift Prevention:** An automated Vitest test suite (`tests/api/openapi-sync.test.ts`) verifies:
   1. Every route handler in `src/app/api/**` and `src/app/auth/**` is fully registered with matching HTTP methods in `docs/api/openapi.yaml`.
   2. The OpenAPI YAML file conforms to valid OpenAPI 3.1 syntax.

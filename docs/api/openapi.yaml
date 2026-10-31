@@ -79,7 +79,7 @@ paths:
       description: >
         Generates an RFC 5545 `.ics` event file for syncing with Google Calendar,
         Apple Calendar, or Outlook.
-        Only active when `calendar` capability is enabled (`ENABLE_CALENDAR !== "false"`).
+        Only active when `icalExport` capability is enabled (`ENABLE_ICAL_EXPORT === "true"`).
       parameters:
         - name: id
           in: path
@@ -106,13 +106,13 @@ paths:
         "404":
           description: Quiz not found
         "501":
-          description: Calendar integration disabled in current deployment profile
+          description: Calendar iCal export integration disabled in current deployment profile
           content:
             application/json:
               schema:
                 $ref: "#/components/schemas/ErrorResponse"
               example:
-                error: "Calendar feed integration is disabled in this deployment."
+                error: "Calendar iCal export integration is disabled in this deployment."
 
   /api/quizzes/extract:
     post:
