@@ -3,12 +3,14 @@
 import { useState, useRef, useEffect } from "react";
 import { Camera, Loader2, AlertCircle, UploadCloud } from "lucide-react";
 import { VisionExtractionResult } from "@/services/visionService";
+import { useCapabilities } from "@/features/capabilities";
 
 interface FlyerUploaderProps {
   onExtractionComplete: (result: VisionExtractionResult & { flyerImageUrl?: string }) => void;
 }
 
 export function FlyerUploader({ onExtractionComplete }: FlyerUploaderProps) {
+  const { vision } = useCapabilities();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -72,17 +74,27 @@ export function FlyerUploader({ onExtractionComplete }: FlyerUploaderProps) {
       const formData = new FormData();
       formData.append("file", uploadPayload, file.name || "flyer.jpg");
 
-      const response = await fetch("/api/quizzes/extract", {
+      const endpoint = vision ? "/api/quizzes/extract" : "/api/quizzes/upload-flyer";
+      const response = await fetch(endpoint, {
         method: "POST",
         body: formData,
       });
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || "Fout bij analyseren van flyer");
+        throw new Error(data.error || (vision ? "Fout bij analyseren van flyer" : "Fout bij uploaden van flyer"));
       }
 
-      onExtractionComplete(data);
+      if (vision) {
+        onExtractionComplete(data);
+      } else {
+        onExtractionComplete({
+          isValid: true,
+          missingFields: [],
+          data: {},
+          flyerImageUrl: data.flyerImageUrl,
+        });
+      }
     } catch (err: any) {
       setError(err.message || "Kon de flyer niet verwerken.");
     } finally {
@@ -175,8 +187,12 @@ export function FlyerUploader({ onExtractionComplete }: FlyerUploaderProps) {
         {loading ? (
           <>
             <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-2" />
-            <p className="text-sm font-semibold text-slate-800">Flyer analyseren met AI...</p>
-            <p className="text-xs text-slate-500 mt-1">Datum, locatie en ploegmaat uitzoeken</p>
+            <p className="text-sm font-semibold text-slate-800">
+              {vision ? "Flyer analyseren met AI..." : "Flyer uploaden..."}
+            </p>
+            <p className="text-xs text-slate-500 mt-1">
+              {vision ? "Datum, locatie en ploegmaat uitzoeken" : "Afbeelding wordt opgeslagen"}
+            </p>
           </>
         ) : isDragging ? (
           <>
@@ -184,14 +200,18 @@ export function FlyerUploader({ onExtractionComplete }: FlyerUploaderProps) {
               <UploadCloud className="w-6 h-6 animate-bounce" />
             </div>
             <p className="text-sm font-bold text-blue-700">Laat afbeelding hier los!</p>
-            <p className="text-xs text-blue-500 mt-1">Screenshot of flyer wordt meteen verwerkt</p>
+            <p className="text-xs text-blue-500 mt-1">
+              {vision ? "Screenshot of flyer wordt meteen verwerkt" : "Afbeelding wordt opgeslagen"}
+            </p>
           </>
         ) : (
           <>
             <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mb-3">
               <Camera className="w-6 h-6" />
             </div>
-            <p className="text-sm font-bold text-slate-900">Upload flyer, sleep hierheen of plak screenshot</p>
+            <p className="text-sm font-bold text-slate-900">
+              {vision ? "Upload flyer, sleep hierheen of plak screenshot" : "Flyer toevoegen (optioneel)"}
+            </p>
             <p className="text-xs text-slate-500 mt-1">
               Sleep een bestand of plak rechtstreeks met Ctrl+V / Cmd+V
             </p>
