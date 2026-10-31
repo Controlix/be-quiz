@@ -23,8 +23,12 @@ describe("OpenAPI Synchronization", () => {
     expect(openApiContent).toContain('"501":');
   });
 
-  it("ensures every route handler in src/app/api is present in openapi.yaml", () => {
-    const apiDir = path.join(process.cwd(), "src/app/api");
+  it("ensures every route handler in src/app/api and src/app/auth is present in openapi.yaml", () => {
+    const routeDirs = [
+      path.join(process.cwd(), "src/app/api"),
+      path.join(process.cwd(), "src/app/auth"),
+    ];
+
     const walk = (dir: string): string[] => {
       let results: string[] = [];
       const list = fs.readdirSync(dir);
@@ -40,7 +44,7 @@ describe("OpenAPI Synchronization", () => {
       return results;
     };
 
-    const routes = walk(apiDir);
+    const routes = routeDirs.flatMap((dir) => walk(dir));
     for (const routePath of routes) {
       const relative = routePath
         .replace(path.join(process.cwd(), "src/app"), "")

@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { saveUploadedFlyer } from "@/lib/storage";
-import { extractQuizDetailsFromImage } from "@/services/visionService";
+import { saveUploadedFlyer, extractQuizDetailsFromImage } from "@/features/vision";
 import { getCapabilities } from "@/features/capabilities/capabilities";
 
 export async function POST(req: NextRequest) {

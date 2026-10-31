@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getQuizById } from "@/services/quizService";
-import { generateIcsCalendar } from "@/lib/ical";
+import { generateIcsCalendar } from "@/features/calendar";
 import { getCapabilities } from "@/features/capabilities/capabilities";
 
 export async function GET(

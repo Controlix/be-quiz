@@ -2,9 +2,8 @@
 
 import { useState } from "react";
 import { Mail, Share2, Calendar, Check, Copy } from "lucide-react";
-import { generateRegistrationMailto, getRegistrationEmailPlainText } from "@/lib/mailto";
-import { generateGoogleCalendarUrl } from "@/lib/ical";
-import { generateWhatsAppShareUrl } from "@/lib/whatsapp";
+import { generateRegistrationMailto, getRegistrationEmailPlainText, generateWhatsAppShareUrl } from "@/features/sharing";
+import { generateGoogleCalendarUrl } from "@/features/calendar";
 import { useCapabilities } from "@/features/capabilities";
 
 interface ActionToolbarProps {

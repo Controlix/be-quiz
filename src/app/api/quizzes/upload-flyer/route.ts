@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { saveUploadedFlyer } from "@/lib/storage";
+import { saveUploadedFlyer } from "@/features/vision";
 
 export async function POST(req: NextRequest) {
   try {

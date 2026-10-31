@@ -15,8 +15,24 @@ describe("Capability Registry", () => {
     expect(caps.vision).toBe(false);
   });
 
-  it("enables vision only when ENABLE_AI_VISION is 'true'", () => {
+  it("does NOT enable vision if ENABLE_AI_VISION is 'true' but no AI keys are present", () => {
     const caps = getCapabilities({ ENABLE_AI_VISION: "true" });
+    expect(caps.vision).toBe(false);
+  });
+
+  it("enables vision when ENABLE_AI_VISION is 'true' and GEMINI_API_KEY is set", () => {
+    const caps = getCapabilities({
+      ENABLE_AI_VISION: "true",
+      GEMINI_API_KEY: "test-gemini-key",
+    });
+    expect(caps.vision).toBe(true);
+  });
+
+  it("enables vision when ENABLE_AI_VISION is 'true' and OPENAI_API_KEY is set", () => {
+    const caps = getCapabilities({
+      ENABLE_AI_VISION: "true",
+      OPENAI_API_KEY: "test-openai-key",
+    });
     expect(caps.vision).toBe(true);
   });
 
