@@ -103,7 +103,7 @@ graph TD
 │   └── seed.ts               # Database seed script with demo members and quizzes
 ├── docs/
 │   ├── architecture/         # High-level architecture and system diagrams
-│   ├── adr/                  # Architectural Decision Records (ADR 0001, ADR 0002)
+│   ├── adr/                  # Architectural Decision Records (ADR 0001, ADR 0002, ADR 0003, template.md)
 │   ├── api/                  # OpenAPI 3.1 specification (openapi.yaml) as single API source of truth
 │   └── database/             # Database ER diagrams and field specifications
 ├── src/

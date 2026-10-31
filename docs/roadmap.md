@@ -1,30 +1,7 @@
 # Pub Quiz App (BE-Quiz) — Roadmap & Feature Backlog
 
 **Current App Version:** `v1.1.0` (Modular Core & Decoupled Integrations)  
-This document is the **single source of truth for active and planned roadmap items**, with cross-references to completed milestone specifications and architecture decisions.
-
----
-
-## Baseline Releases & Completed Specs
-
-The foundation and major architectural refactorings have been delivered across core milestones:
-
-1. **v1.0.0 Foundational MVP (`docs/superpowers/specs/2026-10-24-quiz-coordination-app-design.md`):**
-   * **Status:** `[x] Completed & Shipped`
-   * Mobile-first PWA, flyer upload & AI OCR extraction, transactional RSVP queue with automatic waitlist promotion, decoupled team/quiz schema, mailto registration flow, and PIN auth.
-   * *16 initial user feedback & UX polish fixes shipped and archived in `docs/superpowers/feedback/archive-v1-completed.md`.*
-2. **v1.0.1 In-App Feedback & Timing Polish (`docs/superpowers/specs/2026-10-25-v1-must-haves-design.md`):**
-   * **Status:** `[x] Completed & Shipped`
-   * Decoupled mail registration confirmation and in-app feedback modal with automatic viewport canvas screenshot capture and `/admin/feedback` desktop review dashboard.
-3. **v1.1.0 Core Domain & Auxiliary Integrations Decoupling (`docs/superpowers/specs/2026-10-31-core-integrations-decoupling-design.md`):**
-   * **Status:** `[x] Completed & Shipped` (Current Base — see [ADR 0002](../adr/0002-decouple-core-from-auxiliary-integrations.md))
-   * Decoupled core business domain from third-party integrations (Vision OCR, Vercel Blob, iCal, WhatsApp, Mailto).
-   * Centralized capability registry (`src/features/capabilities/`) with strict opt-in environment flags (`ENABLE_AI_VISION`, `ENABLE_ICAL_EXPORT`, `ENABLE_WHATSAPP_SHARE`, `ENABLE_EMAIL_REGISTRATION`).
-   * Adaptive UI (clean form without AI OCR when vision is off, adaptive action toolbar without gaps).
-   * Core flyer upload (`POST /api/quizzes/upload-flyer`) independent of AI OCR.
-   * Full flyer image rendering on the quiz detail view (`[x]` Item 6 shipped).
-   * Automated Vitest contract tests guarding against OpenAPI drift.
-   * *Declined players visibility and Unified RSVP state synchronization features (`v1.1` polish) shipped and archived in `docs/superpowers/feedback/archive-v1.1-completed.md`.*
+This document is the **single source of truth for active and planned roadmap items**. For past releases and completed milestone notes, see [CHANGELOG.md](../CHANGELOG.md) and [Feedback Archives](superpowers/feedback/).
 
 ---
 
