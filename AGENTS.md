@@ -20,6 +20,15 @@ Before planning, modifying, or implementing any features, database models, or st
 
 ## User Communication & Interaction Preferences
 
-- **Frequent Progress Feedback:** During tasks that involve multiple steps or take time (such as exploring code, executing multi-file edits, running subagents, or executing tests/builds), provide frequent, step-by-step progress feedback explaining what is currently happening. Avoid long sequences of silent tool execution so the user always has clear visibility into active work.
+- **No Git Commits Without Explicit Consent:**
+  - NEVER run `git commit` or create git commits unless the user has explicitly requested or consented to a commit.
+  - Doing work, editing files, or running scripts does not imply permission to commit. Always ask first.
+
+- **Mandatory Instant Feedback (WHAT and WHY):**
+  - Before taking ANY action or executing ANY tool call (reading files, executing commands, searching, editing code, running tests, or dispatching subagents), you MUST provide instant message feedback to the user.
+  - For every single step or action, explicitly state:
+    - **WHAT** you are doing (the exact file, tool, command, or check).
+    - **WHY** you are doing it (the rationale, objective, and purpose).
+  - Never execute silent tool calls or chain multiple actions without prior explanation. The user must have continuous, real-time visibility into what you are doing and why.
 
 
