@@ -7,7 +7,7 @@ This document is the **single source of truth for active and planned roadmap ite
 
 ## Baseline Releases & Completed Specs
 
-The foundation and major architectural refactorings have been delivered across three core milestones:
+The foundation and major architectural refactorings have been delivered across core milestones:
 
 1. **v1.0.0 Foundational MVP (`docs/superpowers/specs/2026-10-24-quiz-coordination-app-design.md`):**
    * **Status:** `[x] Completed & Shipped`
@@ -24,6 +24,7 @@ The foundation and major architectural refactorings have been delivered across t
    * Core flyer upload (`POST /api/quizzes/upload-flyer`) independent of AI OCR.
    * Full flyer image rendering on the quiz detail view (`[x]` Item 6 shipped).
    * Automated Vitest contract tests guarding against OpenAPI drift.
+   * *Declined players visibility and Unified RSVP state synchronization features (`v1.1` polish) shipped and archived in `docs/superpowers/feedback/archive-v1.1-completed.md`.*
 
 ---
 
@@ -61,15 +62,7 @@ The foundation and major architectural refactorings have been delivered across t
   * Title, date, start time, location/venue, entry fee, organizer email, registration URL, and notes.
 * **Scope:** `EditQuizClient.tsx`, `quizService.ts`, and a new server action `adminUpdateQuizDetailsAction`.
 
-### 3. Declined Players Visibility (Afgemeld)
-* **Status:** `[ ] Open`
-* **Feedback:** When teammates decline (*"Ik pas"*), they disappear from the UI, leaving others wondering who has already responded.
-* **Requirement:**
-  * Display which team members declined on the quiz details screen so teammates know who is unavailable without asking in WhatsApp.
-  * Visible to all logged-in members as a clean, compact section (e.g. subtle name chips or collapsible list) positioned below the active lineup and reserve players.
-* **Scope:** `QuizDetailClient.tsx` and `TeamLineup.tsx`.
-
-### 4. Dynamic Capacity Icon for Player Count
+### 3. Dynamic Capacity Icon for Player Count
 * **Status:** `[ ] Open`
 * **Feedback:** The static group icon (`👥`) doesn't give an immediate visual hint on whether a quiz is full or still seeking players.
 * **Requirement:**
@@ -78,25 +71,25 @@ The foundation and major architectural refactorings have been delivered across t
     * **Open / Seeking:** Display an open/seeking indicator (e.g. `UserPlus` or `Users` with spots remaining).
 * **Scope:** `QuizCard.tsx` and `TeamLineup.tsx`.
 
-### 5. Venue Maps Integration & Navigation
+### 4. Venue Maps Integration & Navigation
 * **Status:** `[ ] Open`
 * **Feedback:** Users have to manually copy-paste the venue address into their navigation app.
 * **Requirement:** Tapping the venue/address on quiz cards or detail views opens Google Maps / Apple Maps / Waze with direct route navigation.
 * **Scope:** `QuizCard.tsx` and `QuizDetailClient.tsx`.
 
-### 6. Direct Registration Toggle (Without Email)
+### 5. Direct Registration Toggle (Without Email)
 * **Status:** `[ ] Open`
 * **Feedback:** Not all pub quizzes require or offer email registration; some are registered on Facebook, by phone, or in person.
 * **Requirement:** Provide a direct *"Markeer als ingeschreven"* button alongside the mailto flow so an admin or player can mark the team as officially registered without opening an email client.
 * **Scope:** `ActionToolbar.tsx` and registration server actions.
 
-### 7. WhatsApp Share for Member Invites
+### 6. WhatsApp Share for Member Invites
 * **Status:** `[ ] Open`
 * **Feedback:** Copying invite links manually is tedious when onboarding friends via WhatsApp.
 * **Requirement:** In `/admin/members` (when adding a member or viewing an active invite link), provide a direct 1-tap "Deel via WhatsApp" button that pre-fills a friendly greeting and their join link.
 * **Scope:** `/admin/members` management screen.
 
-### 8. Date & Time Input Flexibility (Calendar Picker & Time Selector)
+### 7. Date & Time Input Flexibility (Calendar Picker & Time Selector)
 * **Status:** `[ ] Open`
 * **Feedback:** Typing dates manually in `DD/MM/YYYY` format can be slow on mobile.
 * **Requirement:**
@@ -104,7 +97,7 @@ The foundation and major architectural refactorings have been delivered across t
   * Provide an easy time selection mechanism alongside text entry (e.g. native time picker dropdown or quick preset buttons like `19:30`, `20:00`, `20:30`, `14:00`).
 * **Scope:** `QuizEntryForm.tsx` and `EditQuizClient.tsx`.
 
-### 9. Duplicate Quiz Detection on Entry
+### 8. Duplicate Quiz Detection on Entry
 * **Status:** `[ ] Open`
 * **Feedback:** Accidental duplicate quizzes can split RSVPs and cause confusion.
 * **Requirement:** Warn the user when creating a quiz if another quiz already exists on the same date or at the same venue.

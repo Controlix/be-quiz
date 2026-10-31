@@ -3,7 +3,7 @@
 import { prisma } from "@/lib/db";
 import { hashToken, generateSecureToken } from "@/lib/crypto";
 import { getSessionMember } from "@/lib/auth";
-import { adminOverrideDecline, updateTeamCapacity } from "@/services/rsvpService";
+import { adminOverrideDecline, adminOverrideAttend, updateTeamCapacity } from "@/services/rsvpService";
 import { adminResetRegistration } from "@/services/registrationService";
 import { revalidatePath } from "next/cache";
 
@@ -133,6 +133,27 @@ export async function adminUpdateDefaultTeamNameAction(newName: string) {
       update: { defaultTeamName: newName },
       create: { id: "singleton", defaultTeamName: newName },
     });
+    try {
+      revalidatePath("/quizzes");
+    } catch {}
+    return { success: true };
+  } catch (err: any) {
+    return { success: false, error: err.message };
+  }
+}
+
+export async function adminOverrideAttendAction(
+  teamId: string,
+  memberId: string,
+  adminId: string
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    const currentMember = await getSessionMember();
+    if (!currentMember || currentMember.role !== "ADMIN") {
+      return { success: false, error: "Niet geautoriseerd." };
+    }
+
+    await adminOverrideAttend(teamId, memberId, adminId);
     try {
       revalidatePath("/quizzes");
     } catch {}

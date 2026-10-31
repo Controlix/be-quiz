@@ -1,12 +1,17 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { GripVertical } from "lucide-react";
 
 export interface LineupMember {
   id: string;
   name: string;
   queuedSince: Date;
+}
+
+export interface DeclinedMember {
+  id: string;
+  name: string;
 }
 
 export function formatReserveBadge(index: number): string {
@@ -30,17 +35,21 @@ export function partitionLineup(
 
 interface TeamLineupProps {
   attendees: LineupMember[];
+  declinedMembers?: DeclinedMember[];
   maxTeamSize: number;
   isAdmin?: boolean;
   onAdminOverrideDecline?: (memberId: string) => void;
+  onAdminOverrideAttend?: (memberId: string) => void;
   onReorder?: (sourceIndex: number, destinationIndex: number) => Promise<void> | void;
 }
 
 export function TeamLineup({
   attendees,
+  declinedMembers = [],
   maxTeamSize,
   isAdmin = false,
   onAdminOverrideDecline,
+  onAdminOverrideAttend,
   onReorder,
 }: TeamLineupProps) {
   const sortedAttendees = [...attendees].sort(
@@ -52,6 +61,21 @@ export function TeamLineup({
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
   const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
   const touchStartIndexRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    const handleGlobalDragEnd = () => {
+      setDraggedIndex(null);
+      setDragOverIndex(null);
+    };
+
+    window.addEventListener("dragend", handleGlobalDragEnd);
+    window.addEventListener("drop", handleGlobalDragEnd);
+
+    return () => {
+      window.removeEventListener("dragend", handleGlobalDragEnd);
+      window.removeEventListener("drop", handleGlobalDragEnd);
+    };
+  }, []);
 
   const handleDragStart = (e: React.DragEvent, index: number) => {
     e.dataTransfer.setData("text/plain", String(index));
@@ -72,6 +96,11 @@ export function TeamLineup({
     if (draggedIndex !== null && draggedIndex !== targetIndex) {
       onReorder?.(draggedIndex, targetIndex);
     }
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDragEnd = () => {
     setDraggedIndex(null);
     setDragOverIndex(null);
   };
@@ -250,6 +279,36 @@ export function TeamLineup({
               );
             })}
           </ul>
+        </div>
+      )}
+
+      {/* Declined List */}
+      {declinedMembers && declinedMembers.length > 0 && (
+        <div className="mt-3 pt-3 border-t border-slate-100">
+          <h4 className="text-xs font-bold text-slate-500 mb-2">
+            Afgemeld ({declinedMembers.length})
+          </h4>
+          <div className="flex flex-wrap gap-1.5">
+            {declinedMembers.map((member) => (
+              <span
+                key={member.id}
+                className="inline-flex items-center gap-1.5 text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full border border-slate-200"
+              >
+                <span className="text-slate-400 font-bold">✕</span>
+                <span className="font-medium">{member.name}</span>
+                {isAdmin && onAdminOverrideAttend && (
+                  <button
+                    type="button"
+                    onClick={() => onAdminOverrideAttend(member.id)}
+                    className="ml-1 text-[10px] font-semibold text-blue-700 bg-blue-100 hover:bg-blue-200 px-1.5 py-0.5 rounded-full transition-colors"
+                    title="Meld deze speler aan"
+                  >
+                    + Aanmelden
+                  </button>
+                )}
+              </span>
+            ))}
+          </div>
         </div>
       )}
     </div>

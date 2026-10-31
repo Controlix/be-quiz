@@ -1,15 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useReducer } from "react";
 import Link from "next/link";
-import { TeamLineup, LineupMember } from "@/components/TeamLineup";
+import { TeamLineup, LineupMember, DeclinedMember } from "@/components/TeamLineup";
 import { RsvpControl } from "@/components/RsvpControl";
 import { ActionToolbar } from "@/components/ActionToolbar";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { joinQuizRsvpAction, declineQuizRsvpAction } from "@/actions/rsvpActions";
-import { adminOverrideDeclineAction } from "@/actions/adminActions";
+import { adminOverrideDeclineAction, adminOverrideAttendAction } from "@/actions/adminActions";
 import { adminReorderRsvpAction } from "@/actions/reorderActions";
 import { setRegisteredAction, toggleFeePaidAction } from "@/actions/registrationActions";
 import { formatEuropeanDateTime } from "@/lib/formatters";
+import {
+  rsvpReducer,
+  deriveCurrentUserStatus,
+  deriveLineupRosters,
+  ClientRsvp,
+} from "@/lib/rsvpReducer";
 import { ArrowLeft, MapPin, Calendar, Coins, Settings } from "lucide-react";
 
 interface QuizDetailClientProps {
@@ -26,61 +33,56 @@ export function QuizDetailClient({
   isAdmin = false,
 }: QuizDetailClientProps) {
   const team = quiz.team;
-  const initialAttendees: LineupMember[] = (team?.rsvps || [])
-    .filter((r: any) => r.status === "ATTENDING")
-    .map((r: any) => ({
-      id: r.memberId,
-      name: r.member?.name || "Lid",
-      queuedSince: new Date(r.queuedSince || r.createdAt),
-    }));
+  const initialRsvps: ClientRsvp[] = (team?.rsvps || []).map((r: any) => ({
+    memberId: r.memberId,
+    name: r.member?.name || "Lid",
+    status: r.status as "ATTENDING" | "DECLINED",
+    queuedSince: r.queuedSince ? new Date(r.queuedSince) : (r.createdAt ? new Date(r.createdAt) : null),
+  }));
 
-  const userRsvp = (team?.rsvps || []).find((r: any) => r.memberId === currentMemberId);
-  const initialStatus = userRsvp?.status || null;
+  const [rsvps, dispatchRsvp] = useReducer(rsvpReducer, initialRsvps);
 
-  const [attendees, setAttendees] = useState<LineupMember[]>(initialAttendees);
-  const [currentUserRsvp, setCurrentUserRsvp] = useState<"ATTENDING" | "DECLINED" | null>(
-    initialStatus
-  );
+  const currentUserRsvp = deriveCurrentUserStatus(rsvps, currentMemberId);
+  const { attendees, declined: declinedMembers } = deriveLineupRosters(rsvps, currentMemberId);
+
   const [isRegistered, setIsRegistered] = useState(team?.registeredAt !== null);
   const [isPaid, setIsPaid] = useState(team?.paidAt !== null);
+  const [selectedMemberToDecline, setSelectedMemberToDecline] = useState<string | null>(null);
 
   const handleRsvpChange = async (status: "ATTENDING" | "DECLINED") => {
-    setCurrentUserRsvp(status);
+    dispatchRsvp({
+      type: "USER_RSVP",
+      memberId: currentMemberId,
+      name: currentMemberName,
+      status,
+    });
     if (status === "ATTENDING") {
-      if (!attendees.some((a) => a.id === currentMemberId)) {
-        setAttendees((prev) => [
-          ...prev,
-          { id: currentMemberId, name: `${currentMemberName} (jij)`, queuedSince: new Date() },
-        ]);
-      }
       await joinQuizRsvpAction(team.id, currentMemberId);
     } else {
-      setAttendees((prev) => prev.filter((a) => a.id !== currentMemberId));
       await declineQuizRsvpAction(team.id, currentMemberId);
     }
   };
 
-  const handleAdminOverrideDecline = async (memberId: string) => {
-    if (window.confirm("Ben je zeker dat je deze speler namens hen wilt afzeggen?")) {
-      setAttendees((prev) => prev.filter((a) => a.id !== memberId));
-      await adminOverrideDeclineAction(team.id, memberId, currentMemberId);
-    }
+  const handleAdminOverrideDecline = (memberId: string) => {
+    setSelectedMemberToDecline(memberId);
+  };
+
+  const confirmAdminOverrideDecline = async () => {
+    if (!selectedMemberToDecline) return;
+    const memberId = selectedMemberToDecline;
+    setSelectedMemberToDecline(null);
+
+    dispatchRsvp({ type: "ADMIN_OVERRIDE_DECLINE", memberId });
+    await adminOverrideDeclineAction(team.id, memberId, currentMemberId);
+  };
+
+  const handleAdminOverrideAttend = async (memberId: string) => {
+    dispatchRsvp({ type: "ADMIN_OVERRIDE_ATTEND", memberId });
+    await adminOverrideAttendAction(team.id, memberId, currentMemberId);
   };
 
   const handleReorder = async (sourceIndex: number, destinationIndex: number) => {
-    setAttendees((prev) => {
-      const sorted = [...prev].sort(
-        (a, b) => new Date(a.queuedSince).getTime() - new Date(b.queuedSince).getTime()
-      );
-      const [moved] = sorted.splice(sourceIndex, 1);
-      sorted.splice(destinationIndex, 0, moved);
-      const baseTime = Date.now() - 100000;
-      return sorted.map((item, idx) => ({
-        ...item,
-        queuedSince: new Date(baseTime + idx * 1000),
-      }));
-    });
-
+    dispatchRsvp({ type: "ADMIN_REORDER", sourceIndex, destinationIndex });
     await adminReorderRsvpAction(team.id, sourceIndex, destinationIndex);
   };
 
@@ -178,9 +180,11 @@ export function QuizDetailClient({
       {/* Lineup & Reserve List */}
       <TeamLineup
         attendees={attendees}
+        declinedMembers={declinedMembers}
         maxTeamSize={team?.maxTeamSize || 4}
         isAdmin={isAdmin}
         onAdminOverrideDecline={handleAdminOverrideDecline}
+        onAdminOverrideAttend={handleAdminOverrideAttend}
         onReorder={handleReorder}
       />
 
@@ -199,6 +203,16 @@ export function QuizDetailClient({
         contactName={currentMemberName}
         onRegisterToggle={handleRegisterToggle}
         onPaymentToggle={handlePaymentToggle}
+      />
+
+      <ConfirmDialog
+        isOpen={selectedMemberToDecline !== null}
+        title="Speler Afzeggen?"
+        message="Ben je zeker dat je deze speler namens hen wilt afzeggen?"
+        confirmLabel="Ja, Afzeggen"
+        isDestructive={true}
+        onConfirm={confirmAdminOverrideDecline}
+        onCancel={() => setSelectedMemberToDecline(null)}
       />
     </div>
   );

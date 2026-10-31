@@ -116,6 +116,39 @@ export async function adminOverrideDecline(
   });
 }
 
+export async function adminOverrideAttend(
+  teamId: string,
+  memberId: string,
+  adminId: string
+): Promise<void> {
+  await prisma.$transaction(async (tx) => {
+    await tx.$executeRaw`SELECT id FROM "Team" WHERE id = ${teamId} FOR UPDATE`;
+
+    await tx.rsvp.upsert({
+      where: {
+        teamId_memberId: {
+          teamId,
+          memberId,
+        },
+      },
+      update: {
+        status: "ATTENDING",
+        queuedSince: new Date(),
+        overriddenById: adminId,
+        overriddenAt: new Date(),
+      },
+      create: {
+        teamId,
+        memberId,
+        status: "ATTENDING",
+        queuedSince: new Date(),
+        overriddenById: adminId,
+        overriddenAt: new Date(),
+      },
+    });
+  });
+}
+
 export async function updateTeamCapacity(
   teamId: string,
   newMaxTeamSize: number
