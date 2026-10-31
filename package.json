@@ -11,6 +11,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "stop": "./scripts/stop-dev.sh",
+    "dev:stop": "./scripts/stop-dev.sh",
     "test": "vitest run",
     "prune-uploads": "tsx scripts/prune-uploads.ts"
   },
