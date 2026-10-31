@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from "next/server";
 import { getQuizById } from "@/services/quizService";
 import { generateIcsCalendar } from "@/lib/ical";
+import { getCapabilities } from "@/features/capabilities/capabilities";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  if (!getCapabilities().icalExport) {
+    return NextResponse.json(
+      { error: "Calendar iCal export integration is disabled in this deployment." },
+      { status: 501 }
+    );
+  }
+
   const { id } = await params;
   const quiz = await getQuizById(id);
 

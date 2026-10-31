@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from "next/server";
 import { saveUploadedFlyer } from "@/lib/storage";
 import { extractQuizDetailsFromImage } from "@/services/visionService";
+import { getCapabilities } from "@/features/capabilities/capabilities";
 
 export async function POST(req: NextRequest) {
+  if (!getCapabilities().vision) {
+    return NextResponse.json(
+      { error: "AI vision extraction is disabled in this deployment." },
+      { status: 501 }
+    );
+  }
+
   try {
     const formData = await req.formData();
     const file = formData.get("file") as File | null;
