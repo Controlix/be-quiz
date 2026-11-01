@@ -1,6 +1,10 @@
 # Deployment Guide: KwisVrienden on Vercel
 
-This guide outlines the complete step-by-step process to deploy and configure this application on **Vercel** with a managed PostgreSQL database and Vercel Blob storage.
+This guide outlines the step-by-step procedure to deploy and configure this application on **Vercel** with a managed PostgreSQL database and Vercel Blob storage.
+
+For detailed compute models (including Docker standalone containers), see [docs/deployment/overview.md](docs/deployment/overview.md).  
+For backing services, database pooling, and dual-mode storage, see [docs/infrastructure/overview.md](docs/infrastructure/overview.md).  
+For the software service boundaries, see [docs/architecture/overview.md](docs/architecture/overview.md).
 
 ---
 

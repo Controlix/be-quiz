@@ -1,6 +1,9 @@
 # Architecture Overview: be-quiz
 
-Welcome to the **be-quiz** architecture documentation. This document outlines the high-level system architecture, design patterns, core subsystems, and directory boundaries of the application.
+Welcome to the **be-quiz** architecture documentation. This document outlines the high-level application architecture, subsystem boundaries, domain services, and runtime execution split between the browser and the server.
+
+For details on compute models and deployment methods (Vercel vs. Docker), see [Deployment Overview](../deployment/overview.md).  
+For details on backing services, databases, storage tiers, and networking, see [Infrastructure Overview](../infrastructure/overview.md).
 
 ---
 
@@ -10,13 +13,28 @@ Welcome to the **be-quiz** architecture documentation. This document outlines th
 
 ```mermaid
 graph TD
-    Client[Web Browser / PWA Client]
+    subgraph BrowserClient["Frontend (Web Browser Runtime)"]
+        LineupUI["Roster & Lineup ('use client')<br/>• QuizDetailClient<br/>• TeamLineup<br/>• MemberRosterClient"]
+        FormsUI["Forms & Wizards ('use client')<br/>• QuizEntryForm<br/>• EditQuizClient<br/>• FlyerUploader"]
+        AuthUI["Auth & Modals ('use client')<br/>• LoginPinClient<br/>• FeedbackWidget<br/>• ConfirmDialog"]
+        ClientCaps["CapabilitiesContext & useCapabilities<br/>(features/capabilities)"]
+        ShareMod["Sharing Helpers: WhatsApp & Mailto<br/>(features/sharing)"]
 
-    subgraph NextApp["Next.js App (Full-stack Node.js / Docker)"]
-        UI["Presentation Layer (Adaptive React Components)"]
-        Actions["Server Actions (Core Mutation API)"]
-        RouteHandlers["Route Handlers (REST & Feeds)"]
+        LineupUI --> ClientCaps
+        LineupUI --> ShareMod
+    end
+
+    subgraph NextServer["Backend (Next.js Server Runtime)"]
+        RSC["React Server Components<br/>(Layouts & Pages)"]
+        Actions["Server Actions<br/>(Form Mutations & Auth Cookies)"]
+        RouteHandlers["Route Handlers<br/>(Calendar .ics & Flyer OCR)"]
         
+        subgraph ServerFeatures["Server Feature Modules"]
+            ServerCaps["getCapabilities()<br/>(features/capabilities)"]
+            VisionMod["AI Flyer OCR<br/>(features/vision)"]
+            CalMod["iCal Feed Generator<br/>(features/calendar)"]
+        end
+
         subgraph CoreServices["Core Domain Services"]
             QuizService[quizService]
             RsvpService[rsvpService]
@@ -24,101 +42,103 @@ graph TD
             PayService[paymentService]
         end
 
-        subgraph FeatureModules["Optional Feature Modules (Decoupled)"]
-            Caps[Capability Registry: getCapabilities / useCapabilities]
-            VisionMod[features/vision: AI Flyer OCR & Storage]
-            CalMod[features/calendar: iCal .ics Generator]
-            ShareMod[features/sharing: WhatsApp & Mailto Helpers]
-        end
-
-        subgraph CoreLib["Core Library & Infra"]
+        subgraph CoreLib["Core Library & Persistence"]
             AuthLib[auth & crypto]
-            PrismaClient[(Prisma Client)]
+            PrismaClient[(Prisma ORM Client)]
         end
     end
 
-    subgraph External["Optional External Services & Datastores"]
-        Postgres[(PostgreSQL Database - Required)]
-        VercelBlob[Vercel Blob Storage - Optional]
-        AIModels[Google Gemini / OpenAI Vision - Optional]
+    subgraph DataAndExternal["Backing Stores & External Services"]
+        Postgres[(PostgreSQL Database)]
+        StorageTarget[Asset Storage: Vercel Blob / Local Volume]
+        AIModels[Google Gemini / OpenAI Vision APIs]
     end
 
-    Client -->|HTTP / HTML / RSC| UI
-    Client -->|Form Mutations / Server Actions| Actions
-    Client -->|Calendar .ics / Extractor API / Auth Routes| RouteHandlers
+    %% Network & Protocol Boundaries
+    RSC -->|HTML & RSC Stream| BrowserClient
+    LineupUI -->|RSVP & Queue Mutations| Actions
+    FormsUI -->|Form Submissions| Actions
+    AuthUI -->|PIN Auth & Feedback| Actions
+    BrowserClient -->|HTTP GET / POST| RouteHandlers
 
-    UI --> Caps
-    UI --> CoreServices
+    %% Internal Server Wiring
+    RSC --> ServerCaps
+    RSC --> CoreServices
     Actions --> CoreServices
-    RouteHandlers --> Caps
     RouteHandlers --> VisionMod
     RouteHandlers --> CalMod
 
     VisionMod -.-> AIModels
-    VisionMod -.-> VercelBlob
+    VisionMod -.-> StorageTarget
     CoreServices --> CoreLib
     PrismaClient --> Postgres
 ```
 
 ---
 
-## 2. Technology Stack
+## 2. Runtime Execution Boundary: Browser vs. Server
+
+The application cleanly partitions responsibilities between code executing in the **user's browser** and code executing on the **Next.js server runtime** (whether running on Vercel Serverless or in a standalone Docker container):
+
+### 2.1 What Runs in the Browser (Client Side)
+* **Interactive React Components (`"use client"`):**
+  * **Lineup & RSVP Controls:** `QuizDetailClient`, `TeamLineup`, `MemberRosterClient` handle user taps, instant attendance status toggles, and drag-and-drop roster reordering.
+  * **Creation & Edit Wizards:** `QuizEntryForm`, `EditQuizClient`, `FlyerUploader` handle drag-and-drop image uploads, clipboard pasting (`Ctrl+V`), and local preview rendering before submission.
+  * **Authentication:** `LoginPinClient` provides the personal 4-digit PIN keypad and instant validation feedback.
+  * **Interactive Overlays:** `FeedbackWidget` (with client-side screenshot capture via `html2canvas-pro`), `ConfirmDialog`, and dashboard tabs in `QuizzesDashboard`.
+* **State Management & UI Adaptation:**
+  * `CapabilitiesContext`: Consumes server-evaluated capabilities and exposes `useCapabilities()` so client components adaptively hide disabled feature buttons without visual layout shifts.
+  * Pure state derivations: Attendee counts, waitlist numbers, and button states are derived on the fly from the authoritative single domain state.
+* **Deep Links:** Launching native WhatsApp conversations and `mailto:` registration draft emails with pre-populated rosters.
+
+### 2.2 What Runs on the Server Runtime
+* **React Server Components (RSC):**
+  * `layout.tsx` and `page.tsx` execute exclusively on the server, fetching data directly from PostgreSQL and streaming HTML/RSC payloads to the browser.
+* **Server Actions (`src/actions/`):**
+  * Acts as the mutation controller layer for form submissions and user actions (e.g., submitting RSVPs, overriding player statuses, updating quiz information).
+  * Manages cryptographic session tokens and secure HTTP-only cookies (`auth.ts`, `crypto.ts`).
+* **Route Handlers (`src/app/api/`):**
+  * Dynamic calendar feed generation (`/api/quizzes/[id]/calendar.ics`) streaming standard `.ics` payloads.
+  * AI flyer OCR extraction endpoint (`/api/quizzes/extract`).
+* **Domain Services (`src/services/`):**
+  * Contains all business rules, waitlist algorithms, roster limits, payment state transitions, and transactional queries (`rsvpService`, `quizService`, `paymentService`, `registrationService`).
+  * Pure Prisma ORM interactions; completely isolated from presentation logic.
+* **Protected External Integrations:**
+  * Direct communication with Google Gemini or OpenAI Vision APIs using private server environment variables (`GEMINI_API_KEY`, `OPENAI_API_KEY`).
+  * File storage writes via `@vercel/blob` tokens or local disk volume writes.
+
+---
+
+## 3. Technology Stack
 
 - **Framework:** [Next.js](https://nextjs.org/) (App Router, React 19 Server Components, Server Actions)
 - **Language:** TypeScript
 - **Database & ORM:** PostgreSQL managed with [Prisma ORM](https://www.prisma.io/)
 - **Styling:** [Tailwind CSS](https://tailwindcss.com/) v4
-- **Storage:** Dual-mode storage (Local filesystem in `public/uploads/` with fallback to `@vercel/blob`)
+- **Storage:** Dual-mode storage (Local filesystem volume in `public/uploads/` with automatic fallback to `@vercel/blob`)
 - **Testing:** [Vitest](https://vitest.dev/) for unit and integration testing
-- **Containerization:** Docker (multi-stage build with musl OpenSSL support) & Docker Compose
+- **Containerization:** Multi-stage Docker build producing `.next/standalone` runner
 
 ---
 
-## 3. Core Architectural Subsystems
+## 4. Core Architectural Subsystems
 
-### 3.1 Authentication & Authorization
+### 4.1 Authentication & Authorization
 - **Session & PIN Auth:** Passwordless/PIN-based authentication for team members, using cryptographically secure session tokens stored in the database (`Session` model) and encrypted HTTP cookies (`auth.ts`, `crypto.ts`).
 - **Invite-based Onboarding:** Unique invitation links (`Invite` model) to onboard team members directly with pre-assigned roles (`USER` or `ADMIN`).
 - **Role Enforcement:** Server Actions and Admin routes check the active session's role before executing privileged operations (e.g. member management, overrides, settings).
 
-### 3.2 Quiz Lifecycle & Roster Concurrency
+### 4.2 Quiz Lifecycle & Roster Concurrency
 - **Event Management:** Quizzes track scheduling, Europe/Brussels time zones, durations, locations, entry fees, and flyer assets.
-- **Roster & Queueing:** Each Quiz is linked 1-to-1 with a `Team` (`v1`). Members RSVP as `ATTENDING` or `DECLINED`.
+- **Roster & Queueing:** Each Quiz is linked 1-to-1 with a `Team`. Members RSVP as `ATTENDING` or `DECLINED`.
 - **First-Come, First-Served Queue:** When the team limit (`maxTeamSize`) is reached, excess RSVPs enter a reserve queue ordered by `queuedSince`.
 - **Concurrency & Reordering:** Strict transactional updates via Prisma ensure that concurrent RSVPs, admin declines, and manual roster reordering maintain roster consistency without race conditions.
 
-### 3.3 Capability Registry & Modular Features
+### 4.3 Capability Registry & Modular Features
 - **Capability Registry (`src/features/capabilities/`):** Evaluates deployment settings based on environment variables (`ENABLE_AI_VISION`, `ENABLE_CALENDAR`, `ENABLE_SHARING`) and AI keys (`GEMINI_API_KEY`, `OPENAI_API_KEY`).
 - **UI Adaptation:** The UI queries capabilities (via server helpers or client hook) to cleanly hide disabled features rather than showing disabled placeholders.
 - **AI Flyer Extraction (`src/features/vision/`):** Optional module analyzing event flyers with multi-modal AI to extract event details.
 - **Calendar & Sharing Helpers (`src/features/calendar/`, `src/features/sharing/`):** Optional modules for `.ics` calendar generation, WhatsApp lineup formatting, and email registration links.
-
----
-
-## 4. Directory Structure
-
-```text
-├── prisma/
-│   ├── schema.prisma         # Prisma schema definitions and relations
-│   └── seed.ts               # Database seed script with demo members and quizzes
-├── docs/
-│   ├── architecture/         # High-level architecture and system diagrams
-│   ├── adr/                  # Architectural Decision Records (ADR 0001, ADR 0002, ADR 0003, template.md)
-│   ├── api/                  # OpenAPI 3.1 specification (openapi.yaml) as single API source of truth
-│   └── database/             # Database ER diagrams and field specifications
-├── src/
-│   ├── actions/              # Next.js Server Actions (mutations, validation, auth checks)
-│   ├── app/                  # Next.js App Router (pages, layouts, API route handlers)
-│   ├── components/           # React Server and Client Components (adaptive UI)
-│   ├── features/             # Decoupled optional integration modules
-│   │   ├── capabilities/     # Capability registry & client context provider
-│   │   ├── vision/           # Vision service, flyer OCR prompt, storage adapters
-│   │   ├── calendar/         # iCal feed generator and formatter
-│   │   └── sharing/          # WhatsApp message generator, mailto drafts
-│   ├── lib/                  # Shared core utilities (auth, DB client, crypto, formatters)
-│   └── services/             # Core domain business logic (quiz, RSVP, payment, registration)
-└── tests/                    # Vitest test suites (concurrency, business rules, services)
-```
 
 ---
 
@@ -131,3 +151,4 @@ graph TD
 5. **Database-enforced Integrity:** Foreign keys use strict constraints (`Cascade` for child sessions/RSVPs, `Restrict` for creators and registrars, `SetNull` for feedback authors).
 6. **Single Source of Truth for Client State:** Client components that manage or reflect domain entities (e.g. RSVPs, rosters) must maintain a single unified collection or pure reducer as the sole source of truth. Child controls, status pills, and lineup partitions must be purely derived from this single state, never stored in duplicate or parallel state arrays that can drift (see [Client RSVP State: Single Source of Truth](./rsvp-state.md)).
 7. **Node-based Deterministic Testing:** The test suite operates in Vitest under `environment: "node"`. Domain rules, transitions, and state reducers must be designed and verified as pure functions or backend service integration tests. Component tests verify markup via `renderToStaticMarkup` without relying on browser DOM emulation (`@testing-library/react`, `jsdom`).
+8. **Zero Secret Leakage:** Database connection strings, encryption secrets, and third-party AI keys never pass to the client bundle; all sensitive interactions are guarded by server boundaries.

@@ -133,11 +133,15 @@ npx vitest
 
 ---
 
-## 🚢 Deployment
+## 🚢 Deployment & Architecture Documentation
 
-BE-Quiz is optimized for deployment on **Vercel** with a managed PostgreSQL instance (Neon / Prisma Postgres) and Vercel Blob storage.
+BE-Quiz supports deployment on **Vercel** (Serverless PaaS) as well as self-hosted **Docker standalone containers**.
 
-For detailed production setup instructions, refer to [DEPLOYMENT.md](./DEPLOYMENT.md).
+* **Architecture & Runtime Boundaries:** [docs/architecture/overview.md](docs/architecture/overview.md)
+* **Compute & Deployment Models:** [docs/deployment/overview.md](docs/deployment/overview.md) (or step-by-step Vercel guide in [DEPLOYMENT.md](./DEPLOYMENT.md))
+* **Infrastructure & Backing Services:** [docs/infrastructure/overview.md](docs/infrastructure/overview.md)
+* **Database Schema & ERD:** [docs/database/schema.md](docs/database/schema.md)
+* **API Specification (OpenAPI):** [docs/api/openapi.yaml](docs/api/openapi.yaml)
 
 ---
 
