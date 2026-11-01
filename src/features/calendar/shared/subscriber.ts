@@ -13,15 +13,25 @@ export interface SharedCalendarSubscriberOptions {
   appUrl?: string;
 }
 
+const globalForCalendar = globalThis as unknown as {
+  __calendarSubscriberRegistered__?: boolean;
+};
+
 export function registerSharedCalendarSubscriber(
   options?: SharedCalendarSubscriberOptions
 ): () => void {
+  if (globalForCalendar.__calendarSubscriberRegistered__) {
+    return () => {};
+  }
+
   const client = options?.client ?? getGoogleCalendarClient();
   const calendarId = options?.calendarId ?? process.env.GOOGLE_CALENDAR_ID;
 
   if (!client || !calendarId) {
     return () => {};
   }
+
+  globalForCalendar.__calendarSubscriberRegistered__ = true;
 
   const activeClient: GoogleCalendarClient = client;
   const activeCalendarId: string = calendarId;
@@ -214,6 +224,7 @@ export function registerSharedCalendarSubscriber(
   ];
 
   return () => {
+    globalForCalendar.__calendarSubscriberRegistered__ = false;
     for (const unsub of unsubs) {
       unsub();
     }

@@ -3,6 +3,9 @@
 **Current App Version:** `v2.0.0` (Shared Team Google Calendar & Domain Event Bus)  
 This document is the **single source of truth for active and planned roadmap items**. For past releases and completed milestone notes, see [CHANGELOG.md](../CHANGELOG.md) and [Feedback Archives](superpowers/feedback/).
 
+**Active Implementation Plan:**
+- [ ] `[Active Plan]` [Cross-Chunk Event Bus Singleton & Invariant 9](superpowers/plans/2026-11-01-cross-chunk-event-bus-singleton.md)
+
 ---
 
 ## Guiding Principle: Mobile Player Experience vs. Desktop Admin Back-Office

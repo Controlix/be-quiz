@@ -56,6 +56,7 @@ Before planning, modifying, or implementing any features, database models, or st
   - **Pure State Derivations:** Any filtered sub-lists, member counts, status badges, or button states must be purely derived functions of the primary state, never stored in separate sync variables.
   - **Root Cause Solutions Only:** Never propose or write superficial quick patches, symptom workarounds, or band-aids that paper over architectural flaws. If a domain or state model is fragmented, refactor it to a clean, unified architecture first.
   - **Zero External/DOM Test Dependencies:** Keep reducers and domain transformations 100% pure TypeScript, tested with high speed and determinism under Node.js in Vitest without relying on browser DOM emulation or mock-heavy harnesses.
+  - **Cross-Chunk In-Process Singletons:** In Next.js server runtimes, never use naive file-level singletons (`export const bus = new Bus()`) for shared in-memory infrastructure (such as event brokers or connection pools). Always anchor process-level brokers to `globalThis` to prevent silent instance divergence across Next.js Webpack chunk closures.
   - **Environment-Accurate Execution:** Never assume or hallucinate test libraries, runners, or dependencies; always inspect the actual repository configuration (`package.json`, test configs, and established codebase patterns) before drafting plans or writing code.
 
 - **Mandatory Pre-Implementation Spec & Plan Review:**
