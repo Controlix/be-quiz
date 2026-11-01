@@ -26,7 +26,7 @@ describe("QuizDetailClient Declined Players Integration", () => {
     },
   };
 
-  const defaultCaps = { vision: false, icalExport: false, whatsappShare: false, emailRegistration: false };
+  const defaultCaps = { vision: false, icalExport: false, whatsappShare: false, emailRegistration: false, sharedGoogleCalendar: false };
 
   it("initializes and renders declined members from quiz team data", () => {
     const html = renderToStaticMarkup(

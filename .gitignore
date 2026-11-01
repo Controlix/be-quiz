@@ -7,3 +7,5 @@ public/uploads/
 .vercel
 .env*
 *.tsbuildinfo
+temp/
+

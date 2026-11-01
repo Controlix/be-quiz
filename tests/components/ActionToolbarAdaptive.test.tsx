@@ -26,6 +26,7 @@ describe("Adaptive ActionToolbar", () => {
           icalExport: false,
           whatsappShare: false,
           emailRegistration: false,
+          sharedGoogleCalendar: false,
         }}
       >
         <ActionToolbar {...defaultProps} />
@@ -52,6 +53,7 @@ describe("Adaptive ActionToolbar", () => {
           icalExport: true,
           whatsappShare: true,
           emailRegistration: true,
+          sharedGoogleCalendar: false,
         }}
       >
         <ActionToolbar {...defaultProps} />

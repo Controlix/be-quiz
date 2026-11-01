@@ -95,6 +95,15 @@ erDiagram
         datetime updatedAt
     }
 
+    CalendarEventMapping {
+        string id PK "cuid"
+        string quizId "unique"
+        string externalEventId
+        string calendarId
+        datetime syncedAt
+        datetime updatedAt
+    }
+
     Feedback {
         string id PK "cuid"
         FeedbackCategory category "default: BUG"
@@ -259,3 +268,19 @@ Captures in-app user feedback, bug reports, and screenshots.
 - **Indexes:**
   - `@@index([createdAt])`
   - `@@index([isResolved])`
+
+---
+
+### 3.8 `CalendarEventMapping` (Integration Model)
+Tracks synchronization state between internal quizzes and external Google Calendar events for the shared team calendar.
+- **Decoupling Invariant:** Stored separately from `Quiz` and `Team` so that core domain tables remain 100% agnostic of external Google Calendar IDs and metadata.
+- **Attributes:**
+  - `id` (`String` / `cuid`, PK)
+  - `quizId` (`String`, unique index): Identifier of the synchronized quiz.
+  - `externalEventId` (`String`): Identifier assigned by Google Calendar API.
+  - `calendarId` (`String`): Google Calendar ID where the event was created.
+  - `syncedAt` (`DateTime`, default: `now()`)
+  - `updatedAt` (`DateTime`): Last timestamp of successful synchronization.
+- **Indexes:**
+  - `@@unique([quizId])`
+  - `@@index([quizId])`

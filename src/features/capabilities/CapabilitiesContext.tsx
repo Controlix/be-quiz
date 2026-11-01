@@ -8,6 +8,7 @@ const defaultCapabilities: AppCapabilities = {
   icalExport: false,
   whatsappShare: false,
   emailRegistration: false,
+  sharedGoogleCalendar: false,
 };
 
 const CapabilitiesContext = createContext<AppCapabilities>(defaultCapabilities);

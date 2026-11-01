@@ -26,6 +26,7 @@ describe("QuizDetailClient Flyer Display", () => {
     icalExport: false,
     whatsappShare: false,
     emailRegistration: false,
+    sharedGoogleCalendar: false,
   };
 
   it("renders the flyer image poster when quiz.flyerImageUrl is populated", () => {

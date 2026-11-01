@@ -20,6 +20,7 @@ describe("Adaptive Quiz Creation Form", () => {
           icalExport: false,
           whatsappShare: false,
           emailRegistration: false,
+          sharedGoogleCalendar: false,
         }}
       >
         <QuizEntryForm currentMemberId="member-123" />
@@ -44,6 +45,7 @@ describe("Adaptive Quiz Creation Form", () => {
           icalExport: false,
           whatsappShare: false,
           emailRegistration: false,
+          sharedGoogleCalendar: false,
         }}
       >
         <QuizEntryForm currentMemberId="member-123" />

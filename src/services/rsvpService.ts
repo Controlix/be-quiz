@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { Rsvp, Member } from "@prisma/client";
+import { domainEvents } from "@/lib/events";
 
 export type RsvpWithMember = Rsvp & { member: Member };
 
@@ -35,7 +36,7 @@ export async function setRsvp(
   memberId: string,
   status: "ATTENDING" | "DECLINED"
 ): Promise<void> {
-  await prisma.$transaction(async (tx) => {
+  const team = await prisma.$transaction(async (tx) => {
     // Acquire row-level lock on Team to serialize concurrent RSVPs
     await tx.$executeRaw`SELECT id FROM "Team" WHERE id = ${teamId} FOR UPDATE`;
 
@@ -80,6 +81,17 @@ export async function setRsvp(
         },
       });
     }
+
+    return tx.team.findUniqueOrThrow({
+      where: { id: teamId },
+      select: { quizId: true },
+    });
+  });
+
+  domainEvents.emit({
+    type: "team.roster_changed",
+    quizId: team.quizId,
+    occurredAt: new Date(),
   });
 }
 
@@ -88,7 +100,7 @@ export async function adminOverrideDecline(
   memberId: string,
   adminId: string
 ): Promise<void> {
-  await prisma.$transaction(async (tx) => {
+  const team = await prisma.$transaction(async (tx) => {
     await tx.$executeRaw`SELECT id FROM "Team" WHERE id = ${teamId} FOR UPDATE`;
 
     await tx.rsvp.upsert({
@@ -113,6 +125,17 @@ export async function adminOverrideDecline(
         overriddenAt: new Date(),
       },
     });
+
+    return tx.team.findUniqueOrThrow({
+      where: { id: teamId },
+      select: { quizId: true },
+    });
+  });
+
+  domainEvents.emit({
+    type: "team.roster_changed",
+    quizId: team.quizId,
+    occurredAt: new Date(),
   });
 }
 
@@ -121,7 +144,7 @@ export async function adminOverrideAttend(
   memberId: string,
   adminId: string
 ): Promise<void> {
-  await prisma.$transaction(async (tx) => {
+  const team = await prisma.$transaction(async (tx) => {
     await tx.$executeRaw`SELECT id FROM "Team" WHERE id = ${teamId} FOR UPDATE`;
 
     await tx.rsvp.upsert({
@@ -146,6 +169,17 @@ export async function adminOverrideAttend(
         overriddenAt: new Date(),
       },
     });
+
+    return tx.team.findUniqueOrThrow({
+      where: { id: teamId },
+      select: { quizId: true },
+    });
+  });
+
+  domainEvents.emit({
+    type: "team.roster_changed",
+    quizId: team.quizId,
+    occurredAt: new Date(),
   });
 }
 
@@ -157,15 +191,22 @@ export async function updateTeamCapacity(
     throw new Error("Ploeggrootte moet tussen 1 en 10 liggen");
   }
 
-  await prisma.$transaction(async (tx) => {
+  const team = await prisma.$transaction(async (tx) => {
     await tx.$executeRaw`SELECT id FROM "Team" WHERE id = ${teamId} FOR UPDATE`;
 
-    await tx.team.update({
+    return tx.team.update({
       where: { id: teamId },
       data: {
         maxTeamSize: newMaxTeamSize,
       },
+      select: { quizId: true },
     });
+  });
+
+  domainEvents.emit({
+    type: "team.roster_changed",
+    quizId: team.quizId,
+    occurredAt: new Date(),
   });
 }
 
@@ -174,7 +215,7 @@ export async function reorderRsvps(
   sourceIndex: number,
   destinationIndex: number
 ): Promise<void> {
-  await prisma.$transaction(async (tx) => {
+  const team = await prisma.$transaction(async (tx) => {
     await tx.$executeRaw`SELECT id FROM "Team" WHERE id = ${teamId} FOR UPDATE`;
 
     const attendingRsvps = await tx.rsvp.findMany({
@@ -194,7 +235,10 @@ export async function reorderRsvps(
       destinationIndex >= attendingRsvps.length ||
       sourceIndex === destinationIndex
     ) {
-      return;
+      return tx.team.findUniqueOrThrow({
+        where: { id: teamId },
+        select: { quizId: true },
+      });
     }
 
     const reordered = [...attendingRsvps];
@@ -212,5 +256,16 @@ export async function reorderRsvps(
         data: { queuedSince: newQueuedSince },
       });
     }
+
+    return tx.team.findUniqueOrThrow({
+      where: { id: teamId },
+      select: { quizId: true },
+    });
+  });
+
+  domainEvents.emit({
+    type: "team.roster_changed",
+    quizId: team.quizId,
+    occurredAt: new Date(),
   });
 }

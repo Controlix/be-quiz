@@ -75,6 +75,19 @@ The application communicates outbound with optional external APIs. Network firew
 | :--- | :--- | :--- | :--- |
 | **Google Gemini API** | `generativelanguage.googleapis.com` | AI Vision flyer OCR extraction (`GEMINI_API_KEY`) | Optional |
 | **OpenAI API** | `api.openai.com` | Alternative AI Vision flyer OCR (`OPENAI_API_KEY`) | Optional |
+| **Google Calendar API** | `www.googleapis.com`, `oauth2.googleapis.com` | Shared team calendar synchronization via Service Account | Optional (`ENABLE_SHARED_GOOGLE_CALENDAR=true`) |
 | **Vercel Blob** | `*.blob.vercel-storage.com` | Remote image storage upload and deletion | Optional (only if using Blob) |
 
-If external AI keys are omitted, the application uses the **Capability Registry** (`src/features/capabilities/`) to automatically hide AI features from the user interface with zero runtime errors.
+If external keys are omitted, the application uses the **Capability Registry** (`src/features/capabilities/`) to automatically hide external features from the user interface with zero runtime errors.
+
+### 4.1 Google Cloud Platform (GCP) & Shared Calendar Integration
+When `ENABLE_SHARED_GOOGLE_CALENDAR=true` is enabled, the backend synchronizes scheduled pub quizzes with a designated shared Google Calendar using server-to-server OAuth2 credentials:
+
+* **Authentication Protocol:** Google Cloud Service Account authenticated via OAuth2 RSA JSON Web Token (JWT) bearer exchange.
+* **OAuth2 Scope:** `https://www.googleapis.com/auth/calendar.events` (scoped strictly to event creation, update, and deletion).
+* **Target Calendar:** Configured via `GOOGLE_CALENDAR_ID` (e.g. `c_...0123@group.calendar.google.com`).
+* **Calendar Permission Delegation:** The target calendar must be shared directly with the Service Account email (`GOOGLE_SERVICE_ACCOUNT_EMAIL`) with the **"Make changes to events"** (*"Wijzigingen aanbrengen in afspraken"*) permission.
+* **Credentials Provisioning:**
+  1. **Google Calendar:** In Google Calendar Settings > *Integrate calendar*, copy the **Calendar ID**.
+  2. **Google Cloud Console:** Create project, enable **Google Calendar API**, create a Service Account, generate a JSON key.
+  3. **Calendar Sharing Delegation:** In Google Calendar Settings > *Share with specific people or groups*, add the service account email with permission **"Make changes to events"**.

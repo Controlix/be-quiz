@@ -33,6 +33,7 @@ graph TD
             ServerCaps["getCapabilities()<br/>(features/capabilities)"]
             VisionMod["AI Flyer OCR<br/>(features/vision)"]
             CalMod["iCal Feed Generator<br/>(features/calendar)"]
+            SharedCalMod["Shared Google Calendar Sync<br/>(features/calendar/shared)"]
         end
 
         subgraph CoreServices["Core Domain Services"]
@@ -44,6 +45,7 @@ graph TD
 
         subgraph CoreLib["Core Library & Persistence"]
             AuthLib[auth & crypto]
+            EventBus["Domain Event Bus (pub/sub)<br/>(lib/events)"]
             PrismaClient[(Prisma ORM Client)]
         end
     end
@@ -52,6 +54,7 @@ graph TD
         Postgres[(PostgreSQL Database)]
         StorageTarget[Asset Storage: Vercel Blob / Local Volume]
         AIModels[Google Gemini / OpenAI Vision APIs]
+        GoogleCalendarAPI["Google Calendar API (Shared Team Calendar)"]
     end
 
     %% Network & Protocol Boundaries
@@ -67,6 +70,12 @@ graph TD
     Actions --> CoreServices
     RouteHandlers --> VisionMod
     RouteHandlers --> CalMod
+
+    %% Event Bus & Decoupled Integrations
+    CoreServices -->|Async Domain Events| EventBus
+    EventBus -.->|Subscribes to Events| SharedCalMod
+    SharedCalMod -->|CalendarEventMapping| PrismaClient
+    SharedCalMod -.->|Service Account REST| GoogleCalendarAPI
 
     VisionMod -.-> AIModels
     VisionMod -.-> StorageTarget
@@ -135,10 +144,28 @@ The application cleanly partitions responsibilities between code executing in th
 - **Concurrency & Reordering:** Strict transactional updates via Prisma ensure that concurrent RSVPs, admin declines, and manual roster reordering maintain roster consistency without race conditions.
 
 ### 4.3 Capability Registry & Modular Features
-- **Capability Registry (`src/features/capabilities/`):** Evaluates deployment settings based on environment variables (`ENABLE_AI_VISION`, `ENABLE_CALENDAR`, `ENABLE_SHARING`) and AI keys (`GEMINI_API_KEY`, `OPENAI_API_KEY`).
-- **UI Adaptation:** The UI queries capabilities (via server helpers or client hook) to cleanly hide disabled features rather than showing disabled placeholders.
+The **Capability Registry (`src/features/capabilities/`)** manages modular auxiliary integrations. Every optional integration defaults to `false` and requires explicit opt-in via environment variables.
+
+| Capability | Property (`AppCapabilities`) | Environment Variable | Default | UI Impact when Disabled | API Route Behavior |
+| :--- | :--- | :--- | :--- | :--- | :--- |
+| **AI Flyer Vision** | `vision` | `ENABLE_AI_VISION=true` (plus valid `GEMINI_API_KEY` or `OPENAI_API_KEY`) | `false` | Flyer dropzone, camera upload, and AI extraction prompt omitted; clean manual entry form shown | `POST /api/quizzes/extract` returns `501 Not Implemented` |
+| **iCal / Calendar Export** | `icalExport` | `ENABLE_ICAL_EXPORT=true` | `false` | `.ics` download link and "Add to Google Calendar" button hidden in `ActionToolbar` | `GET /api/quizzes/[id]/calendar.ics` returns `501 Not Implemented` |
+| **Shared Google Calendar** | `sharedGoogleCalendar` | `ENABLE_SHARED_GOOGLE_CALENDAR=true` (with valid Google credentials) | `false` | No direct button needed; background sync subscriber is not attached | N/A (background push) |
+| **WhatsApp Lineup Share** | `whatsappShare` | `ENABLE_WHATSAPP_SHARE=true` | `false` | "Deel via WhatsApp" action button hidden in `ActionToolbar` | N/A (client-side deep link) |
+| **Email Registration** | `emailRegistration` | `ENABLE_EMAIL_REGISTRATION=true` | `false` | "Mail Inschrijving" action button hidden in `ActionToolbar` | N/A (client-side mailto link) |
+
+- **Server Resolution:** Evaluated via `getCapabilities(env?: NodeJS.ProcessEnv)`.
+- **Client Resolution:** Hydrated via `useCapabilities()` hook / context provider.
+- **Adaptive UI Invariant:** When auxiliary buttons are disabled, the UI layout gracefully contracts to display only the core Payment and Registration controls without empty gaps or placeholder cards.
 - **AI Flyer Extraction (`src/features/vision/`):** Optional module analyzing event flyers with multi-modal AI to extract event details.
 - **Calendar & Sharing Helpers (`src/features/calendar/`, `src/features/sharing/`):** Optional modules for `.ics` calendar generation, WhatsApp lineup formatting, and email registration links.
+
+### 4.4 Domain Event Bus & Asynchronous Decoupled Subscribers (`src/lib/events/`)
+To preserve Core Domain Independence (Invariant 2), core domain services never invoke third-party integration APIs directly:
+- **Event Bus:** A lightweight, strongly-typed in-process pub/sub event bus emits fine-grained domain events (`team.registered`, `team.registration_cancelled`, `quiz.details_updated`, `team.roster_changed`, `team.payment_changed`, `quiz.cancelled`).
+- **Asynchronous Subscribers:** Feature modules (such as `src/features/calendar/shared/`) subscribe to domain events. When a subscriber is triggered, it runs asynchronously and isolates errors: failures in external APIs log structured error diagnostics without ever failing the user's action or rolling back database state.
+- **Serverless Background Coordination:** On serverless platforms (such as Vercel), asynchronous promises returned by event listeners are scheduled via Next.js `after()` (`next/server`) dynamically when executed within a server action or route request context. This prevents the serverless runtime from freezing or terminating early before background Google Calendar API requests and database mappings settle, while gracefully falling back to standard unblocked promises in tests and CLI scripts.
+- **Test Isolation:** The event bus provides a `clear()` method enabling pure, deterministic unit and integration testing without leftover cross-test listeners.
 
 ---
 

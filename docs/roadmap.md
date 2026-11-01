@@ -1,6 +1,6 @@
 # Pub Quiz App (BE-Quiz) — Roadmap & Feature Backlog
 
-**Current App Version:** `v1.1.0` (Modular Core & Decoupled Integrations)  
+**Current App Version:** `v2.0.0` (Shared Team Google Calendar & Domain Event Bus)  
 This document is the **single source of truth for active and planned roadmap items**. For past releases and completed milestone notes, see [CHANGELOG.md](../CHANGELOG.md) and [Feedback Archives](superpowers/feedback/).
 
 ---
@@ -85,13 +85,8 @@ This document is the **single source of truth for active and planned roadmap ite
 ## Part 2: v2 Major Feature & Architecture Backlog
 
 ### A. Integrations & Logistics
-1. **Shared Team Google Calendar (Google Cloud):**
-   * **Status:** `[ ] Plan Ready: docs/superpowers/plans/2026-11-01-shared-google-calendar.md` (Spec: [`docs/superpowers/specs/2026-11-01-shared-google-calendar-design.md`](superpowers/specs/2026-11-01-shared-google-calendar-design.md))
-   * Replace individual "Add to my Google Calendar" with an automated server-side integration pushing registered pub quizzes to the team's shared Google Calendar via Google Calendar API / Service Account.
-   * Keeps the core domain decoupled via fine-grained domain events and an isolated `CalendarEventMapping` table.
-   * Self-contained calendar entries show active team lineup, venue, entry fee / payer status, and app RSVP link.
-2. **Carpooling & Ride-Sharing:** Allow members to indicate if they can drive (with seat counts) and assign passengers to cars, replacing ride discussions in WhatsApp.
-3. **Public / Unauthenticated Share Preview:** A minimal read-only preview link for WhatsApp so non-members can view public event details (date, venue, spots left) without seeing personal friend rosters or requiring a login.
+1. **Carpooling & Ride-Sharing:** Allow members to indicate if they can drive (with seat counts) and assign passengers to cars, replacing ride discussions in WhatsApp.
+2. **Public / Unauthenticated Share Preview:** A minimal read-only preview link for WhatsApp so non-members can view public event details (date, venue, spots left) without seeing personal friend rosters or requiring a login.
 
 ### B. Teams & Headcount
 4. **Multiple Teams per Quiz (e.g. Team A / Team B):** When more friends want to join than the maximum team limit (e.g. 8 people for a 4-person quiz), allow fielding a second team instead of putting everyone on reserve. *(The schema already decouples `Team` from `Quiz` to make this seamless).*

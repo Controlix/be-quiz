@@ -8,6 +8,27 @@ describe("Capability Registry", () => {
     expect(caps.icalExport).toBe(false);
     expect(caps.whatsappShare).toBe(false);
     expect(caps.emailRegistration).toBe(false);
+    expect(caps.sharedGoogleCalendar).toBe(false);
+  });
+
+  it("defaults sharedGoogleCalendar to false when env is unset", () => {
+    const caps = getCapabilities({});
+    expect(caps.sharedGoogleCalendar).toBe(false);
+  });
+
+  it("does NOT enable sharedGoogleCalendar if ENABLE_SHARED_GOOGLE_CALENDAR is 'true' but credentials are missing", () => {
+    const caps = getCapabilities({ ENABLE_SHARED_GOOGLE_CALENDAR: "true" });
+    expect(caps.sharedGoogleCalendar).toBe(false);
+  });
+
+  it("enables sharedGoogleCalendar when ENABLE_SHARED_GOOGLE_CALENDAR is true and credentials exist", () => {
+    const caps = getCapabilities({
+      ENABLE_SHARED_GOOGLE_CALENDAR: "true",
+      GOOGLE_CALENDAR_ID: "cal-1",
+      GOOGLE_SERVICE_ACCOUNT_EMAIL: "bot@test.iam.gserviceaccount.com",
+      GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY: "key",
+    });
+    expect(caps.sharedGoogleCalendar).toBe(true);
   });
 
   it("does NOT auto-detect vision from API keys alone", () => {

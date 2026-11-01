@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [v2.0.0] - 2026-11-01
+
+### Added
+- **Shared Team Google Calendar Integration (`src/features/calendar/shared/`):** Automated server-side synchronization of officially registered pub quizzes to the team's shared Google Calendar via Google Calendar API v3 and Google Cloud Service Account credentials.
+- **In-Process Domain Event Bus (`src/lib/events/`):** Strongly-typed, decoupled event bus emitting fine-grained domain events (`team.registered`, `team.registration_cancelled`, `quiz.details_updated`, `team.roster_changed`, `team.payment_changed`, `quiz.cancelled`) from core domain services without blocking user HTTP requests.
+- **Serverless Background Execution Support (`src/lib/events/bus.ts`):** Dynamically coordinates background subscriber promises with Next.js `after()` (`next/server`) inside server request contexts so Vercel/serverless runtimes do not terminate before Google Calendar API network calls complete.
+- **Self-Healing Calendar Sync:** Handled HTTP 404/410 responses gracefully; external manual deletions in Google Calendar automatically self-heal upon re-registration or clean up stale mapping entries on subsequent updates.
+- **Zero-Dependency Google OAuth2 Client (`googleCalendarClient.ts`):** Lightweight client using native Node.js `crypto` RSA-SHA256 JWT assertions (zero heavy SDK dependencies), in-memory access token caching, and automatic multiline PEM private key newline normalization.
+- **Isolated Database Model (`prisma/schema.prisma`):** Added `CalendarEventMapping` database model maintaining complete schema independence for the core domain models (`Quiz`, `Team`).
+- **Capability Gating & Startup Hook:** Integrated under `ENABLE_SHARED_GOOGLE_CALENDAR=true` capability flag and Next.js server initialization in `src/instrumentation.ts`.
+
+---
+
 ## [v1.1.0] - 2026-10-31
 
 ### Architectural Changes & Decoupling

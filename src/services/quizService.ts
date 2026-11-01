@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/db";
 import { Quiz, Team } from "@prisma/client";
+import { domainEvents } from "@/lib/events";
 
 export function formatStructuredEntryFee(
   amount?: number | string,
@@ -147,3 +148,69 @@ export async function getQuizById(id: string) {
     },
   });
 }
+
+export interface UpdateQuizDetailsInput {
+  title?: string;
+  startsAt?: Date;
+  timeZone?: string;
+  durationMinutes?: number;
+  location?: string;
+  organizerEmail?: string | null;
+  registrationUrl?: string | null;
+  entryFee?: string | null;
+  notes?: string | null;
+  flyerImageUrl?: string | null;
+  maxTeamSize?: number;
+}
+
+export async function updateQuizDetails(
+  quizId: string,
+  data: UpdateQuizDetailsInput
+): Promise<Quiz> {
+  const quiz = await prisma.quiz.update({
+    where: { id: quizId },
+    data: {
+      ...(data.title !== undefined && { title: data.title }),
+      ...(data.startsAt !== undefined && { startsAt: data.startsAt }),
+      ...(data.timeZone !== undefined && { timeZone: data.timeZone }),
+      ...(data.durationMinutes !== undefined && { durationMinutes: data.durationMinutes }),
+      ...(data.location !== undefined && { location: data.location }),
+      ...(data.organizerEmail !== undefined && { organizerEmail: data.organizerEmail }),
+      ...(data.registrationUrl !== undefined && { registrationUrl: data.registrationUrl }),
+      ...(data.entryFee !== undefined && { entryFee: data.entryFee }),
+      ...(data.notes !== undefined && { notes: data.notes }),
+      ...(data.flyerImageUrl !== undefined && { flyerImageUrl: data.flyerImageUrl }),
+    },
+  });
+
+  if (data.maxTeamSize !== undefined) {
+    await prisma.team.updateMany({
+      where: { quizId },
+      data: { maxTeamSize: data.maxTeamSize },
+    });
+  }
+
+  domainEvents.emit({
+    type: "quiz.details_updated",
+    quizId,
+    occurredAt: new Date(),
+  });
+
+  return quiz;
+}
+
+export async function cancelQuiz(quizId: string): Promise<Quiz> {
+  const quiz = await prisma.quiz.update({
+    where: { id: quizId },
+    data: { status: "CANCELLED" },
+  });
+
+  domainEvents.emit({
+    type: "quiz.cancelled",
+    quizId,
+    occurredAt: new Date(),
+  });
+
+  return quiz;
+}
+

@@ -5,6 +5,7 @@ import { hashToken, generateSecureToken } from "@/lib/crypto";
 import { getSessionMember } from "@/lib/auth";
 import { adminOverrideDecline, adminOverrideAttend, updateTeamCapacity } from "@/services/rsvpService";
 import { adminResetRegistration } from "@/services/registrationService";
+import { cancelQuiz } from "@/services/quizService";
 import { revalidatePath } from "next/cache";
 
 import { adminResetMemberPinAction } from "@/actions/authActions";
@@ -18,10 +19,7 @@ export async function adminCancelQuizAction(quizId: string) {
       return { success: false, error: "Niet geautoriseerd." };
     }
 
-    await prisma.quiz.update({
-      where: { id: quizId },
-      data: { status: "CANCELLED" },
-    });
+    await cancelQuiz(quizId);
     try {
       revalidatePath("/quizzes");
     } catch {}

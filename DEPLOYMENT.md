@@ -90,17 +90,48 @@ Vercel provides the database, but the tables must be created and the initial adm
 
 In your Vercel project dashboard, go to **Settings** → **Environment Variables** and verify/add the following:
 
+### Core Required Variables
 | Variable | Required | Description |
 | :--- | :--- | :--- |
 | `DATABASE_URL` | **Yes** | PostgreSQL connection string (auto-created in Step 3). |
-| `BLOB_READ_WRITE_TOKEN` | **Yes** | Token for flyer uploads (auto-created in Step 4). |
-| `APP_URL` | **Yes** | Your live production URL (e.g. `https://your-project.vercel.app`), needed for invite & calendar export links. |
-| `GEMINI_API_KEY` | Optional | Google Gemini API key for automated flyer OCR extraction. |
-| `OPENAI_API_KEY` | Optional | OpenAI API key (alternative OCR engine for flyers). |
+| `BLOB_READ_WRITE_TOKEN` | **Yes** | Token for flyer and feedback uploads (auto-created in Step 4). |
+| `APP_URL` | **Yes** | Your live production URL (e.g. `https://your-project.vercel.app`), needed for invite links, calendar sync, and webhooks. |
+
+### Optional Modular Capabilities (Default: `false` when unset)
+The core application functions with zero external API dependencies. Enable features as desired:
+
+| Variable | Values | Purpose & Requirements |
+| :--- | :--- | :--- |
+| `ENABLE_SHARED_GOOGLE_CALENDAR` | `"true"` \| `"false"` | Pushes officially registered quizzes to a shared team Google Calendar. Requires Google Cloud Service Account credentials (see [Step 7](#step-7-optional-configure-shared-team-google-calendar)). |
+| `ENABLE_AI_VISION` | `"true"` \| `"false"` | AI flyer vision scanning & data extraction. Requires `GEMINI_API_KEY` or `OPENAI_API_KEY`. |
+| `ENABLE_ICAL_EXPORT` | `"true"` \| `"false"` | Enables personal `.ics` downloads & individual "Add to Google Calendar" links. |
+| `ENABLE_WHATSAPP_SHARE` | `"true"` \| `"false"` | Enables 1-tap WhatsApp lineup and RSVP sharing buttons. |
+| `ENABLE_EMAIL_REGISTRATION` | `"true"` \| `"false"` | Enables pre-filled email registration mailto actions. |
 
 ---
 
-## Step 7: Trigger a Production Redeploy
+## Step 7: (Optional) Configure Shared Team Google Calendar
+
+To automatically sync registered quizzes to your team's shared Google Calendar:
+
+1. **Google Cloud Console:**
+   * Create a project in [Google Cloud Console](https://console.cloud.google.com/) and enable the **Google Calendar API**.
+   * Navigate to **IAM & Admin > Service Accounts** and create a Service Account (e.g., `be-quiz-sync@<project-id>.iam.gserviceaccount.com`).
+   * Under the service account's **Keys** tab, select **Add Key > Create new key > JSON** and download the file.
+2. **Share Google Calendar:**
+   * Open [Google Calendar](https://calendar.google.com/), hover over your team's calendar, click `⋮` > **Settings and sharing**.
+   * Under **Share with specific people or groups**, add the Service Account email.
+   * Set Permission to: **"Make changes to events"** (*"Wijzigingen aanbrengen in afspraken"*).
+   * Copy the **Calendar ID** (under *Integrate calendar*, e.g., `xyz...@group.calendar.google.com`).
+3. **Add Vercel Environment Variables:**
+   * `ENABLE_SHARED_GOOGLE_CALENDAR`: `"true"`
+   * `GOOGLE_CALENDAR_ID`: Your calendar ID from step 2.
+   * `GOOGLE_SERVICE_ACCOUNT_EMAIL`: The `client_email` from your downloaded JSON.
+   * `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY`: The `private_key` from your downloaded JSON. Paste either directly as multiline PEM into the Vercel Dashboard secret field or with escaped `\n` characters (the app automatically normalizes line endings).
+
+---
+
+## Step 8: Trigger a Production Redeploy
 
 Whenever environment variables or storage connections are added:
 

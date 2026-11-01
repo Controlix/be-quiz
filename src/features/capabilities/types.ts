@@ -3,4 +3,5 @@ export interface AppCapabilities {
   icalExport: boolean;
   whatsappShare: boolean;
   emailRegistration: boolean;
+  sharedGoogleCalendar: boolean;
 }
