@@ -9,7 +9,7 @@
   "scripts": {
     "postinstall": "prisma generate",
     "dev": "next dev",
-    "build": "next build",
+    "build": "prisma db push && next build",
     "start": "next start",
     "stop": "./scripts/stop-dev.sh",
     "dev:stop": "./scripts/stop-dev.sh",
