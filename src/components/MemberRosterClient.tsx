@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { UserPlus, Copy, Check, Users, KeyRound } from "lucide-react";
+import { UserPlus, Copy, Check, Users } from "lucide-react";
 import { adminAddMemberAction, adminResetMemberPinAction } from "@/actions/adminActions";
 
 interface MemberRosterClientProps {

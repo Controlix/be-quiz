@@ -3,7 +3,7 @@
 import { useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { ArrowLeft, AlertTriangle, RefreshCw, XCircle } from "lucide-react";
+import { ArrowLeft, RefreshCw, XCircle } from "lucide-react";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { Stepper } from "@/components/ui/Stepper";
 import {

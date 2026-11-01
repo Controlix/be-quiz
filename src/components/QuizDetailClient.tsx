@@ -2,7 +2,7 @@
 
 import { useState, useReducer } from "react";
 import Link from "next/link";
-import { TeamLineup, LineupMember, DeclinedMember } from "@/components/TeamLineup";
+import { TeamLineup } from "@/components/TeamLineup";
 import { RsvpControl } from "@/components/RsvpControl";
 import { ActionToolbar } from "@/components/ActionToolbar";
 import { ConfirmDialog } from "@/components/ConfirmDialog";

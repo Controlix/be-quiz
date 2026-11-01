@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { generateRegistrationMailto } from "../../src/lib/mailto";
-import { generateIcsCalendar, generateGoogleCalendarUrl } from "../../src/lib/ical";
-import { generateWhatsAppShareUrl } from "../../src/lib/whatsapp";
+import { generateIcsCalendar } from "../../src/lib/ical";
 
 describe("Mailto & Calendar Integrations", () => {
   // Review Focus #5: Zero-RSVP registration email has no player names or counts

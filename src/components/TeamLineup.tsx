@@ -100,11 +100,6 @@ export function TeamLineup({
     setDragOverIndex(null);
   };
 
-  const handleDragEnd = () => {
-    setDraggedIndex(null);
-    setDragOverIndex(null);
-  };
-
   const handleTouchStart = (index: number) => {
     touchStartIndexRef.current = index;
     setDraggedIndex(index);

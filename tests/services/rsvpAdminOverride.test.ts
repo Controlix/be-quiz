@@ -1,7 +1,7 @@
 import { describe, it, expect } from "vitest";
 import { prisma } from "../../src/lib/db";
 import { createQuiz } from "../../src/services/quizService";
-import { setRsvp, getRsvpLineup, adminOverrideDecline, adminOverrideAttend } from "../../src/services/rsvpService";
+import { setRsvp, getRsvpLineup, adminOverrideAttend } from "../../src/services/rsvpService";
 
 describe("adminOverrideAttend Service", () => {
   it("re-enrolls a declined player to ATTENDING, updates queuedSince, and records admin audit info", async () => {

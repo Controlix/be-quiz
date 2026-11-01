@@ -13,7 +13,7 @@ import {
   formatEuropeanTimeString,
   parseEuropeanDateTime,
 } from "@/lib/formatters";
-import { Calendar, MapPin, Users, Coins, Mail, Link as LinkIcon, AlertCircle } from "lucide-react";
+import { AlertCircle } from "lucide-react";
 
 interface QuizEntryFormProps {
   currentMemberId: string;
@@ -36,7 +36,6 @@ export function QuizEntryForm({ currentMemberId }: QuizEntryFormProps) {
   const [registrationUrl, setRegistrationUrl] = useState("");
   const [entryFeeAmount, setEntryFeeAmount] = useState("");
   const [entryFeeUnit, setEntryFeeUnit] = useState<"TEAM" | "PERSON">("TEAM");
-  const [notes, setNotes] = useState("");
   const [flyerImageUrl, setFlyerImageUrl] = useState<string | undefined>();
   const [missingFields, setMissingFields] = useState<string[]>([]);
 
@@ -116,7 +115,7 @@ export function QuizEntryForm({ currentMemberId }: QuizEntryFormProps) {
           organizerEmail: organizerEmail || undefined,
           registrationUrl: registrationUrl || undefined,
           entryFee: formattedEntryFee,
-          notes: notes || undefined,
+          notes: undefined,
           flyerImageUrl,
         },
         currentMemberId

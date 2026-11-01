@@ -86,9 +86,10 @@ This document is the **single source of truth for active and planned roadmap ite
 
 ### A. Integrations & Logistics
 1. **Shared Team Google Calendar (Google Cloud):**
-   * Replace the individual "Add to my Google Calendar" button with direct integration to the team's shared Google Calendar in Google Cloud.
-   * Scheduled quizzes are automatically pushed to, updated, or removed from the shared team calendar (via Google Calendar API / Service Account and Shared Calendar ID).
-   * Optional live `webcal://` feed URL for native Apple/Android calendar subscriptions.
+   * **Status:** `[ ] Plan Ready: docs/superpowers/plans/2026-11-01-shared-google-calendar.md` (Spec: [`docs/superpowers/specs/2026-11-01-shared-google-calendar-design.md`](superpowers/specs/2026-11-01-shared-google-calendar-design.md))
+   * Replace individual "Add to my Google Calendar" with an automated server-side integration pushing registered pub quizzes to the team's shared Google Calendar via Google Calendar API / Service Account.
+   * Keeps the core domain decoupled via fine-grained domain events and an isolated `CalendarEventMapping` table.
+   * Self-contained calendar entries show active team lineup, venue, entry fee / payer status, and app RSVP link.
 2. **Carpooling & Ride-Sharing:** Allow members to indicate if they can drive (with seat counts) and assign passengers to cars, replacing ride discussions in WhatsApp.
 3. **Public / Unauthenticated Share Preview:** A minimal read-only preview link for WhatsApp so non-members can view public event details (date, venue, spots left) without seeing personal friend rosters or requiring a login.
 
@@ -115,3 +116,12 @@ This document is the **single source of truth for active and planned roadmap ite
       * **Immediate Context on the Entry Screen:**
         * *"💡 You previously participated in this quiz! Previous rating: ⭐⭐⭐⭐☆ (4/5)"*
       * Provides immediate decision support when deciding whether to add and register for a recurring annual pub quiz.
+
+### E. Code Quality & Developer Tooling
+12. **Dedicated Linter & Code Style Enforcement (ESLint / Biome):**
+    * Configure a repository linter (e.g. Next.js ESLint or Biome) with automated pre-commit / CI checks to enforce unused variable removal, import sorting, and consistent code formatting across both client and server code.
+13. **Automated Vulnerability Scanning & Security Auditing:**
+    * Integrate automated vulnerability detection into the development pipeline and CI:
+      * **Dependency CVE Auditing:** Configure `npm audit` (with strict failure levels in CI) and automated Dependabot alerts to catch vulnerabilities in upstream npm packages.
+      * **Static Application Security Testing (SAST):** Run automated security scanners (e.g. GitHub CodeQL, Semgrep) to detect common web application vulnerabilities (injection, insecure session cookies, path traversal).
+      * **Secret Leak Prevention:** Automated secret scanning (e.g. TruffleHog / GitGuardian pre-commit hooks) to prevent accidental commits of API keys, private keys, or database credentials.

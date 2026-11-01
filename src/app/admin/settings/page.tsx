@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowLeft, Settings } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { getSessionMember } from "@/lib/auth";
 import { TeamSettingsClient } from "@/components/TeamSettingsClient";

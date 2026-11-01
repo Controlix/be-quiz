@@ -43,6 +43,10 @@ Before planning, modifying, or implementing any features, database models, or st
 - **Remarks Are for Discussion, Not Code:**
   - When the user shares a remark, observation, or critique (e.g., "this feels cheap", "I noticed X"), treat it as an invitation to discuss and explore options. **Never** treat remarks as a wildcard or automatic trigger to write/edit code. Always discuss and confirm intent first.
 
+- **Look Before You Ask — Scoped to Docs Only:**
+  - When gathering context before asking questions or preparing for brainstorming ("Look Before You Ask"), restrict inspection ONLY to the relevant documentation files in `docs/` (specifically `docs/roadmap.md`, `docs/architecture/overview.md`, and relevant architecture docs).
+  - NEVER scour the entire codebase, grep across source files, or inspect raw implementation components/schemas during conceptual or brainstorming phases. The documentation exists as the authoritative single source of truth for high-level requirements and architecture.
+
 - **Strict Step-by-Step Plan Checklist Discipline:**
   - Whenever executing an implementation plan with tasks and checkboxes (`- [ ]`), you MUST update the plan markdown file (`docs/superpowers/plans/...`) to mark each step as complete (`- [x]`) **immediately after finishing it**, before proceeding to the next step or task. Never defer marking checkboxes to the end.
 

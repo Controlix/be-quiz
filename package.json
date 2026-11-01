@@ -13,6 +13,7 @@
     "start": "next start",
     "stop": "./scripts/stop-dev.sh",
     "dev:stop": "./scripts/stop-dev.sh",
+    "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "prune-uploads": "tsx scripts/prune-uploads.ts"
   },

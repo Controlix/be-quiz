@@ -1,4 +1,3 @@
-import React from "react";
 import { describe, it, expect } from "vitest";
 import { renderToStaticMarkup } from "react-dom/server";
 import { CapabilitiesProvider, useCapabilities } from "@/features/capabilities/CapabilitiesContext";

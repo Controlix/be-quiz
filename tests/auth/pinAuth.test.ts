@@ -1,7 +1,6 @@
 import { describe, it, expect } from "vitest";
 import { prisma } from "../../src/lib/db";
 import { verifyMemberPin, setMemberPin, resetMemberPin } from "../../src/lib/auth";
-import { adminResetMemberPinAction } from "../../src/actions/authActions";
 
 describe("Name + 4-Digit PIN Authentication", () => {
   it("sets a 4-digit PIN for a new member and verifies it", async () => {
