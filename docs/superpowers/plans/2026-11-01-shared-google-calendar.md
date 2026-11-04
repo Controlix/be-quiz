@@ -32,14 +32,17 @@
 ### Task 1: Typed In-Process Domain Event Bus
 
 **Files:**
+
 - Create: `src/lib/events/types.ts`
 - Create: `src/lib/events/bus.ts`
 - Create: `src/lib/events/index.ts`
 - Test: `tests/lib/events.test.ts`
 
 **Interfaces:**
+
 - Consumes: None (pure TypeScript).
 - Produces:
+
   ```typescript
   export type DomainEvent =
     | { type: "team.registered"; quizId: string; occurredAt: Date }
@@ -139,6 +142,7 @@ Expected: FAIL with module `@/lib/events` not found.
 - [x] **Step 3: Implement `types.ts`, `bus.ts`, and `index.ts` in `src/lib/events/`**
 
 Create:
+
 - `src/lib/events/types.ts`: Define `DomainEvent` union and `DomainEventBus` interface.
 - `src/lib/events/bus.ts`: Implement `EventBus` class with `Map<string, Set<Function>>`. When emitting, run handlers inside `try/catch` (handling both sync throws and async promise rejections with `Promise.resolve().catch(...)`), logging unhandled errors to `console.error`.
 - `src/lib/events/index.ts`: Export singleton `domainEvents` instance and event types.
@@ -153,6 +157,7 @@ Expected: PASS (all 5 tests pass).
 ### Task 2: Core Domain Services Event Emission
 
 **Files:**
+
 - Modify: `src/services/registrationService.ts`
 - Modify: `src/services/quizService.ts`
 - Modify: `src/services/rsvpService.ts`
@@ -160,6 +165,7 @@ Expected: PASS (all 5 tests pass).
 - Test: `tests/services/domain-events-emission.test.ts`
 
 **Interfaces:**
+
 - Consumes: `domainEvents` from `@/lib/events`.
 - Produces: Emitted domain events on every state-changing business action.
 
@@ -233,6 +239,7 @@ Expected: FAIL because services do not emit domain events yet.
 - [x] **Step 3: Add `domainEvents.emit(...)` to service methods**
 
 In:
+
 - `src/services/registrationService.ts`:
   - In `registerTeam`: `domainEvents.emit({ type: "team.registered", quizId: team.quizId, occurredAt: new Date() })`
   - In `unregisterTeam`: `domainEvents.emit({ type: "team.registration_cancelled", quizId: team.quizId, occurredAt: new Date() })`
@@ -254,16 +261,21 @@ Expected: PASS.
 ### Task 3: Database Model `CalendarEventMapping` in Prisma
 
 **Files:**
+
 - Modify: `prisma/schema.prisma`
 - Create: `src/features/calendar/shared/mappingRepository.ts`
 - Test: `tests/features/calendar/mappingRepository.test.ts`
 
 **Interfaces:**
+
 - Consumes: `prisma` client.
 - Produces:
+
   ```typescript
   export interface CalendarEventMappingRepository {
-    findByQuizId(quizId: string): Promise<{ id: string; quizId: string; externalEventId: string; calendarId: string } | null>;
+    findByQuizId(
+      quizId: string
+    ): Promise<{ id: string; quizId: string; externalEventId: string; calendarId: string } | null>;
     upsertMapping(quizId: string, externalEventId: string, calendarId: string): Promise<void>;
     deleteByQuizId(quizId: string): Promise<void>;
   }
@@ -344,12 +356,15 @@ Expected: PASS.
 ### Task 4: Shared Calendar Event Formatter (Pure Logic)
 
 **Files:**
+
 - Create: `src/features/calendar/shared/formatter.ts`
 - Test: `tests/features/calendar/formatter.test.ts`
 
 **Interfaces:**
+
 - Consumes: Quiz, Team, Lineup names, Payer name, App URL.
 - Produces:
+
   ```typescript
   export interface GoogleCalendarEventPayload {
     summary: string;
@@ -360,7 +375,14 @@ Expected: PASS.
   }
 
   export function formatGoogleCalendarPayload(params: {
-    quiz: { id: string; title: string; startsAt: Date; durationMinutes: number; location: string; timeZone?: string };
+    quiz: {
+      id: string;
+      title: string;
+      startsAt: Date;
+      durationMinutes: number;
+      location: string;
+      timeZone?: string;
+    };
     lineup: string[]; // member names
     payment: { fee: string | null; isPaid: boolean; payerName?: string | null };
     appUrl?: string;
@@ -454,16 +476,23 @@ Expected: PASS.
 ### Task 5: Google Calendar API Client & Service Account Auth
 
 **Files:**
+
 - Create: `src/features/calendar/shared/googleCalendarClient.ts`
 - Test: `tests/features/calendar/googleCalendarClient.test.ts`
 
 **Interfaces:**
+
 - Consumes: `GOOGLE_CALENDAR_ID`, `GOOGLE_SERVICE_ACCOUNT_EMAIL`, `GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY`.
 - Produces:
+
   ```typescript
   export interface GoogleCalendarClient {
     insertEvent(calendarId: string, payload: GoogleCalendarEventPayload): Promise<{ id: string }>;
-    updateEvent(calendarId: string, eventId: string, payload: GoogleCalendarEventPayload): Promise<void>;
+    updateEvent(
+      calendarId: string,
+      eventId: string,
+      payload: GoogleCalendarEventPayload
+    ): Promise<void>;
     deleteEvent(calendarId: string, eventId: string): Promise<void>;
   }
 
@@ -487,7 +516,8 @@ describe("GoogleCalendarClient", () => {
     const env = {
       GOOGLE_CALENDAR_ID: "cal-123",
       GOOGLE_SERVICE_ACCOUNT_EMAIL: "sync@test.iam.gserviceaccount.com",
-      GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY: "-----BEGIN PRIVATE KEY-----\\nMIIE...\\n-----END PRIVATE KEY-----\\n",
+      GOOGLE_SERVICE_ACCOUNT_PRIVATE_KEY:
+        "-----BEGIN PRIVATE KEY-----\\nMIIE...\\n-----END PRIVATE KEY-----\\n",
     };
     const client = getGoogleCalendarClient(env);
     expect(client).not.toBeNull();
@@ -519,13 +549,16 @@ Expected: PASS.
 ### Task 6: Shared Calendar Subscriber & Lifecycle Orchestration
 
 **Files:**
+
 - Create: `src/features/calendar/shared/subscriber.ts`
 - Modify: `src/features/calendar/index.ts`
 - Test: `tests/features/calendar/subscriber.test.ts`
 
 **Interfaces:**
+
 - Consumes: `domainEvents`, `mappingRepository`, `googleCalendarClient`, `formatGoogleCalendarPayload`.
 - Produces:
+
   ```typescript
   export function registerSharedCalendarSubscriber(): () => void;
   ```
@@ -595,10 +628,11 @@ Expected: FAIL.
 - [x] **Step 3: Implement `registerSharedCalendarSubscriber` in `src/features/calendar/shared/subscriber.ts`**
 
 Attach handlers to:
+
 - `team.registered`: Fetch quiz + team + lineup + payment, check mapping, call `insertEvent` or `updateEvent`, save mapping.
 - `team.registration_cancelled`, `quiz.cancelled`: Look up mapping, if found call `deleteEvent` and `deleteByQuizId`.
 - `quiz.details_updated`, `team.roster_changed`, `team.payment_changed`: Look up mapping, if found fetch details and call `updateEvent`.
-Wrap every handler in `try / catch`, logging with structured tags: `console.error("[GoogleCalendarSync] Error: ", error)`.
+  Wrap every handler in `try / catch`, logging with structured tags: `console.error("[GoogleCalendarSync] Error: ", error)`.
 
 - [x] **Step 4: Run tests to verify they pass**
 
@@ -610,12 +644,14 @@ Expected: PASS.
 ### Task 7: Capability Registry & Feature Integration Wiring
 
 **Files:**
+
 - Modify: `src/features/capabilities/index.ts`
 - Modify: `src/features/calendar/index.ts`
 - Modify: `src/instrumentation.ts` (or app server startup to register subscriber when capability is true)
 - Test: `tests/features/capabilities.test.ts`
 
 **Interfaces:**
+
 - Consumes: `ENABLE_SHARED_GOOGLE_CALENDAR` environment variable.
 - Produces: `AppCapabilities.sharedGoogleCalendar: boolean`.
 
@@ -653,6 +689,7 @@ Expected: FAIL (`sharedGoogleCalendar` property missing on `AppCapabilities`).
 
 - Add `sharedGoogleCalendar: boolean` to `AppCapabilities` interface in `src/features/capabilities/index.ts`.
 - In `src/instrumentation.ts` (Next.js server initialization hook) or server startup module:
+
   ```typescript
   if (getCapabilities().sharedGoogleCalendar) {
     registerSharedCalendarSubscriber();
@@ -679,4 +716,3 @@ Expected: All tests pass.
   - Standardized Prisma imports to `@/lib/db` and removed redundant `src/lib/prisma.ts`.
   - Added `temp/` to `.gitignore`.
   - Cached the dynamic `import("next/server")` promise lazily at module scope in `src/lib/events/bus.ts`.
-

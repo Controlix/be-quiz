@@ -69,11 +69,14 @@ describe("Shared Calendar Subscriber", () => {
       occurredAt: new Date(),
     });
 
-    await vi.waitFor(async () => {
-      expect(mockClient.insertEvent).toHaveBeenCalledTimes(1);
-      const mapping = await mappingRepository.findByQuizId(quiz.id);
-      expect(mapping?.externalEventId).toBe("gcal-event-created");
-    }, { timeout: 1500 });
+    await vi.waitFor(
+      async () => {
+        expect(mockClient.insertEvent).toHaveBeenCalledTimes(1);
+        const mapping = await mappingRepository.findByQuizId(quiz.id);
+        expect(mapping?.externalEventId).toBe("gcal-event-created");
+      },
+      { timeout: 1500 }
+    );
 
     expect(mockClient.insertEvent).toHaveBeenCalledWith(
       "test-cal-id@group.calendar.google.com",
@@ -108,7 +111,11 @@ describe("Shared Calendar Subscriber", () => {
       },
     });
 
-    await mappingRepository.upsertMapping(quiz.id, "existing-gcal-id", "test-cal-id@group.calendar.google.com");
+    await mappingRepository.upsertMapping(
+      quiz.id,
+      "existing-gcal-id",
+      "test-cal-id@group.calendar.google.com"
+    );
 
     domainEvents.emit({
       type: "team.registered",
@@ -116,9 +123,12 @@ describe("Shared Calendar Subscriber", () => {
       occurredAt: new Date(),
     });
 
-    await vi.waitFor(() => {
-      expect(mockClient.updateEvent).toHaveBeenCalledTimes(1);
-    }, { timeout: 1500 });
+    await vi.waitFor(
+      () => {
+        expect(mockClient.updateEvent).toHaveBeenCalledTimes(1);
+      },
+      { timeout: 1500 }
+    );
 
     expect(mockClient.updateEvent).toHaveBeenCalledWith(
       "test-cal-id@group.calendar.google.com",
@@ -129,7 +139,11 @@ describe("Shared Calendar Subscriber", () => {
   });
 
   it("deletes calendar event on team.registration_cancelled when mapping exists", async () => {
-    await mappingRepository.upsertMapping("quiz-cancel-reg", "gcal-123", "test-cal-id@group.calendar.google.com");
+    await mappingRepository.upsertMapping(
+      "quiz-cancel-reg",
+      "gcal-123",
+      "test-cal-id@group.calendar.google.com"
+    );
 
     domainEvents.emit({
       type: "team.registration_cancelled",
@@ -137,19 +151,26 @@ describe("Shared Calendar Subscriber", () => {
       occurredAt: new Date(),
     });
 
-    await vi.waitFor(() => {
-      expect(mockClient.deleteEvent).toHaveBeenCalledWith(
-        "test-cal-id@group.calendar.google.com",
-        "gcal-123"
-      );
-    }, { timeout: 1500 });
+    await vi.waitFor(
+      () => {
+        expect(mockClient.deleteEvent).toHaveBeenCalledWith(
+          "test-cal-id@group.calendar.google.com",
+          "gcal-123"
+        );
+      },
+      { timeout: 1500 }
+    );
 
     const mapping = await mappingRepository.findByQuizId("quiz-cancel-reg");
     expect(mapping).toBeNull();
   });
 
   it("deletes calendar event on quiz.cancelled when mapping exists", async () => {
-    await mappingRepository.upsertMapping("quiz-full-cancel", "gcal-999", "test-cal-id@group.calendar.google.com");
+    await mappingRepository.upsertMapping(
+      "quiz-full-cancel",
+      "gcal-999",
+      "test-cal-id@group.calendar.google.com"
+    );
 
     domainEvents.emit({
       type: "quiz.cancelled",
@@ -157,12 +178,15 @@ describe("Shared Calendar Subscriber", () => {
       occurredAt: new Date(),
     });
 
-    await vi.waitFor(() => {
-      expect(mockClient.deleteEvent).toHaveBeenCalledWith(
-        "test-cal-id@group.calendar.google.com",
-        "gcal-999"
-      );
-    }, { timeout: 1500 });
+    await vi.waitFor(
+      () => {
+        expect(mockClient.deleteEvent).toHaveBeenCalledWith(
+          "test-cal-id@group.calendar.google.com",
+          "gcal-999"
+        );
+      },
+      { timeout: 1500 }
+    );
 
     const mapping = await mappingRepository.findByQuizId("quiz-full-cancel");
     expect(mapping).toBeNull();
@@ -187,7 +211,11 @@ describe("Shared Calendar Subscriber", () => {
       },
     });
 
-    await mappingRepository.upsertMapping(quiz.id, "gcal-roster-1", "test-cal-id@group.calendar.google.com");
+    await mappingRepository.upsertMapping(
+      quiz.id,
+      "gcal-roster-1",
+      "test-cal-id@group.calendar.google.com"
+    );
 
     domainEvents.emit({
       type: "team.roster_changed",
@@ -195,9 +223,12 @@ describe("Shared Calendar Subscriber", () => {
       occurredAt: new Date(),
     });
 
-    await vi.waitFor(() => {
-      expect(mockClient.updateEvent).toHaveBeenCalledTimes(1);
-    }, { timeout: 1500 });
+    await vi.waitFor(
+      () => {
+        expect(mockClient.updateEvent).toHaveBeenCalledTimes(1);
+      },
+      { timeout: 1500 }
+    );
 
     expect(mockClient.updateEvent).toHaveBeenCalledWith(
       "test-cal-id@group.calendar.google.com",
@@ -229,7 +260,11 @@ describe("Shared Calendar Subscriber", () => {
       },
     });
 
-    await mappingRepository.upsertMapping(quiz.id, "deleted-in-gcal-id", "test-cal-id@group.calendar.google.com");
+    await mappingRepository.upsertMapping(
+      quiz.id,
+      "deleted-in-gcal-id",
+      "test-cal-id@group.calendar.google.com"
+    );
 
     domainEvents.emit({
       type: "team.registered",
@@ -237,12 +272,15 @@ describe("Shared Calendar Subscriber", () => {
       occurredAt: new Date(),
     });
 
-    await vi.waitFor(async () => {
-      expect(mockClient.updateEvent).toHaveBeenCalledTimes(1);
-      expect(mockClient.insertEvent).toHaveBeenCalledTimes(1);
-      const mapping = await mappingRepository.findByQuizId(quiz.id);
-      expect(mapping?.externalEventId).toBe("gcal-event-recreated");
-    }, { timeout: 1500 });
+    await vi.waitFor(
+      async () => {
+        expect(mockClient.updateEvent).toHaveBeenCalledTimes(1);
+        expect(mockClient.insertEvent).toHaveBeenCalledTimes(1);
+        const mapping = await mappingRepository.findByQuizId(quiz.id);
+        expect(mapping?.externalEventId).toBe("gcal-event-recreated");
+      },
+      { timeout: 1500 }
+    );
   });
 
   it("deletes stale mapping on team.roster_changed if updateEvent returns notFound: true", async () => {
@@ -266,7 +304,11 @@ describe("Shared Calendar Subscriber", () => {
       },
     });
 
-    await mappingRepository.upsertMapping(quiz.id, "stale-gcal-id", "test-cal-id@group.calendar.google.com");
+    await mappingRepository.upsertMapping(
+      quiz.id,
+      "stale-gcal-id",
+      "test-cal-id@group.calendar.google.com"
+    );
 
     domainEvents.emit({
       type: "team.roster_changed",
@@ -274,11 +316,14 @@ describe("Shared Calendar Subscriber", () => {
       occurredAt: new Date(),
     });
 
-    await vi.waitFor(async () => {
-      expect(mockClient.updateEvent).toHaveBeenCalledTimes(1);
-      const mapping = await mappingRepository.findByQuizId(quiz.id);
-      expect(mapping).toBeNull();
-    }, { timeout: 1500 });
+    await vi.waitFor(
+      async () => {
+        expect(mockClient.updateEvent).toHaveBeenCalledTimes(1);
+        const mapping = await mappingRepository.findByQuizId(quiz.id);
+        expect(mapping).toBeNull();
+      },
+      { timeout: 1500 }
+    );
   });
 
   it("does nothing on team.roster_changed when no mapping exists (unregistered quiz)", async () => {

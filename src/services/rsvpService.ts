@@ -183,10 +183,7 @@ export async function adminOverrideAttend(
   });
 }
 
-export async function updateTeamCapacity(
-  teamId: string,
-  newMaxTeamSize: number
-): Promise<void> {
+export async function updateTeamCapacity(teamId: string, newMaxTeamSize: number): Promise<void> {
   if (newMaxTeamSize < 1 || newMaxTeamSize > 10) {
     throw new Error("Ploeggrootte moet tussen 1 en 10 liggen");
   }

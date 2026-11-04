@@ -13,10 +13,7 @@ export function formatEuropeanTime(date: Date | string): string {
   return format(d, "HH:mm");
 }
 
-export function formatEuropeanDateTime(
-  date: Date | string,
-  includeWeekday = true
-): string {
+export function formatEuropeanDateTime(date: Date | string, includeWeekday = true): string {
   const d = typeof date === "string" ? new Date(date) : date;
   if (!isValid(d)) return "";
   if (includeWeekday) {

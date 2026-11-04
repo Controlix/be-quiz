@@ -52,11 +52,7 @@ describe("QuizDetailClient Flyer Display", () => {
   it("renders default gradient banner when quiz.flyerImageUrl is not present", () => {
     const html = renderToStaticMarkup(
       <CapabilitiesProvider capabilities={defaultCaps}>
-        <QuizDetailClient
-          quiz={baseQuiz}
-          currentMemberId="member-1"
-          currentMemberName="Marc"
-        />
+        <QuizDetailClient quiz={baseQuiz} currentMemberId="member-1" currentMemberName="Marc" />
       </CapabilitiesProvider>
     );
 

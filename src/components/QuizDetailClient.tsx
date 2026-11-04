@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useReducer } from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { TeamLineup } from "@/components/TeamLineup";
 import { RsvpControl } from "@/components/RsvpControl";
@@ -37,7 +38,11 @@ export function QuizDetailClient({
     memberId: r.memberId,
     name: r.member?.name || "Lid",
     status: r.status as "ATTENDING" | "DECLINED",
-    queuedSince: r.queuedSince ? new Date(r.queuedSince) : (r.createdAt ? new Date(r.createdAt) : null),
+    queuedSince: r.queuedSince
+      ? new Date(r.queuedSince)
+      : r.createdAt
+        ? new Date(r.createdAt)
+        : null,
   }));
 
   const [rsvps, dispatchRsvp] = useReducer(rsvpReducer, initialRsvps);
@@ -103,68 +108,73 @@ export function QuizDetailClient({
   const dateStr = formatEuropeanDateTime(quiz.startsAt);
 
   return (
-    <div className="flex-1 flex flex-col p-4 pb-20">
+    <div className="flex flex-1 flex-col p-4 pb-20">
       {/* Top Navigation */}
-      <div className="flex items-center justify-between mb-4 pt-1">
+      <div className="mb-4 flex items-center justify-between pt-1">
         <Link
           href="/quizzes"
-          className="inline-flex items-center gap-1 text-slate-600 hover:text-slate-900 text-sm font-semibold p-1 -ml-1 rounded-lg"
+          className="-ml-1 inline-flex items-center gap-1 rounded-lg p-1 text-sm font-semibold text-slate-600 hover:text-slate-900"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="h-4 w-4" />
           <span>Overzicht</span>
         </Link>
         <div className="flex items-center gap-2">
           {isAdmin && (
             <Link
               href={`/quizzes/${quiz.id}/edit`}
-              className="inline-flex items-center gap-1 text-xs text-slate-600 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 px-2 py-1 rounded-lg font-medium"
+              className="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-200 hover:text-slate-900"
             >
-              <Settings className="w-3.5 h-3.5" />
+              <Settings className="h-3.5 w-3.5" />
               <span>Admin</span>
             </Link>
           )}
-          <span className="text-xs text-slate-400 font-medium">Quiz Details</span>
+          <span className="text-xs font-medium text-slate-400">Quiz Details</span>
         </div>
       </div>
 
       {/* Flyer Banner / Poster */}
       {quiz.flyerImageUrl ? (
-        <div className="w-full rounded-2xl overflow-hidden mb-4 border border-slate-200 shadow-sm bg-slate-900 relative">
-          <img
+        <div className="relative mb-4 w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 shadow-sm">
+          <Image
             src={quiz.flyerImageUrl}
             alt={`Flyer voor ${quiz.title}`}
-            className="w-full max-h-64 object-cover object-top"
+            width={800}
+            height={400}
+            unoptimized
+            className="max-h-64 w-full object-cover object-top"
           />
-          <div className="p-3 bg-gradient-to-t from-black/80 via-black/40 to-transparent absolute bottom-0 left-0 right-0 text-white">
+          <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 text-white">
             <h2 className="text-base font-bold drop-shadow-sm">{quiz.title}</h2>
-            <span className="text-[11px] bg-white/20 backdrop-blur-xs px-2 py-0.5 rounded-full mt-0.5 inline-block">
+            <span className="mt-0.5 inline-block rounded-full bg-white/20 px-2 py-0.5 text-[11px] backdrop-blur-xs">
               {team?.name || "De Quizvrienden"}
             </span>
           </div>
         </div>
       ) : (
-        <div className="w-full h-32 bg-gradient-to-br from-blue-600 to-indigo-700 rounded-2xl flex flex-col items-center justify-center text-white p-4 mb-4 shadow-sm relative overflow-hidden">
-          <span className="text-3xl mb-1">🏆</span>
-          <h2 className="text-lg font-bold text-center drop-shadow-sm">{quiz.title}</h2>
-          <span className="text-xs bg-white/20 backdrop-blur-xs px-2.5 py-0.5 rounded-full mt-1">
+        <div className="relative mb-4 flex h-32 w-full flex-col items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 p-4 text-white shadow-sm">
+          <span className="mb-1 text-3xl">🏆</span>
+          <h2 className="text-center text-lg font-bold drop-shadow-sm">{quiz.title}</h2>
+          <span className="mt-1 rounded-full bg-white/20 px-2.5 py-0.5 text-xs backdrop-blur-xs">
             {team?.name || "De Quizvrienden"}
           </span>
         </div>
       )}
 
       {/* Meta Details Card */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-4 shadow-sm space-y-2 text-sm text-slate-700">
+      <div className="mb-4 space-y-2 rounded-2xl border border-slate-200 bg-white p-4 text-sm text-slate-700 shadow-sm">
         <div className="flex items-center gap-2">
-          <Calendar className="w-4 h-4 text-blue-600 shrink-0" />
-          <span suppressHydrationWarning className="font-medium">{dateStr}</span>
+          <Calendar className="h-4 w-4 shrink-0 text-blue-600" />
+          <span suppressHydrationWarning className="font-medium">
+            {dateStr}
+          </span>
         </div>
         <div className="flex items-center gap-2">
-          <MapPin className="w-4 h-4 text-blue-600 shrink-0" />
+          <MapPin className="h-4 w-4 shrink-0 text-blue-600" />
           <span>{quiz.location}</span>
         </div>
         {quiz.entryFee && (
           <div className="flex items-center gap-2">
-            <Coins className="w-4 h-4 text-amber-600 shrink-0" />
+            <Coins className="h-4 w-4 shrink-0 text-amber-600" />
             <span>Inschrijvingsgeld: {quiz.entryFee}</span>
           </div>
         )}

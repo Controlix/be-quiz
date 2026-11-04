@@ -3,7 +3,7 @@
 **Date:** 2026-11-01  
 **Status:** Draft  
 **Target Milestone:** v2.0 (Integrations & Logistics)  
-**Document Path:** `docs/superpowers/specs/2026-11-01-shared-google-calendar-design.md`  
+**Document Path:** `docs/superpowers/specs/2026-11-01-shared-google-calendar-design.md`
 
 ---
 
@@ -20,13 +20,14 @@ Crucially, **the web app remains the authoritative single source of truth**. The
 ## 2. Goals, Non-Goals & Anti-Goals
 
 ### 2.1 Goals
+
 1. **Automated Team Calendar View:** Automatically manage event entries on the team's shared Google Calendar via Google Calendar API v3 using a Google Cloud Service Account.
 2. **Coexistence with Personal Exports:** Keep existing personal `.ics` and personal Google Calendar export links intact under their existing `ENABLE_ICAL_EXPORT` capability, completely independent of the shared calendar.
 3. **Core Domain Independence:** The core application (`quizService`, `rsvpService`, `registrationService`, `paymentService`, `prisma/schema.prisma`) must remain 100% unaware of Google Calendar or third-party APIs.
 4. **Event-Driven Architecture:** The core emits fine-grained, strongly-typed domain events; the calendar module subscribes to these events asynchronously.
 5. **Accurate Lifecycle Triggers:**
-   - **Create:** Only when a team is officially registered (*"Ploeg ingeschreven"*). Quizzes in planning/draft stay in the app only.
-   - **Delete/Remove:** When registration is cancelled (*"Inschrijving annuleren"*) or the quiz is marked `CANCELLED`.
+   - **Create:** Only when a team is officially registered (_"Ploeg ingeschreven"_). Quizzes in planning/draft stay in the app only.
+   - **Delete/Remove:** When registration is cancelled (_"Inschrijving annuleren"_) or the quiz is marked `CANCELLED`.
    - **Update:** When an already-registered quiz has its details edited (date, time, venue), its player lineup changes (RSVP update), or its payment status changes.
 6. **Rich, Self-Contained Calendar Entries:** Team members glancing at Google Calendar see:
    - **Event Title:** Quiz title
@@ -40,6 +41,7 @@ Crucially, **the web app remains the authoritative single source of truth**. The
 8. **Resilient Error Isolation:** Background API failures must never fail the user request, roll back transactions, or crash the Node process. Failures are captured with structured console logging.
 
 ### 2.2 Non-Goals
+
 1. **Two-Way Sync:** We do not read edits made in Google Calendar back into the app. The app is strictly the master source of truth.
 2. **Syncing Unregistered/Draft Quizzes:** Quizzes that the team hasn't registered for are NOT pushed to Google Calendar.
 3. **Dedicated Sync Button in UI:** Admins do not need a custom sync button; undoing and redoing registration achieves a clean re-sync naturally.
@@ -47,6 +49,7 @@ Crucially, **the web app remains the authoritative single source of truth**. The
 5. **Inviting Individual Email Addresses:** We do not invite member email addresses to calendar events; the service account simply writes to the team's shared Google Calendar ID.
 
 ### 2.3 Anti-Goals
+
 1. **Never Pollute Core Schema:** Never add `googleCalendarEventId` or Google fields to `Quiz` or `Team` tables.
 2. **Never Block Core Actions:** Never let a Google API downtime, network timeout, or expired credential prevent a team registration, RSVP, or quiz edit from saving.
 3. **Never Scour or Interfere with Unrelated Integrations:** AI Vision, WhatsApp sharing, and personal iCal export remain discrete, independent features.
@@ -56,24 +59,27 @@ Crucially, **the web app remains the authoritative single source of truth**. The
 ## 3. Evaluated Approaches & Decision
 
 ### Approach 1: Typed In-Process Event Bus + Isolated Calendar Subscriber (Selected)
+
 - **Description:** Implement a typed domain event bus in `src/lib/events/`. Core services emit fine-grained events (`team.registered`, `team.registration_cancelled`, `quiz.details_updated`, `team.roster_changed`, `team.payment_changed`). A subscriber in `src/features/calendar/shared/` listens asynchronously, queries necessary data, and calls Google Calendar API. An isolated Prisma mapping model `CalendarEventMapping` tracks Google Event IDs.
-- **Trade-offs:** 
-  - *Pros:* Strictly enforces Core Domain Independence, testable in isolation, highly extensible for future roadmap features (WhatsApp announcements, reminders), minimal runtime overhead.
-  - *Cons:* In-memory asynchronous execution is scoped to server process lifecycle.
+- **Trade-offs:**
+  - _Pros:_ Strictly enforces Core Domain Independence, testable in isolation, highly extensible for future roadmap features (WhatsApp announcements, reminders), minimal runtime overhead.
+  - _Cons:_ In-memory asynchronous execution is scoped to server process lifecycle.
 - **Decision:** **Accepted.** Best architectural alignment with project invariants.
 
 ### Approach 2: Database Query Interceptor (Prisma Client Extension)
+
 - **Description:** Intercept Prisma mutations on `Team`, `Rsvp`, and `Quiz` using `$extends`.
-- **Trade-offs:** 
-  - *Pros:* Automatic interception without service calls.
-  - *Cons:* Too magical, hard to trace in deterministic tests, risks running side-effects during seeds or nested transactions.
+- **Trade-offs:**
+  - _Pros:_ Automatic interception without service calls.
+  - _Cons:_ Too magical, hard to trace in deterministic tests, risks running side-effects during seeds or nested transactions.
 - **Decision:** **Rejected.**
 
 ### Approach 3: Composite Application Orchestrators
+
 - **Description:** Sequential orchestrator services calling core and integration services.
-- **Trade-offs:** 
-  - *Pros:* Linear code flow.
-  - *Cons:* Direct coupling; breaks event-driven observer pattern and scalability for other listeners.
+- **Trade-offs:**
+  - _Pros:_ Linear code flow.
+  - _Cons:_ Direct coupling; breaks event-driven observer pattern and scalability for other listeners.
 - **Decision:** **Rejected.**
 
 ---
@@ -142,11 +148,13 @@ model CalendarEventMapping {
   @@index([quizId])
 }
 ```
-*Note: No foreign key to `Quiz` is strictly required if we want 100% database schema independence, but a `@relation(fields: [quizId], references: [id], onDelete: Cascade)` can be used to ensure cleanup if a quiz is deleted.*
+
+_Note: No foreign key to `Quiz` is strictly required if we want 100% database schema independence, but a `@relation(fields: [quizId], references: [id], onDelete: Cascade)` can be used to ensure cleanup if a quiz is deleted._
 
 ### 4.4 Google Calendar API Client & Service Account Auth
 
 Authentication via Google Service Account:
+
 - **Environment Variables:**
   - `ENABLE_SHARED_GOOGLE_CALENDAR=true`
   - `GOOGLE_CALENDAR_ID`: Target shared calendar ID (e.g. `c_...0123@group.calendar.google.com`).
@@ -156,9 +164,10 @@ Authentication via Google Service Account:
 - **Client Implementation:** Lightweight wrapper using `googleapis` npm package (or pure JWT auth if zero new heavy dependencies are preferred). `googleapis` is standard, robust, and handles token caching/refresh automatically.
 
 #### Setup & Credential Provisioning Procedure
-1. **Google Calendar:** In Google Calendar Settings > *Integrate calendar*, copy the **Calendar ID**.
+
+1. **Google Calendar:** In Google Calendar Settings > _Integrate calendar_, copy the **Calendar ID**.
 2. **Google Cloud Console:** Create project, enable **Google Calendar API**, create a Service Account, generate a JSON key.
-3. **Calendar Sharing Delegation:** In Google Calendar Settings > *Share with specific people or groups*, add the service account email with permission **"Make changes to events"**.
+3. **Calendar Sharing Delegation:** In Google Calendar Settings > _Share with specific people or groups_, add the service account email with permission **"Make changes to events"**.
 
 ### 4.5 Calendar Event Payload Formatting
 
@@ -177,7 +186,7 @@ Authentication via Google Service Account:
   Bekijk of wijzig je RSVP in de app:
   https://quiz.example.com/quizzes/clx...
   ```
-  *(If payment is unpaid: `Inschrijvingsgeld: €20 / ploeg (Nog niet betaald)`)*
+  _(If payment is unpaid: `Inschrijvingsgeld: €20 / ploeg (Nog niet betaald)`)_
 
 ### 4.6 Synchronization Logic & Event Handlers
 
@@ -207,6 +216,7 @@ Authentication via Google Service Account:
 ## 5. Testing & Verification Plan
 
 Following the project's **Node-based Deterministic Testing** invariant:
+
 1. **Event Bus Unit Tests (`tests/lib/events.test.ts`):**
    - Verify subscriptions, event emissions, multiple handlers, and test cleanup (`clear()`).
    - Verify that an error in one handler does not prevent other handlers from executing.
@@ -230,6 +240,7 @@ Following the project's **Node-based Deterministic Testing** invariant:
 ## 6. What's Left to the Builder
 
 The builder has full discretion over:
+
 - Choice of Google client implementation: `googleapis` package vs. a minimal custom JWT/fetch client to avoid dependency weight.
 - Exact styling/layout of the text description in the Google Calendar event (e.g. bolding, separator lines).
 - Internal file organization within `src/features/calendar/shared/`.

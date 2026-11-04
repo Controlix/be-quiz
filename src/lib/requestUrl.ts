@@ -7,8 +7,7 @@ export async function getAppOriginFromHeaders(): Promise<string> {
     const host = h.get("x-forwarded-host") || h.get("host");
     if (host) {
       const proto =
-        h.get("x-forwarded-proto") ||
-        (process.env.NODE_ENV === "production" ? "https" : "http");
+        h.get("x-forwarded-proto") || (process.env.NODE_ENV === "production" ? "https" : "http");
       return `${proto}://${host}`;
     }
   } catch {}

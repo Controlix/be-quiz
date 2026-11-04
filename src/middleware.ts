@@ -9,7 +9,7 @@ export function middleware(request: NextRequest) {
   if (
     pathname.startsWith("/auth") ||
     pathname.startsWith("/_next") ||
-    pathname.startsWith("/api/quizzes") && pathname.endsWith("/calendar.ics") ||
+    (pathname.startsWith("/api/quizzes") && pathname.endsWith("/calendar.ics")) ||
     pathname.startsWith("/uploads") ||
     pathname === "/manifest.json" ||
     pathname === "/favicon.ico" ||

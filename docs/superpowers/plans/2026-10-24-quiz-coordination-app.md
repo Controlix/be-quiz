@@ -12,13 +12,13 @@
 
 ## Global Constraints
 
-* Language: Dutch (`nl-BE`) for all user-facing UI labels, error messages, and share texts; English for schema, identifiers, and tests.
-* Database: PostgreSQL only; zero SQLite references or dependencies.
-* Mutations: All client mutations use Next.js Server Actions located in `src/actions/`.
-* Access Control: Strictly members-only. Invite tokens stored as SHA-256 hashes; sessions use signed `httpOnly` cookies with 90-day expiry.
-* Registration Email: Hand-off via native `mailto:` containing only the team name, quiz title, date/time, and contact person. Never include attendee names or player counts.
-* Queue Ordering: Strict FIFO ordered solely by `queuedSince ASC`. Active lineup is the first `maxTeamSize` players; reserves are subsequent players.
-* Destructive Confirmation: Client-side confirmation dialogs are mandatory for admin cancel/archive, registration reset, and admin RSVP overrides.
+- Language: Dutch (`nl-BE`) for all user-facing UI labels, error messages, and share texts; English for schema, identifiers, and tests.
+- Database: PostgreSQL only; zero SQLite references or dependencies.
+- Mutations: All client mutations use Next.js Server Actions located in `src/actions/`.
+- Access Control: Strictly members-only. Invite tokens stored as SHA-256 hashes; sessions use signed `httpOnly` cookies with 90-day expiry.
+- Registration Email: Hand-off via native `mailto:` containing only the team name, quiz title, date/time, and contact person. Never include attendee names or player counts.
+- Queue Ordering: Strict FIFO ordered solely by `queuedSince ASC`. Active lineup is the first `maxTeamSize` players; reserves are subsequent players.
+- Destructive Confirmation: Client-side confirmation dialogs are mandatory for admin cancel/archive, registration reset, and admin RSVP overrides.
 
 ## Review Focus
 
@@ -87,17 +87,21 @@ src/
 ---
 
 ## Slice 1: Clickable UI Prototype (Immediate Visual Verification)
-*Milestone: At the end of Slice 1, you can run `npm run dev`, open the app on your mobile or desktop browser, browse the timeline tabs, click into a quiz, and interact with the RSVP and registration buttons.*
+
+_Milestone: At the end of Slice 1, you can run `npm run dev`, open the app on your mobile or desktop browser, browse the timeline tabs, click into a quiz, and interact with the RSVP and registration buttons._
 
 ### Task 1: Next.js Shell, Mobile Layout & Timeline Dashboard (Mock)
 
 **Files:**
+
 - Create: `package.json`, `tsconfig.json`, `next.config.ts`, `tailwind.config.ts`, `src/app/layout.tsx`, `src/app/page.tsx`, `src/app/quizzes/page.tsx`, `src/components/TimelineTabs.tsx`, `src/components/QuizCard.tsx`, `src/lib/mockData.ts`, `vitest.config.ts`
 - Test: `tests/ui/timelineTabs.test.ts`
 
 **Interfaces:**
+
 - Consumes: None (Root setup)
 - Produces:
+
   ```typescript
   export type TabCategory = "IN_BERAAD" | "GEPLAND" | "ARCHIEF";
 
@@ -135,16 +139,28 @@ describe("Timeline Tab Classification", () => {
   const past = new Date(Date.now() - 86400000);
 
   it("classifies upcoming unregistered as In Beraad", () => {
-    expect(categorizeQuizForTabs({ startsAt: future, status: "OPEN", team: { registeredAt: null } })).toBe("IN_BERAAD");
+    expect(
+      categorizeQuizForTabs({ startsAt: future, status: "OPEN", team: { registeredAt: null } })
+    ).toBe("IN_BERAAD");
   });
 
   it("classifies upcoming registered as Gepland", () => {
-    expect(categorizeQuizForTabs({ startsAt: future, status: "OPEN", team: { registeredAt: new Date() } })).toBe("GEPLAND");
+    expect(
+      categorizeQuizForTabs({
+        startsAt: future,
+        status: "OPEN",
+        team: { registeredAt: new Date() },
+      })
+    ).toBe("GEPLAND");
   });
 
   it("classifies past or cancelled as Archief", () => {
-    expect(categorizeQuizForTabs({ startsAt: past, status: "OPEN", team: { registeredAt: new Date() } })).toBe("ARCHIEF");
-    expect(categorizeQuizForTabs({ startsAt: future, status: "CANCELLED", team: { registeredAt: null } })).toBe("ARCHIEF");
+    expect(
+      categorizeQuizForTabs({ startsAt: past, status: "OPEN", team: { registeredAt: new Date() } })
+    ).toBe("ARCHIEF");
+    expect(
+      categorizeQuizForTabs({ startsAt: future, status: "CANCELLED", team: { registeredAt: null } })
+    ).toBe("ARCHIEF");
   });
 });
 ```
@@ -175,12 +191,15 @@ git commit -m "feat(slice1): implement mobile layout and interactive timeline da
 ### Task 2: Interactive Quiz Detail View & Mock RSVP Experience
 
 **Files:**
+
 - Create: `src/app/quizzes/[id]/page.tsx`, `src/components/TeamLineup.tsx`, `src/components/RsvpControl.tsx`, `src/components/ActionToolbar.tsx`
 - Test: `tests/ui/quizDetail.test.ts`
 
 **Interfaces:**
+
 - Consumes: `MockQuiz` from `src/lib/mockData.ts`
 - Produces:
+
   ```typescript
   export interface LineupMember {
     id: string;
@@ -249,17 +268,21 @@ git commit -m "feat(slice1): complete clickable quiz detail view and interactive
 ---
 
 ## Slice 2: Persistence & Real Concurrency-Locked State
-*Milestone: Replace mock data with PostgreSQL and Prisma; RSVPs and quizzes persist across devices, and concurrent RSVPs are locked at the database row level.*
+
+_Milestone: Replace mock data with PostgreSQL and Prisma; RSVPs and quizzes persist across devices, and concurrent RSVPs are locked at the database row level._
 
 ### Task 3: PostgreSQL Docker, Environment Setup & Prisma Schema Setup
 
 **Files:**
+
 - Create: `docker-compose.yml`, `.env`, `.env.example`, `prisma/schema.prisma`, `prisma/seed.ts`, `src/lib/db.ts`
 - Test: `tests/db/schema.test.ts`
 
 **Interfaces:**
+
 - Consumes: None (Database bootstrapping)
 - Produces:
+
   ```typescript
   import { PrismaClient } from "@prisma/client";
   export const prisma: PrismaClient;
@@ -306,13 +329,16 @@ git commit -m "feat(slice2): configure postgres docker container, env, and prism
 ### Task 4: Concurrency-Locked RSVP Engine & Server Actions
 
 **Files:**
+
 - Create: `src/services/quizService.ts`, `src/services/rsvpService.ts`, `src/actions/rsvpActions.ts`, `src/actions/quizActions.ts`
 - Modify: `src/app/quizzes/page.tsx`, `src/app/quizzes/[id]/page.tsx`
 - Test: `tests/services/rsvpConcurrency.test.ts`
 
 **Interfaces:**
+
 - Consumes: `prisma` from `src/lib/db.ts`
 - Produces:
+
   ```typescript
   export interface CreateQuizInput {
     title: string;
@@ -328,13 +354,26 @@ git commit -m "feat(slice2): configure postgres docker container, env, and prism
     flyerImageUrl?: string;
   }
 
-  export function createQuiz(data: CreateQuizInput, creatorId: string): Promise<Quiz & { team: Team }>;
-  export function getRsvpLineup(teamId: string): Promise<{ active: RsvpWithMember[]; reserves: RsvpWithMember[] }>;
-  export function setRsvp(teamId: string, memberId: string, status: "ATTENDING" | "DECLINED"): Promise<void>;
+  export function createQuiz(
+    data: CreateQuizInput,
+    creatorId: string
+  ): Promise<Quiz & { team: Team }>;
+  export function getRsvpLineup(
+    teamId: string
+  ): Promise<{ active: RsvpWithMember[]; reserves: RsvpWithMember[] }>;
+  export function setRsvp(
+    teamId: string,
+    memberId: string,
+    status: "ATTENDING" | "DECLINED"
+  ): Promise<void>;
 
   // Server Actions in src/actions/
-  export async function joinQuizRsvpAction(teamId: string): Promise<{ success: boolean; error?: string }>;
-  export async function declineQuizRsvpAction(teamId: string): Promise<{ success: boolean; error?: string }>;
+  export async function joinQuizRsvpAction(
+    teamId: string
+  ): Promise<{ success: boolean; error?: string }>;
+  export async function declineQuizRsvpAction(
+    teamId: string
+  ): Promise<{ success: boolean; error?: string }>;
   ```
 
 - [x] **Step 1: Write the failing test**
@@ -349,12 +388,15 @@ import { setRsvp, getRsvpLineup } from "../../src/services/rsvpService";
 describe("RSVP Concurrency & FIFO Waitlist", () => {
   it("enforces FIFO queue and handles concurrent RSVPs at capacity limit", async () => {
     const admin = await prisma.member.create({ data: { name: "Admin", role: "ADMIN" } });
-    const quiz = await createQuiz({
-      title: "Concurrency Quiz",
-      startsAt: new Date(Date.now() + 86400000),
-      location: "Gent",
-      maxTeamSize: 2,
-    }, admin.id);
+    const quiz = await createQuiz(
+      {
+        title: "Concurrency Quiz",
+        startsAt: new Date(Date.now() + 86400000),
+        location: "Gent",
+        maxTeamSize: 2,
+      },
+      admin.id
+    );
 
     const m1 = await prisma.member.create({ data: { name: "Player 1" } });
     const m2 = await prisma.member.create({ data: { name: "Player 2" } });
@@ -374,7 +416,7 @@ describe("RSVP Concurrency & FIFO Waitlist", () => {
     const updated = await getRsvpLineup(quiz.team!.id);
     expect(updated.active.length).toBe(2);
     expect(updated.reserves.length).toBe(0);
-    expect(updated.active.map(a => a.memberId)).toContain(reserves[0].memberId);
+    expect(updated.active.map((a) => a.memberId)).toContain(reserves[0].memberId);
   });
 });
 ```
@@ -403,17 +445,21 @@ git commit -m "feat(slice2): wire live database queries, server actions, and row
 ---
 
 ## Slice 3: Flyer Scanner, Vision AI & External Actions
-*Milestone: Connect phone camera photo intake with Vision AI extraction, plus one-tap email registration, calendar exports, and WhatsApp sharing.*
+
+_Milestone: Connect phone camera photo intake with Vision AI extraction, plus one-tap email registration, calendar exports, and WhatsApp sharing._
 
 ### Task 5: Flyer Intake, Local Storage Adapter & Vision Extraction Route
 
 **Files:**
+
 - Create: `src/lib/storage.ts`, `src/components/FlyerUploader.tsx`, `src/services/visionService.ts`, `src/app/api/quizzes/extract/route.ts`, `src/app/quizzes/new/page.tsx`, `src/components/QuizEntryForm.tsx`
 - Test: `tests/services/visionService.test.ts`
 
 **Interfaces:**
+
 - Consumes: None
 - Produces:
+
   ```typescript
   export interface VisionExtractionResult {
     isValid: boolean;
@@ -493,13 +539,16 @@ git commit -m "feat(slice3): implement flyer scanner, vision ai parsing, and qui
 ### Task 6: Native Mailto Hand-off, Calendar Export & WhatsApp Sharing
 
 **Files:**
+
 - Create: `src/lib/mailto.ts`, `src/lib/ical.ts`, `src/lib/whatsapp.ts`, `src/services/registrationService.ts`, `src/services/paymentService.ts`, `src/actions/registrationActions.ts`, `src/app/api/quizzes/[id]/calendar.ics/route.ts`
 - Modify: `src/components/ActionToolbar.tsx`
 - Test: `tests/lib/integrations.test.ts`
 
 **Interfaces:**
+
 - Consumes: `Quiz`, `Team` types from `@prisma/client`
 - Produces:
+
   ```typescript
   export function generateRegistrationMailto(
     quiz: { title: string; startsAt: Date; organizerEmail: string | null },
@@ -539,7 +588,11 @@ import { generateIcsCalendar } from "../../src/lib/ical";
 describe("Mailto & Calendar Integrations", () => {
   // Review Focus #5: Zero-RSVP registration email has no player names or counts
   it("generates mailto with team name only, excluding attendee names and player counts", () => {
-    const quiz = { title: "Herfstquiz", startsAt: new Date("2026-11-14T19:00:00Z"), organizerEmail: "org@quiz.be" };
+    const quiz = {
+      title: "Herfstquiz",
+      startsAt: new Date("2026-11-14T19:00:00Z"),
+      organizerEmail: "org@quiz.be",
+    };
     const team = { name: "De Quizvrienden" };
     const url = generateRegistrationMailto(quiz, team, "Marc");
     expect(url.startsWith("mailto:org@quiz.be?")).toBe(true);
@@ -549,7 +602,13 @@ describe("Mailto & Calendar Integrations", () => {
   });
 
   it("produces RFC 5545 compliant calendar output with CRLF endings", () => {
-    const quiz = { id: "q1", title: "Test Quiz", startsAt: new Date("2026-11-14T19:00:00Z"), durationMinutes: 180, location: "Gent" };
+    const quiz = {
+      id: "q1",
+      title: "Test Quiz",
+      startsAt: new Date("2026-11-14T19:00:00Z"),
+      durationMinutes: 180,
+      location: "Gent",
+    };
     const team = { name: "Ploeg 1", paidAt: new Date() };
     const ics = generateIcsCalendar(quiz, team);
     expect(ics).toContain("BEGIN:VCALENDAR\r\n");
@@ -582,17 +641,21 @@ git commit -m "feat(slice3): implement mailto hand-off, ical export, whatsapp sh
 ---
 
 ## Slice 4: Authentication, Admin Controls, PWA & Packaging
-*Milestone: Secure the application with invite links, session cookies, admin tools, PWA home-screen support, and multi-stage Dockerfile.*
+
+_Milestone: Secure the application with invite links, session cookies, admin tools, PWA home-screen support, and multi-stage Dockerfile._
 
 ### Task 7: Authentication, Sessions & Middleware Route Gating
 
 **Files:**
+
 - Create: `src/lib/crypto.ts`, `src/lib/auth.ts`, `src/middleware.ts`, `src/app/auth/login/page.tsx`, `src/app/auth/join/route.ts`, `src/app/auth/logout/route.ts`
 - Test: `tests/auth/authFlow.test.ts`
 
 **Interfaces:**
+
 - Consumes: `prisma` from `src/lib/db.ts`
 - Produces:
+
   ```typescript
   export function hashToken(token: string): string;
   export function generateSecureToken(): string;
@@ -660,20 +723,31 @@ git commit -m "feat(slice4): implement invite token claim, session middleware, a
 ### Task 8: Admin Controls, Confirmation Guards & Audit Trails
 
 **Files:**
+
 - Create: `src/components/ConfirmDialog.tsx`, `src/actions/adminActions.ts`, `src/app/quizzes/[id]/edit/page.tsx`, `src/app/admin/members/page.tsx`, `src/app/admin/settings/page.tsx`
 - Modify: `src/services/rsvpService.ts`
 - Test: `tests/admin/adminActions.test.ts`
 
 **Interfaces:**
+
 - Consumes: `prisma`, `requireAdmin`
 - Produces:
+
   ```typescript
   export async function adminCancelQuizAction(quizId: string): Promise<{ success: boolean }>;
   export async function adminResetRegistrationAction(teamId: string): Promise<{ success: boolean }>;
-  export async function adminOverrideDeclineAction(teamId: string, memberId: string): Promise<{ success: boolean }>;
-  export async function adminUpdateTeamCapacityAction(teamId: string, newMaxTeamSize: number): Promise<{ success: boolean }>;
+  export async function adminOverrideDeclineAction(
+    teamId: string,
+    memberId: string
+  ): Promise<{ success: boolean }>;
+  export async function adminUpdateTeamCapacityAction(
+    teamId: string,
+    newMaxTeamSize: number
+  ): Promise<{ success: boolean }>;
   export async function adminAddMemberAction(name: string): Promise<{ inviteUrl: string }>;
-  export async function adminUpdateDefaultTeamNameAction(newName: string): Promise<{ success: boolean }>;
+  export async function adminUpdateDefaultTeamNameAction(
+    newName: string
+  ): Promise<{ success: boolean }>;
   ```
 
 - [x] **Step 1: Write the failing test (including Review Focus #2 & #3)**
@@ -683,13 +757,26 @@ git commit -m "feat(slice4): implement invite token claim, session middleware, a
 import { describe, it, expect } from "vitest";
 import { prisma } from "../../src/lib/db";
 import { createQuiz } from "../../src/services/quizService";
-import { setRsvp, getRsvpLineup, adminOverrideDecline, updateTeamCapacity } from "../../src/services/rsvpService";
+import {
+  setRsvp,
+  getRsvpLineup,
+  adminOverrideDecline,
+  updateTeamCapacity,
+} from "../../src/services/rsvpService";
 
 describe("Admin Override & Capacity Demotion Logic", () => {
   // Review Focus #2: Admin RSVP Override Audit & Promotion
   it("audits admin decline overrides and promotes the earliest reserve", async () => {
     const admin = await prisma.member.create({ data: { name: "Admin", role: "ADMIN" } });
-    const quiz = await createQuiz({ title: "Admin Quiz", startsAt: new Date(Date.now() + 86400000), location: "Gent", maxTeamSize: 1 }, admin.id);
+    const quiz = await createQuiz(
+      {
+        title: "Admin Quiz",
+        startsAt: new Date(Date.now() + 86400000),
+        location: "Gent",
+        maxTeamSize: 1,
+      },
+      admin.id
+    );
     const m1 = await prisma.member.create({ data: { name: "Player 1" } });
     const m2 = await prisma.member.create({ data: { name: "Player 2" } });
 
@@ -697,7 +784,9 @@ describe("Admin Override & Capacity Demotion Logic", () => {
     await setRsvp(quiz.team!.id, m2.id, "ATTENDING");
 
     await adminOverrideDecline(quiz.team!.id, m1.id, admin.id);
-    const rsvp1 = await prisma.rsvp.findUnique({ where: { teamId_memberId: { teamId: quiz.team!.id, memberId: m1.id } } });
+    const rsvp1 = await prisma.rsvp.findUnique({
+      where: { teamId_memberId: { teamId: quiz.team!.id, memberId: m1.id } },
+    });
     expect(rsvp1?.status).toBe("DECLINED");
     expect(rsvp1?.overriddenById).toBe(admin.id);
     expect(rsvp1?.overriddenAt).not.toBeNull();
@@ -709,7 +798,15 @@ describe("Admin Override & Capacity Demotion Logic", () => {
   // Review Focus #3: Lowering maxTeamSize Demotion
   it("demotes latest attendee to reserve #1 while preserving queuedSince when maxTeamSize is reduced", async () => {
     const admin = await prisma.member.create({ data: { name: "Admin2", role: "ADMIN" } });
-    const quiz = await createQuiz({ title: "Capacity Quiz", startsAt: new Date(Date.now() + 86400000), location: "Gent", maxTeamSize: 2 }, admin.id);
+    const quiz = await createQuiz(
+      {
+        title: "Capacity Quiz",
+        startsAt: new Date(Date.now() + 86400000),
+        location: "Gent",
+        maxTeamSize: 2,
+      },
+      admin.id
+    );
     const m1 = await prisma.member.create({ data: { name: "Player A" } });
     const m2 = await prisma.member.create({ data: { name: "Player B" } });
 
@@ -752,11 +849,13 @@ git commit -m "feat(slice4): implement admin controls, confirmation dialogs, and
 ### Task 9: PWA Manifest, Standalone Dockerfile & Acceptance Test Suite
 
 **Files:**
+
 - Create: `public/manifest.json`, `public/icon-192.png`, `public/icon-512.png`, `Dockerfile`, `.dockerignore`, `tests/e2e/acceptance.test.ts`
 - Modify: `src/app/layout.tsx`, `next.config.ts`
 - Test: `tests/e2e/acceptance.test.ts`
 
 **Interfaces:**
+
 - Consumes: All application modules
 - Produces:
   - Valid PWA manifest for mobile standalone installation.

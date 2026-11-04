@@ -60,7 +60,9 @@ async function main() {
   console.log("\nCleanup Summary:");
   console.log(`- Files deleted: ${deletedCount}`);
   console.log(`- Files retained: ${allFiles.length - deletedCount}`);
-  console.log(`- Space reclaimed: ${(reclaimedBytes / 1024).toFixed(1)} KB (~${(reclaimedBytes / (1024 * 1024)).toFixed(2)} MB)`);
+  console.log(
+    `- Space reclaimed: ${(reclaimedBytes / 1024).toFixed(1)} KB (~${(reclaimedBytes / (1024 * 1024)).toFixed(2)} MB)`
+  );
 }
 
 main()

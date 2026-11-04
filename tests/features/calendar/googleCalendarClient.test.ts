@@ -135,7 +135,7 @@ describe("GoogleCalendarClient", () => {
   });
 
   it("handles 404 and 410 cleanly on deleteEvent without throwing", async () => {
-    vi.spyOn(globalThis, "fetch").mockImplementation(async (url, init) => {
+    vi.spyOn(globalThis, "fetch").mockImplementation(async (url, _init) => {
       const urlStr = url.toString();
       if (urlStr.includes("oauth2.googleapis.com/token")) {
         return new Response(
@@ -153,12 +153,8 @@ describe("GoogleCalendarClient", () => {
     });
 
     const client = getGoogleCalendarClient(validEnv);
-    await expect(
-      client!.deleteEvent("test-calendar-id", "event-404")
-    ).resolves.toBeUndefined();
-    await expect(
-      client!.deleteEvent("test-calendar-id", "event-410")
-    ).resolves.toBeUndefined();
+    await expect(client!.deleteEvent("test-calendar-id", "event-404")).resolves.toBeUndefined();
+    await expect(client!.deleteEvent("test-calendar-id", "event-410")).resolves.toBeUndefined();
   });
 
   it("re-uses cached access token for subsequent requests within expiry", async () => {
@@ -188,12 +184,15 @@ describe("GoogleCalendarClient", () => {
     vi.spyOn(globalThis, "fetch").mockImplementation(async (url) => {
       const urlStr = url.toString();
       if (urlStr.includes("oauth2.googleapis.com/token")) {
-        return new Response(
-          JSON.stringify({ access_token: "mock-token", expires_in: 3600 }),
-          { status: 200, headers: { "Content-Type": "application/json" } }
-        );
+        return new Response(JSON.stringify({ access_token: "mock-token", expires_in: 3600 }), {
+          status: 200,
+          headers: { "Content-Type": "application/json" },
+        });
       }
-      return new Response("Internal Server Error", { status: 500, statusText: "Internal Server Error" });
+      return new Response("Internal Server Error", {
+        status: 500,
+        statusText: "Internal Server Error",
+      });
     });
 
     const client = getGoogleCalendarClient(validEnv);

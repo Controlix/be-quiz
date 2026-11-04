@@ -3,6 +3,7 @@
 This directory is the intake location for **raw user test remarks, beta testing notes, and feedback sessions**.
 
 ### How to use this directory:
+
 1. When a new testing round occurs or user feedback is exported from `/admin/feedback`:
    - Create a dated file: `YYYY-MM-DD-<session-or-topic>.md` (e.g. `2026-11-05-whatsapp-beta-testing.md`).
    - Record raw observations, member comments, and screenshot notes.

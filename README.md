@@ -8,43 +8,43 @@ BE-Quiz replaces messy WhatsApp threads, forgotten calendar invites, and scatter
 
 ## 🌟 Key Features
 
-* **📱 Mobile-First Player Experience:**
-  * Clean, thumb-friendly dashboard showing upcoming, pending, and past quizzes.
-  * 1-tap RSVP: *"Ik doe mee"* or *"Ik pas"*.
-  * Automatic active lineup vs. reserve list tracking based on maximum team capacity.
-  * Drag-and-drop participant reordering for admins with touch support.
+- **📱 Mobile-First Player Experience:**
+  - Clean, thumb-friendly dashboard showing upcoming, pending, and past quizzes.
+  - 1-tap RSVP: _"Ik doe mee"_ or _"Ik pas"_.
+  - Automatic active lineup vs. reserve list tracking based on maximum team capacity.
+  - Drag-and-drop participant reordering for admins with touch support.
 
-* **🤖 AI Flyer Scanning (Vision OCR):**
-  * Upload, drag-and-drop, paste from clipboard (`Ctrl+V` / `Cmd+V`), or snap a photo of a quiz poster.
-  * Automatically extracts title, date, time (European 24-hour format), venue/location, team capacity, and structured entry fee via Google Gemini or OpenAI Vision.
+- **🤖 AI Flyer Scanning (Vision OCR):**
+  - Upload, drag-and-drop, paste from clipboard (`Ctrl+V` / `Cmd+V`), or snap a photo of a quiz poster.
+  - Automatically extracts title, date, time (European 24-hour format), venue/location, team capacity, and structured entry fee via Google Gemini or OpenAI Vision.
 
-* **💬 WhatsApp & Email Integration:**
-  * One-tap WhatsApp sharing with formatted quiz details, location, and deep links.
-  * One-tap registration email generator (`mailto:`) pre-filled with team name (*Ben in Black*), roster lineup, and organizer contact details.
-  * Direct payment tracking to record who prepaid the registration fee.
+- **💬 WhatsApp & Email Integration:**
+  - One-tap WhatsApp sharing with formatted quiz details, location, and deep links.
+  - One-tap registration email generator (`mailto:`) pre-filled with team name (_Ben in Black_), roster lineup, and organizer contact details.
+  - Direct payment tracking to record who prepaid the registration fee.
 
-* **📅 Native Calendar Integration:**
-  * 1-click `.ics` calendar event export compatible with Apple Calendar, Google Calendar, and Outlook.
+- **📅 Native Calendar Integration:**
+  - 1-click `.ics` calendar event export compatible with Apple Calendar, Google Calendar, and Outlook.
 
-* **🔐 Frictionless PIN Authentication:**
-  * Name picker + 4-digit personal PIN authentication with rolling 90-day sessions.
-  * One-click invite links for onboarding new team members.
-  * Admin PIN reset capability from the member roster.
+- **🔐 Frictionless PIN Authentication:**
+  - Name picker + 4-digit personal PIN authentication with rolling 90-day sessions.
+  - One-click invite links for onboarding new team members.
+  - Admin PIN reset capability from the member roster.
 
-* **💡 In-App Feedback & Bug Reporting:**
-  * Built-in mobile widget to submit bugs, ideas, or remarks with optional screenshot capture (via `html2canvas-pro`).
-  * Dedicated desktop admin back-office view (`/admin/feedback`) to inspect feedback, device metadata, and attached images.
+- **💡 In-App Feedback & Bug Reporting:**
+  - Built-in mobile widget to submit bugs, ideas, or remarks with optional screenshot capture (via `html2canvas-pro`).
+  - Dedicated desktop admin back-office view (`/admin/feedback`) to inspect feedback, device metadata, and attached images.
 
 ---
 
 ## 🛠 Tech Stack
 
-* **Framework:** [Next.js](https://nextjs.org/) (App Router, Server Components, Server Actions)
-* **Frontend:** [React 19](https://react.dev/), [Tailwind CSS v4](https://tailwindcss.com/), [Lucide React](https://lucide.dev/)
-* **Database & ORM:** PostgreSQL, [Prisma ORM](https://www.prisma.io/)
-* **AI Vision OCR:** Google Generative AI (Gemini) / OpenAI API
-* **File Storage:** [Vercel Blob](https://vercel.com/docs/storage/vercel-blob) (production) / local disk storage (development fallback)
-* **Testing:** [Vitest](https://vitest.dev/)
+- **Framework:** [Next.js](https://nextjs.org/) (App Router, Server Components, Server Actions)
+- **Frontend:** [React 19](https://react.dev/), [Tailwind CSS v4](https://tailwindcss.com/), [Lucide React](https://lucide.dev/)
+- **Database & ORM:** PostgreSQL, [Prisma ORM](https://www.prisma.io/)
+- **AI Vision OCR:** Google Generative AI (Gemini) / OpenAI API
+- **File Storage:** [Vercel Blob](https://vercel.com/docs/storage/vercel-blob) (production) / local disk storage (development fallback)
+- **Testing:** [Vitest](https://vitest.dev/)
 
 ---
 
@@ -52,9 +52,9 @@ BE-Quiz replaces messy WhatsApp threads, forgotten calendar invites, and scatter
 
 ### Prerequisites
 
-* **Node.js**: v20 or higher
-* **npm**: v10 or higher
-* **Docker**: (optional, for running local PostgreSQL)
+- **Node.js**: v20 or higher
+- **npm**: v10 or higher
+- **Docker**: (optional, for running local PostgreSQL)
 
 ### 1. Clone & Install Dependencies
 
@@ -133,15 +133,34 @@ npx vitest
 
 ---
 
+## 🔍 Code Quality & Security Verification
+
+All quality, linting, formatting, vulnerability, and secret scanning checks can be run locally via standard npm scripts:
+
+| Command                | Tool        | Purpose                                                                                                  |
+| :--------------------- | :---------- | :------------------------------------------------------------------------------------------------------- |
+| `npm run check:all`    | _All Tools_ | **Run all checks in sequence** (typecheck, tests, linter, formatting check, CVE audit, and secret scan). |
+| `npm run lint`         | ESLint 9    | Lint code against Next.js App Router rules, React 19 standards, and TypeScript conventions.              |
+| `npm run lint:fix`     | ESLint 9    | Automatically fix autofixable linting and import issues.                                                 |
+| `npm run format:check` | Prettier    | Check that all files conform to Prettier formatting and Tailwind CSS class order rules.                  |
+| `npm run format:write` | Prettier    | Automatically reformat all repository files and sort Tailwind CSS classes.                               |
+| `npm run scan:secrets` | Secretlint  | Scan repository files for accidental secret, API key, token, or password leaks.                          |
+| `npm run audit:check`  | audit-ci    | Audit dependencies for high/critical CVEs against configured baseline allowlists.                        |
+| `npm run typecheck`    | TypeScript  | Verify TypeScript types without emitting build files (`tsc --noEmit`).                                   |
+
+> **Automatic Pre-Commit Guard:** Thanks to `husky` and `lint-staged`, whenever you run `git commit`, `secretlint`, `prettier`, and `eslint` automatically run in under a second strictly on the files you staged.
+
+---
+
 ## 🚢 Deployment & Architecture Documentation
 
 BE-Quiz supports deployment on **Vercel** (Serverless PaaS) as well as self-hosted **Docker standalone containers**.
 
-* **Architecture & Runtime Boundaries:** [docs/architecture/overview.md](docs/architecture/overview.md)
-* **Compute & Deployment Models:** [docs/deployment/overview.md](docs/deployment/overview.md) (or step-by-step Vercel guide in [DEPLOYMENT.md](./DEPLOYMENT.md))
-* **Infrastructure & Backing Services:** [docs/infrastructure/overview.md](docs/infrastructure/overview.md)
-* **Database Schema & ERD:** [docs/database/schema.md](docs/database/schema.md)
-* **API Specification (OpenAPI):** [docs/api/openapi.yaml](docs/api/openapi.yaml)
+- **Architecture & Runtime Boundaries:** [docs/architecture/overview.md](docs/architecture/overview.md)
+- **Compute & Deployment Models:** [docs/deployment/overview.md](docs/deployment/overview.md) (or step-by-step Vercel guide in [DEPLOYMENT.md](./DEPLOYMENT.md))
+- **Infrastructure & Backing Services:** [docs/infrastructure/overview.md](docs/infrastructure/overview.md)
+- **Database Schema & ERD:** [docs/database/schema.md](docs/database/schema.md)
+- **API Specification (OpenAPI):** [docs/api/openapi.yaml](docs/api/openapi.yaml)
 
 ---
 

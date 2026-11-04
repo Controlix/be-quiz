@@ -1,10 +1,7 @@
 import { domainEvents, DomainEvent } from "@/lib/events";
 import { prisma } from "@/lib/db";
 import { mappingRepository } from "./mappingRepository";
-import {
-  GoogleCalendarClient,
-  getGoogleCalendarClient,
-} from "./googleCalendarClient";
+import { GoogleCalendarClient, getGoogleCalendarClient } from "./googleCalendarClient";
 import { formatGoogleCalendarPayload } from "./formatter";
 
 export interface SharedCalendarSubscriberOptions {
@@ -58,12 +55,8 @@ export function registerSharedCalendarSubscriber(
           return;
         }
 
-        const attendingRsvps = quiz.team.rsvps.filter(
-          (r) => r.status === "ATTENDING"
-        );
-        const lineup = attendingRsvps
-          .slice(0, quiz.team.maxTeamSize)
-          .map((r) => r.member.name);
+        const attendingRsvps = quiz.team.rsvps.filter((r) => r.status === "ATTENDING");
+        const lineup = attendingRsvps.slice(0, quiz.team.maxTeamSize).map((r) => r.member.name);
 
         const payment = {
           fee: quiz.entryFee,
@@ -107,13 +100,8 @@ export function registerSharedCalendarSubscriber(
           const created = await activeClient.insertEvent(activeCalendarId, payload);
           await mappingRepository.upsertMapping(quiz.id, created.id, activeCalendarId);
         }
-      } else if (
-        event.type === "team.registration_cancelled" ||
-        event.type === "quiz.cancelled"
-      ) {
-        const existingMapping = await mappingRepository.findByQuizId(
-          event.quizId
-        );
+      } else if (event.type === "team.registration_cancelled" || event.type === "quiz.cancelled") {
+        const existingMapping = await mappingRepository.findByQuizId(event.quizId);
         if (existingMapping) {
           await activeClient.deleteEvent(
             existingMapping.calendarId,
@@ -126,9 +114,7 @@ export function registerSharedCalendarSubscriber(
         event.type === "team.roster_changed" ||
         event.type === "team.payment_changed"
       ) {
-        const existingMapping = await mappingRepository.findByQuizId(
-          event.quizId
-        );
+        const existingMapping = await mappingRepository.findByQuizId(event.quizId);
         if (!existingMapping) {
           return;
         }
@@ -148,12 +134,7 @@ export function registerSharedCalendarSubscriber(
           },
         });
 
-        if (
-          !quiz ||
-          quiz.status === "CANCELLED" ||
-          !quiz.team ||
-          !quiz.team.registeredAt
-        ) {
+        if (!quiz || quiz.status === "CANCELLED" || !quiz.team || !quiz.team.registeredAt) {
           await activeClient.deleteEvent(
             existingMapping.calendarId,
             existingMapping.externalEventId
@@ -162,12 +143,8 @@ export function registerSharedCalendarSubscriber(
           return;
         }
 
-        const attendingRsvps = quiz.team.rsvps.filter(
-          (r) => r.status === "ATTENDING"
-        );
-        const lineup = attendingRsvps
-          .slice(0, quiz.team.maxTeamSize)
-          .map((r) => r.member.name);
+        const attendingRsvps = quiz.team.rsvps.filter((r) => r.status === "ATTENDING");
+        const lineup = attendingRsvps.slice(0, quiz.team.maxTeamSize).map((r) => r.member.name);
 
         const payment = {
           fee: quiz.entryFee,

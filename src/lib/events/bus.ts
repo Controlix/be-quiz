@@ -51,10 +51,7 @@ export class EventBus implements DomainEventBus {
         const result = handler(event);
         if (result && typeof result.then === "function") {
           const promise = Promise.resolve(result).catch((err) => {
-            console.error(
-              `[DomainEventBus] Async handler error for event "${event.type}":`,
-              err
-            );
+            console.error(`[DomainEventBus] Async handler error for event "${event.type}":`, err);
           });
 
           // Coordinate with Next.js after() when running in server environment
@@ -71,10 +68,7 @@ export class EventBus implements DomainEventBus {
           }
         }
       } catch (err) {
-        console.error(
-          `[DomainEventBus] Sync handler error for event "${event.type}":`,
-          err
-        );
+        console.error(`[DomainEventBus] Sync handler error for event "${event.type}":`, err);
       }
     }
   }

@@ -18,9 +18,7 @@ export const CapabilitiesProvider: React.FC<{
   children: React.ReactNode;
 }> = ({ capabilities, children }) => {
   return (
-    <CapabilitiesContext.Provider value={capabilities}>
-      {children}
-    </CapabilitiesContext.Provider>
+    <CapabilitiesContext.Provider value={capabilities}>{children}</CapabilitiesContext.Provider>
   );
 };
 

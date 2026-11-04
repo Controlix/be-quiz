@@ -13,7 +13,11 @@ describe("adminCancelQuizAction", () => {
   });
 
   it("rejects unauthorized non-admin requests", async () => {
-    vi.spyOn(auth, "getSessionMember").mockResolvedValue({ id: "user-1", role: "USER", name: "User" } as any);
+    vi.spyOn(auth, "getSessionMember").mockResolvedValue({
+      id: "user-1",
+      role: "USER",
+      name: "User",
+    } as any);
 
     const result = await adminCancelQuizAction("quiz-1");
     expect(result.success).toBe(false);
@@ -22,8 +26,15 @@ describe("adminCancelQuizAction", () => {
   });
 
   it("allows admin to cancel quiz and delegates to cancelQuiz service", async () => {
-    vi.spyOn(auth, "getSessionMember").mockResolvedValue({ id: "admin-1", role: "ADMIN", name: "Admin" } as any);
-    vi.spyOn(quizService, "cancelQuiz").mockResolvedValue({ id: "quiz-1", status: "CANCELLED" } as any);
+    vi.spyOn(auth, "getSessionMember").mockResolvedValue({
+      id: "admin-1",
+      role: "ADMIN",
+      name: "Admin",
+    } as any);
+    vi.spyOn(quizService, "cancelQuiz").mockResolvedValue({
+      id: "quiz-1",
+      status: "CANCELLED",
+    } as any);
 
     const result = await adminCancelQuizAction("quiz-1");
     expect(result.success).toBe(true);

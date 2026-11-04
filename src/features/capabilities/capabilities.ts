@@ -4,10 +4,7 @@ export function getCapabilities(
   env: NodeJS.ProcessEnv | Record<string, string | undefined> = process.env
 ): AppCapabilities {
   const hasAiKey = Boolean(
-    env.GEMINI_API_KEY ||
-    env.OPENAI_API_KEY ||
-    env.GOOGLE_GENERATIVE_AI_API_KEY ||
-    env.AI_API_KEY
+    env.GEMINI_API_KEY || env.OPENAI_API_KEY || env.GOOGLE_GENERATIVE_AI_API_KEY || env.AI_API_KEY
   );
 
   const hasGoogleCalendarCreds = Boolean(

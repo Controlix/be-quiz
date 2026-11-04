@@ -82,7 +82,9 @@ export function FlyerUploader({ onExtractionComplete }: FlyerUploaderProps) {
 
       const data = await response.json();
       if (!response.ok) {
-        throw new Error(data.error || (vision ? "Fout bij analyseren van flyer" : "Fout bij uploaden van flyer"));
+        throw new Error(
+          data.error || (vision ? "Fout bij analyseren van flyer" : "Fout bij uploaden van flyer")
+        );
       }
 
       if (vision) {
@@ -132,7 +134,8 @@ export function FlyerUploader({ onExtractionComplete }: FlyerUploaderProps) {
     if (loading) return;
 
     const file = e.dataTransfer.files?.[0];
-    const isImage = file && (file.type.startsWith("image/") || /\.(jpg|jpeg|png|webp)$/i.test(file.name));
+    const isImage =
+      file && (file.type.startsWith("image/") || /\.(jpg|jpeg|png|webp)$/i.test(file.name));
     if (isImage) {
       await processFile(file);
     } else if (file) {
@@ -176,43 +179,45 @@ export function FlyerUploader({ onExtractionComplete }: FlyerUploaderProps) {
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`border-2 border-dashed rounded-2xl p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all ${
+        className={`flex cursor-pointer flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 text-center transition-all ${
           loading
             ? "border-blue-400 bg-blue-50/50"
             : isDragging
-            ? "border-blue-500 bg-blue-50/70 scale-[1.01]"
-            : "border-slate-200 hover:border-blue-500 hover:bg-slate-50 bg-white"
+              ? "scale-[1.01] border-blue-500 bg-blue-50/70"
+              : "border-slate-200 bg-white hover:border-blue-500 hover:bg-slate-50"
         }`}
       >
         {loading ? (
           <>
-            <Loader2 className="w-8 h-8 text-blue-600 animate-spin mb-2" />
+            <Loader2 className="mb-2 h-8 w-8 animate-spin text-blue-600" />
             <p className="text-sm font-semibold text-slate-800">
               {vision ? "Flyer analyseren met AI..." : "Flyer uploaden..."}
             </p>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="mt-1 text-xs text-slate-500">
               {vision ? "Datum, locatie en ploegmaat uitzoeken" : "Afbeelding wordt opgeslagen"}
             </p>
           </>
         ) : isDragging ? (
           <>
-            <div className="w-12 h-12 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center mb-3">
-              <UploadCloud className="w-6 h-6 animate-bounce" />
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-blue-100 text-blue-600">
+              <UploadCloud className="h-6 w-6 animate-bounce" />
             </div>
             <p className="text-sm font-bold text-blue-700">Laat afbeelding hier los!</p>
-            <p className="text-xs text-blue-500 mt-1">
+            <p className="mt-1 text-xs text-blue-500">
               {vision ? "Screenshot of flyer wordt meteen verwerkt" : "Afbeelding wordt opgeslagen"}
             </p>
           </>
         ) : (
           <>
-            <div className="w-12 h-12 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mb-3">
-              <Camera className="w-6 h-6" />
+            <div className="mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-blue-50 text-blue-600">
+              <Camera className="h-6 w-6" />
             </div>
             <p className="text-sm font-bold text-slate-900">
-              {vision ? "Upload flyer, sleep hierheen of plak screenshot" : "Flyer toevoegen (optioneel)"}
+              {vision
+                ? "Upload flyer, sleep hierheen of plak screenshot"
+                : "Flyer toevoegen (optioneel)"}
             </p>
-            <p className="text-xs text-slate-500 mt-1">
+            <p className="mt-1 text-xs text-slate-500">
               Sleep een bestand of plak rechtstreeks met Ctrl+V / Cmd+V
             </p>
           </>
@@ -220,8 +225,8 @@ export function FlyerUploader({ onExtractionComplete }: FlyerUploaderProps) {
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 text-xs text-red-700 bg-red-50 p-3 rounded-xl border border-red-200">
-          <AlertCircle className="w-4 h-4 shrink-0" />
+        <div className="flex items-center gap-2 rounded-xl border border-red-200 bg-red-50 p-3 text-xs text-red-700">
+          <AlertCircle className="h-4 w-4 shrink-0" />
           <span>{error}</span>
         </div>
       )}

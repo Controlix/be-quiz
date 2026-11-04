@@ -62,5 +62,3 @@ Before planning, modifying, or implementing any features, database models, or st
 - **Mandatory Pre-Implementation Spec & Plan Review:**
   - ALWAYS perform an explicit, rigorous self-review of the design spec and implementation plan against real repository configurations before claiming the plan is complete or beginning implementation.
   - Check: (1) environment and dependencies (e.g. `package.json`, `vitest.config.ts`), (2) single-source-of-truth domain invariants, (3) unambiguous test steps, (4) type consistency across tasks, and (5) edge case coverage. Explicitly confirm this review to the user before starting implementation.
-
-

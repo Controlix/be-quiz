@@ -25,14 +25,15 @@ export function TeamSettingsClient({ defaultTeamName: initialName }: TeamSetting
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-4">
-      <h3 className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
-        <Settings className="w-4 h-4 text-blue-600" />
+    <div className="space-y-4 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+      <h3 className="flex items-center gap-1.5 text-sm font-bold text-slate-900">
+        <Settings className="h-4 w-4 text-blue-600" />
         <span>Standaard Ploegnaam</span>
       </h3>
 
       <p className="text-xs text-slate-500">
-        Deze naam wordt automatisch gebruikt bij het aanmaken van nieuwe quizzen en in de inschrijvingsmail naar organisatoren.
+        Deze naam wordt automatisch gebruikt bij het aanmaken van nieuwe quizzen en in de
+        inschrijvingsmail naar organisatoren.
       </p>
 
       <form onSubmit={handleSave} className="space-y-3">
@@ -41,15 +42,15 @@ export function TeamSettingsClient({ defaultTeamName: initialName }: TeamSetting
           value={teamName}
           onChange={(e) => setTeamName(e.target.value)}
           placeholder="bv. De Quizvrienden"
-          className="w-full text-sm p-2.5 rounded-xl border border-slate-200"
+          className="w-full rounded-xl border border-slate-200 p-2.5 text-sm"
         />
 
         <button
           type="submit"
           disabled={loading || !teamName.trim()}
-          className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl transition-all disabled:opacity-50 flex items-center justify-center gap-1.5"
+          className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white transition-all hover:bg-blue-700 disabled:opacity-50"
         >
-          {saved ? <Check className="w-4 h-4" /> : null}
+          {saved ? <Check className="h-4 w-4" /> : null}
           <span>{saved ? "Opgeslagen!" : loading ? "Opslaan..." : "Opslaan"}</span>
         </button>
       </form>

@@ -3,10 +3,7 @@ import * as fs from "fs";
 import * as path from "path";
 
 describe("OpenAPI Synchronization", () => {
-  const openApiContent = fs.readFileSync(
-    path.join(process.cwd(), "docs/api/openapi.yaml"),
-    "utf8"
-  );
+  const openApiContent = fs.readFileSync(path.join(process.cwd(), "docs/api/openapi.yaml"), "utf8");
 
   it("documents /auth/join and /auth/logout", () => {
     expect(openApiContent).toContain("/auth/join:");

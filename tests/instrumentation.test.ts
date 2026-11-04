@@ -32,7 +32,9 @@ describe("instrumentation.ts", () => {
       emailRegistration: false,
       sharedGoogleCalendar: true,
     });
-    const registerSpy = vi.spyOn(calendarModule, "registerSharedCalendarSubscriber").mockReturnValue(() => {});
+    const registerSpy = vi
+      .spyOn(calendarModule, "registerSharedCalendarSubscriber")
+      .mockReturnValue(() => {});
 
     await register();
 

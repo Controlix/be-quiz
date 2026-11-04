@@ -7,7 +7,9 @@ export function formatStructuredEntryFee(
   unit: "TEAM" | "PERSON" = "TEAM"
 ): string | undefined {
   if (amount === undefined || amount === null) return undefined;
-  const cleanAmount = String(amount).replace(/[^0-9.,]/g, "").trim();
+  const cleanAmount = String(amount)
+    .replace(/[^0-9.,]/g, "")
+    .trim();
   if (!cleanAmount) return undefined;
 
   const unitLabel = unit === "PERSON" ? "persoon" : "ploeg";
@@ -213,4 +215,3 @@ export async function cancelQuiz(quizId: string): Promise<Quiz> {
 
   return quiz;
 }
-

@@ -34,7 +34,7 @@ describe("Adaptive Quiz Creation Form", () => {
     expect(html).toContain("Titel");
     expect(html).toContain("Datum");
     // Flyer upload capability is still available for visual reference
-    expect(html).toContain("type=\"file\"");
+    expect(html).toContain('type="file"');
   });
 
   it("renders AI scanning tab when capabilities.vision is true", () => {

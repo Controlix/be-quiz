@@ -20,18 +20,38 @@ describe("QuizDetailClient Declined Players Integration", () => {
       registeredAt: null,
       paidAt: null,
       rsvps: [
-        { memberId: "m1", status: "ATTENDING", queuedSince: new Date(1000), member: { id: "m1", name: "Attending Alice" } },
-        { memberId: "m2", status: "DECLINED", queuedSince: null, member: { id: "m2", name: "Declined Dave" } },
+        {
+          memberId: "m1",
+          status: "ATTENDING",
+          queuedSince: new Date(1000),
+          member: { id: "m1", name: "Attending Alice" },
+        },
+        {
+          memberId: "m2",
+          status: "DECLINED",
+          queuedSince: null,
+          member: { id: "m2", name: "Declined Dave" },
+        },
       ],
     },
   };
 
-  const defaultCaps = { vision: false, icalExport: false, whatsappShare: false, emailRegistration: false, sharedGoogleCalendar: false };
+  const defaultCaps = {
+    vision: false,
+    icalExport: false,
+    whatsappShare: false,
+    emailRegistration: false,
+    sharedGoogleCalendar: false,
+  };
 
   it("initializes and renders declined members from quiz team data", () => {
     const html = renderToStaticMarkup(
       <CapabilitiesProvider capabilities={defaultCaps}>
-        <QuizDetailClient quiz={quizWithDeclined} currentMemberId="m1" currentMemberName="Attending Alice" />
+        <QuizDetailClient
+          quiz={quizWithDeclined}
+          currentMemberId="m1"
+          currentMemberName="Attending Alice"
+        />
       </CapabilitiesProvider>
     );
 

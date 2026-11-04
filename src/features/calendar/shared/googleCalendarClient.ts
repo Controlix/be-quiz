@@ -7,10 +7,7 @@ export interface UpdateEventResult {
 }
 
 export interface GoogleCalendarClient {
-  insertEvent(
-    calendarId: string,
-    payload: GoogleCalendarEventPayload
-  ): Promise<{ id: string }>;
+  insertEvent(calendarId: string, payload: GoogleCalendarEventPayload): Promise<{ id: string }>;
   updateEvent(
     calendarId: string,
     eventId: string,

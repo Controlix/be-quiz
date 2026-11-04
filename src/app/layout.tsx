@@ -30,8 +30,8 @@ export default function RootLayout({
 
   return (
     <html lang="nl">
-      <body className="bg-slate-50 text-slate-900 min-h-screen antialiased flex flex-col items-center">
-        <main className="w-full max-w-md min-h-screen bg-white flex flex-col shadow-sm border-x border-slate-200 relative">
+      <body className="flex min-h-screen flex-col items-center bg-slate-50 text-slate-900 antialiased">
+        <main className="relative flex min-h-screen w-full max-w-md flex-col border-x border-slate-200 bg-white shadow-sm">
           <CapabilitiesProvider capabilities={capabilities}>
             {children}
             <FeedbackWidget />

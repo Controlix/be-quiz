@@ -9,5 +9,4 @@ const globalForEvents = globalThis as unknown as {
 };
 
 export const domainEvents: DomainEventBus =
-  globalForEvents.__domainEvents__ ??
-  (globalForEvents.__domainEvents__ = new EventBus());
+  globalForEvents.__domainEvents__ ?? (globalForEvents.__domainEvents__ = new EventBus());

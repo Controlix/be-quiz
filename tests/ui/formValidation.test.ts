@@ -10,13 +10,21 @@ describe("Quiz Input Validation", () => {
   });
 
   it("rejects invalid email formats", () => {
-    const invalidEmail = validateQuizFields({ title: "Quiz", location: "Gent", organizerEmail: "invalid-email" });
+    const invalidEmail = validateQuizFields({
+      title: "Quiz",
+      location: "Gent",
+      organizerEmail: "invalid-email",
+    });
     expect(invalidEmail.isValid).toBe(false);
     expect(invalidEmail.errors.organizerEmail).toBeDefined();
   });
 
   it("accepts valid email and lengths", () => {
-    const valid = validateQuizFields({ title: "Quiz", location: "Gent", organizerEmail: "organisatie@quiz.be" });
+    const valid = validateQuizFields({
+      title: "Quiz",
+      location: "Gent",
+      organizerEmail: "organisatie@quiz.be",
+    });
     expect(valid.isValid).toBe(true);
   });
 });

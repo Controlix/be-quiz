@@ -41,19 +41,14 @@ export function formatGoogleCalendarPayload(params: {
     }
   } else {
     if (payment.isPaid) {
-      paymentText = payment.payerName
-        ? `Betaald door ${payment.payerName}`
-        : `Betaald`;
+      paymentText = payment.payerName ? `Betaald door ${payment.payerName}` : `Betaald`;
     } else {
       paymentText = "Nog niet betaald";
     }
   }
 
   const baseUrl = appUrl || process.env.APP_URL;
-  const lines: string[] = [
-    `Ploeg: ${lineupText}`,
-    `Inschrijvingsgeld: ${paymentText}`,
-  ];
+  const lines: string[] = [`Ploeg: ${lineupText}`, `Inschrijvingsgeld: ${paymentText}`];
 
   if (baseUrl) {
     lines.push("");

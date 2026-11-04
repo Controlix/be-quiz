@@ -222,31 +222,31 @@ Answer these and the rest can be settled with defaults.
 
 ## R2.1 Status of Round 1 Findings
 
-| Finding | Status | Evidence / what remains |
-|---|---|---|
-| B1 Reserve list missing | **RESOLVED** | `RsvpStatus.WAITLIST`, `waitlistPosition`, `promotedAt`; promotion algorithm §7.1.2. |
-| B2 Immutable queue timestamp | **RESOLVED** | `attendingSince` set on transitions; `MAYBE` removed. Caveat: promotion does not define what happens to it (see R2.3-4). |
-| B3 Concurrency | **PARTIAL** | Transaction + row lock named; ACs added. Still an "either/or", no serialization-failure retry policy, no concurrent decline test, no re-check after a concurrent capacity shrink. |
-| B4 Auth/identity | **PARTIAL** | Cookie flags, `Session` table, roles, bcrypt PIN, iOS note. Missing invite-token storage (R2.2-2), admin-unlock state, logout/revocation route, CSRF, PIN rate limit, session expiry recovery. |
-| B5 Date/time | **RESOLVED** | `startsAt` UTC, `timeZone`, `durationMinutes`; Google format and RFC 5545 output specified. New gap: time is not in the required-field list while `startsAt` is non-nullable (R2.3-7). |
-| B6 Flyer upload | **PARTIAL** | HEIC conversion, resize, 4MB cap, MIME allowlist, object storage. Missing server-side MIME sniffing, authorized/pre-signed upload, bucket privacy, retention. |
-| B7 Payment model | **PARTIAL** | Cents, currency, `feeBasis`, `paidAt`, payer added. `isPaid` still independent of payer/amount/date; `PER_PLAYER` cannot express shares; the quoted fee itself has no field (R2.2-1). |
-| B8 SQLite/Postgres | **PARTIAL** | Postgres production, pooling, musl targets, Docker. §3 still advertises SQLite for local dev against a hardcoded `provider = "postgresql"`; "standalone container on Vercel" is inaccurate. |
-| B9 Prisma errors | **RESOLVED (syntactically)** | Schema validates; relations, enums, indexes, `Restrict`, unique email fixed. Semantic gaps: `TeamSetting` is not truly a singleton, `Team` has no one-per-quiz constraint, member deletion is in practice impossible. |
-| M1 Silent promotion | **PARTIAL** | WhatsApp share button + template + UI flag. No owner, no accept/expiry, no guarantee the promoted member sees it. Accepted non-goal (no push), but the consequence should be stated. |
-| M2 Route inventory | **PARTIAL** | Eight routes listed. Missing: team settings, logout/revocation, admin RSVP override UI (permission exists in the matrix, no screen). |
-| M3 Edit/archive | **PARTIAL** | Admin edit route, `ARCHIVED`/`CANCELLED` enums. No `archivedAt`/`cancelledAt`, quiz delete still cascades history, no guard on deleting a registered/paid quiz, uploaders cannot edit their own quiz. |
-| M4 Registration | **PARTIAL** | Snapshot, lock, copy fallback, registration URL, admin undo. Body still hardcodes four players; no null-`organizerEmail` guard; no zero-lineup guard; no guard against re-registering; snapshot can go stale. |
-| M5 AI failure/manual/dupes | **PARTIAL** | Manual tab, required-field gating, duplicate warning. No timeout/5xx path, no "unknown capacity", no Dutch-date/year normalization, no merge action. Extracted fee cannot be stored (R2.2-1). |
-| M6 Calendar | **RESOLVED** | `.ics` with UID/DTSTAMP/folding/escaping and payment details; subscription wording removed. |
-| M7 Encoding | **RESOLVED** | Percent-encoding, `%0D%0A`, URL-encoded Google params, ICS escaping. Minor: §7.5 mixes `%0A`/`%0D%0A` and does not name the encoder for interpolated values. |
-| M8 Carpooling | **OPEN** | Still only `rideStatus` + `seatsAvailable`; no driver↔passenger assignment, no seat check, no explicit scope-down. See R2.4-1. |
-| M9 Status lifecycle | **PARTIAL** | `ARCHIVED` added. No transition table; `REGISTERED` semantics undefined; `DRAFT` unused; tab mapping (`Gepland` / `In Beraad` / `Archief`) undefined. |
-| M10 Share visibility | **PARTIAL** | Members-only is now explicit. But the WhatsApp link points at an auth-gated page (only usable by members), and bucket privacy/AI retention are still unspecified. |
-| M11 Cost/abuse | **PARTIAL** | Auth + 5 uploads/member/hour + size/MIME caps. No global/daily quota, cost logging, or rate-limit store that works across serverless instances (75 paid calls/hour ceiling). |
-| M12 One team | **PARTIAL** | `Team` model + "1 team for now" decision. Nothing creates the team or enforces one per quiz; guests still unrepresentable; quiz-level payment/registration contradict the multi-team future claim. |
-| M13 Mail interpretation | **RESOLVED** | Native hand-off is now an explicit goal and "no server email relay" an explicit non-goal. |
-| M14 Operational gaps | **PARTIAL** | `nl-BE`, MAYBE removed, ACs added. Still missing backups/restore, migrations, GDPR/retention, invite seeding detail, broader ACs. |
+| Finding                      | Status                       | Evidence / what remains                                                                                                                                                                                               |
+| ---------------------------- | ---------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| B1 Reserve list missing      | **RESOLVED**                 | `RsvpStatus.WAITLIST`, `waitlistPosition`, `promotedAt`; promotion algorithm §7.1.2.                                                                                                                                  |
+| B2 Immutable queue timestamp | **RESOLVED**                 | `attendingSince` set on transitions; `MAYBE` removed. Caveat: promotion does not define what happens to it (see R2.3-4).                                                                                              |
+| B3 Concurrency               | **PARTIAL**                  | Transaction + row lock named; ACs added. Still an "either/or", no serialization-failure retry policy, no concurrent decline test, no re-check after a concurrent capacity shrink.                                     |
+| B4 Auth/identity             | **PARTIAL**                  | Cookie flags, `Session` table, roles, bcrypt PIN, iOS note. Missing invite-token storage (R2.2-2), admin-unlock state, logout/revocation route, CSRF, PIN rate limit, session expiry recovery.                        |
+| B5 Date/time                 | **RESOLVED**                 | `startsAt` UTC, `timeZone`, `durationMinutes`; Google format and RFC 5545 output specified. New gap: time is not in the required-field list while `startsAt` is non-nullable (R2.3-7).                                |
+| B6 Flyer upload              | **PARTIAL**                  | HEIC conversion, resize, 4MB cap, MIME allowlist, object storage. Missing server-side MIME sniffing, authorized/pre-signed upload, bucket privacy, retention.                                                         |
+| B7 Payment model             | **PARTIAL**                  | Cents, currency, `feeBasis`, `paidAt`, payer added. `isPaid` still independent of payer/amount/date; `PER_PLAYER` cannot express shares; the quoted fee itself has no field (R2.2-1).                                 |
+| B8 SQLite/Postgres           | **PARTIAL**                  | Postgres production, pooling, musl targets, Docker. §3 still advertises SQLite for local dev against a hardcoded `provider = "postgresql"`; "standalone container on Vercel" is inaccurate.                           |
+| B9 Prisma errors             | **RESOLVED (syntactically)** | Schema validates; relations, enums, indexes, `Restrict`, unique email fixed. Semantic gaps: `TeamSetting` is not truly a singleton, `Team` has no one-per-quiz constraint, member deletion is in practice impossible. |
+| M1 Silent promotion          | **PARTIAL**                  | WhatsApp share button + template + UI flag. No owner, no accept/expiry, no guarantee the promoted member sees it. Accepted non-goal (no push), but the consequence should be stated.                                  |
+| M2 Route inventory           | **PARTIAL**                  | Eight routes listed. Missing: team settings, logout/revocation, admin RSVP override UI (permission exists in the matrix, no screen).                                                                                  |
+| M3 Edit/archive              | **PARTIAL**                  | Admin edit route, `ARCHIVED`/`CANCELLED` enums. No `archivedAt`/`cancelledAt`, quiz delete still cascades history, no guard on deleting a registered/paid quiz, uploaders cannot edit their own quiz.                 |
+| M4 Registration              | **PARTIAL**                  | Snapshot, lock, copy fallback, registration URL, admin undo. Body still hardcodes four players; no null-`organizerEmail` guard; no zero-lineup guard; no guard against re-registering; snapshot can go stale.         |
+| M5 AI failure/manual/dupes   | **PARTIAL**                  | Manual tab, required-field gating, duplicate warning. No timeout/5xx path, no "unknown capacity", no Dutch-date/year normalization, no merge action. Extracted fee cannot be stored (R2.2-1).                         |
+| M6 Calendar                  | **RESOLVED**                 | `.ics` with UID/DTSTAMP/folding/escaping and payment details; subscription wording removed.                                                                                                                           |
+| M7 Encoding                  | **RESOLVED**                 | Percent-encoding, `%0D%0A`, URL-encoded Google params, ICS escaping. Minor: §7.5 mixes `%0A`/`%0D%0A` and does not name the encoder for interpolated values.                                                          |
+| M8 Carpooling                | **OPEN**                     | Still only `rideStatus` + `seatsAvailable`; no driver↔passenger assignment, no seat check, no explicit scope-down. See R2.4-1.                                                                                        |
+| M9 Status lifecycle          | **PARTIAL**                  | `ARCHIVED` added. No transition table; `REGISTERED` semantics undefined; `DRAFT` unused; tab mapping (`Gepland` / `In Beraad` / `Archief`) undefined.                                                                 |
+| M10 Share visibility         | **PARTIAL**                  | Members-only is now explicit. But the WhatsApp link points at an auth-gated page (only usable by members), and bucket privacy/AI retention are still unspecified.                                                     |
+| M11 Cost/abuse               | **PARTIAL**                  | Auth + 5 uploads/member/hour + size/MIME caps. No global/daily quota, cost logging, or rate-limit store that works across serverless instances (75 paid calls/hour ceiling).                                          |
+| M12 One team                 | **PARTIAL**                  | `Team` model + "1 team for now" decision. Nothing creates the team or enforces one per quiz; guests still unrepresentable; quiz-level payment/registration contradict the multi-team future claim.                    |
+| M13 Mail interpretation      | **RESOLVED**                 | Native hand-off is now an explicit goal and "no server email relay" an explicit non-goal.                                                                                                                             |
+| M14 Operational gaps         | **PARTIAL**                  | `nl-BE`, MAYBE removed, ACs added. Still missing backups/restore, migrations, GDPR/retention, invite seeding detail, broader ACs.                                                                                     |
 
 ---
 
@@ -255,7 +255,7 @@ Answer these and the rest can be settled with defaults.
 ### R2.2-1. The quoted entry fee has no home (regression)
 
 - **Where:** §7.2 extracts `entryFeeCents`; §5.1.2/§5.1.3 show "Entry Fee"; §6.1 `Quiz` has no fee field.
-- **Problem:** `QuizPayment.amountCents` is the amount *paid*, optional, and only meaningful once `isPaid`; it cannot store what the flyer announced. The fee is discarded on save, cannot be shown before payment, and cannot be compared with what was paid. The AI schema also has no `feeBasis`, so per-team vs. per-player is ambiguous again. The original draft had `entryFee`; the revision removed it.
+- **Problem:** `QuizPayment.amountCents` is the amount _paid_, optional, and only meaningful once `isPaid`; it cannot store what the flyer announced. The fee is discarded on save, cannot be shown before payment, and cannot be compared with what was paid. The AI schema also has no `feeBasis`, so per-team vs. per-player is ambiguous again. The original draft had `entryFee`; the revision removed it.
 - **Fix:** Add `entryFeeCents Int?` and `feeBasis FeeBasis @default(TEAM)` to `Quiz` (or a separate `QuizFee`), and add `feeBasis` to the extraction schema. Keep `QuizPayment` for what was actually paid.
 
 ### R2.2-2. Invite tokens are described but not modelled
@@ -291,7 +291,7 @@ Answer these and the rest can be settled with defaults.
 3. **No end-to-end registration freeze or update path.** Snapshot exists, but stale-roster behavior is undefined (see R2.2-5).
 4. **`mailto:` body still hardcodes four players** (line 359) despite the goal saying "confirmed lineup". Generate bullets from the active lineup.
 5. **Time is required by the schema but not by the required-field list.** `startsAt` is non-nullable; §7.2 only requires title/date/location/team size. Either require time or define an all-day fallback (which must be explicit, not midnight).
-6. **Status/tab mapping is undefined.** `DRAFT` is never produced, `OPEN`/`REGISTERED` do not map clearly to *Gepland* / *In Beraad*, and "Archief" is neither `ARCHIVED` nor `startsAt < now` explicitly. `CANCELLED` vs "we decided not to go" is still conflated.
+6. **Status/tab mapping is undefined.** `DRAFT` is never produced, `OPEN`/`REGISTERED` do not map clearly to _Gepland_ / _In Beraad_, and "Archief" is neither `ARCHIVED` nor `startsAt < now` explicitly. `CANCELLED` vs "we decided not to go" is still conflated.
 7. **Auth edge cases.** Public `/auth/join` and `/auth/login` contradict the blanket "every route without a session redirects"; session expiry after 90 days has no recovery path; deactivating a member does not revoke their sessions; the admin PIN has no stored unlock marker (`Session` has no `adminUnlockedAt`) or rate limit.
 8. **iOS PWA session sharing is still asserted, not solved.** Adding to home screen after login does not guarantee the standalone PWA shares Safari's cookie jar. Provide an in-app token/paste entry path (the invite link can be opened inside the PWA) and test it.
 9. **Two team-name sources.** `Team.name` defaults to "Ploeg 1"; §7.3 uses `TeamSetting.defaultTeamName`. Pick one authority and copy it at creation.

@@ -122,10 +122,22 @@ describe("Pub Quiz App End-to-End Acceptance Suite", () => {
     const future = new Date(Date.now() + 86400000);
     const past = new Date(Date.now() - 86400000);
 
-    expect(categorizeQuizForTabs({ startsAt: future, status: "OPEN", team: { registeredAt: null } })).toBe("IN_BERAAD");
-    expect(categorizeQuizForTabs({ startsAt: future, status: "OPEN", team: { registeredAt: new Date() } })).toBe("GEPLAND");
-    expect(categorizeQuizForTabs({ startsAt: past, status: "OPEN", team: { registeredAt: new Date() } })).toBe("ARCHIEF");
-    expect(categorizeQuizForTabs({ startsAt: future, status: "CANCELLED", team: { registeredAt: null } })).toBe("ARCHIEF");
+    expect(
+      categorizeQuizForTabs({ startsAt: future, status: "OPEN", team: { registeredAt: null } })
+    ).toBe("IN_BERAAD");
+    expect(
+      categorizeQuizForTabs({
+        startsAt: future,
+        status: "OPEN",
+        team: { registeredAt: new Date() },
+      })
+    ).toBe("GEPLAND");
+    expect(
+      categorizeQuizForTabs({ startsAt: past, status: "OPEN", team: { registeredAt: new Date() } })
+    ).toBe("ARCHIEF");
+    expect(
+      categorizeQuizForTabs({ startsAt: future, status: "CANCELLED", team: { registeredAt: null } })
+    ).toBe("ARCHIEF");
   });
 
   // 6. Payment Flag Test

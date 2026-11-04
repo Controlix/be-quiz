@@ -5,8 +5,18 @@ import { setRsvp, getRsvpLineup, reorderRsvps } from "../../src/services/rsvpSer
 
 describe("Admin Roster Reordering", () => {
   it("reorders attendees and updates active lineup and reserve boundary", async () => {
-    const admin = await prisma.member.create({ data: { name: `Admin-${Date.now()}`, role: "ADMIN" } });
-    const quiz = await createQuiz({ title: "Reorder Quiz", startsAt: new Date(Date.now() + 86400000), location: "Gent", maxTeamSize: 2 }, admin.id);
+    const admin = await prisma.member.create({
+      data: { name: `Admin-${Date.now()}`, role: "ADMIN" },
+    });
+    const quiz = await createQuiz(
+      {
+        title: "Reorder Quiz",
+        startsAt: new Date(Date.now() + 86400000),
+        location: "Gent",
+        maxTeamSize: 2,
+      },
+      admin.id
+    );
     const m1 = await prisma.member.create({ data: { name: `M1-${Date.now()}` } });
     const m2 = await prisma.member.create({ data: { name: `M2-${Date.now()}` } });
     const m3 = await prisma.member.create({ data: { name: `M3-${Date.now()}` } });

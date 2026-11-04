@@ -3,7 +3,11 @@
 import { prisma } from "@/lib/db";
 import { hashToken, generateSecureToken } from "@/lib/crypto";
 import { getSessionMember } from "@/lib/auth";
-import { adminOverrideDecline, adminOverrideAttend, updateTeamCapacity } from "@/services/rsvpService";
+import {
+  adminOverrideDecline,
+  adminOverrideAttend,
+  updateTeamCapacity,
+} from "@/services/rsvpService";
 import { adminResetRegistration } from "@/services/registrationService";
 import { cancelQuiz } from "@/services/quizService";
 import { revalidatePath } from "next/cache";
@@ -46,7 +50,11 @@ export async function adminResetRegistrationAction(teamId: string) {
   }
 }
 
-export async function adminOverrideDeclineAction(teamId: string, memberId: string, adminId: string) {
+export async function adminOverrideDeclineAction(
+  teamId: string,
+  memberId: string,
+  adminId: string
+) {
   try {
     const currentMember = await getSessionMember();
     if (!currentMember || currentMember.role !== "ADMIN") {

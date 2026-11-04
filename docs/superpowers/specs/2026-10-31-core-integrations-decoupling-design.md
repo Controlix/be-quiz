@@ -1,6 +1,7 @@
 # Design Document: Decouple Core Domain from Auxiliary Integrations
 
 ## 1. Intent and Why
+
 Currently, **be-quiz** is implemented as a monolithic Next.js application where core event and RSVP management logic is tightly integrated with auxiliary capabilities (AI flyer extraction via OpenAI Vision, local/Vercel Blob storage, `.ics` calendar generation, WhatsApp lineup formatting, and email registration mailto links).
 
 The purpose of this refactoring is to decouple the **Core Domain** (Quiz lifecycle, team roster queueing, attendance state, and payment tracking) from **Auxiliary Integrations**. This enables flexible deployment profiles—ranging from an ultra-lightweight, zero-external-dependency self-hosted deployment (pure Next.js + PostgreSQL) to a fully equipped deployment with multi-modal AI and automated messaging—with the user interface adapting dynamically to only display features enabled in that deployment.
@@ -10,6 +11,7 @@ The purpose of this refactoring is to decouple the **Core Domain** (Quiz lifecyc
 ## 2. Goals, Non-Goals, and Anti-Goals
 
 ### Goals
+
 - **Core Independence:** Ensure the core domain and its service layer (`quizService`, `rsvpService`, `registrationService`, `paymentService`) can operate fully without requiring external APIs (OpenAI API key, Vercel Blob tokens, external mail/calendar feeds).
 - **Capability Registry:** Provide a centralized, type-safe configuration system (`src/features/capabilities.ts`) driven by environment variables (`ENABLE_AI_VISION`, `ENABLE_CALENDAR`, `ENABLE_SHARING`) with sensible auto-detection fallbacks.
 - **Dynamic UI Adaptation:** Ensure UI components (e.g. `QuizEntryForm`, `ActionToolbar`, `QuizDetailClient`) conditionally render only features supported by the active deployment capabilities:
@@ -20,17 +22,20 @@ The purpose of this refactoring is to decouple the **Core Domain** (Quiz lifecyc
 - **Architectural Clarity & Future-Proofing:** Isolate integrations behind clean interfaces and modular folder boundaries (`src/features/*`), enabling a seamless future transition to a monorepo workspace or standalone microservices if needed.
 
 ### Non-Goals
+
 - **Physical Monorepo Split (in this phase):** We are not currently separating the repository into Turborepo/pnpm packages or separate npm modules.
 - **Microservices Deployment (in this phase):** We are not deploying separate Docker microservice containers for AI vision or calendar feeds.
 - **Database Schema Breaking Changes:** We are not altering the underlying Prisma relational schema or dropping nullable columns like `flyerImageUrl`.
 
 ### Anti-Goals
+
 - **Dead UI Elements:** We will NOT render greyed-out, disabled, or "upgrade/configure to use" placeholder buttons in the UI for disabled integrations; the UI must look and feel natively designed for the enabled feature set.
 - **Scattered `process.env` Checks:** We will NOT sprinkle ad-hoc `process.env.OPENAI_API_KEY` or `process.env.ENABLE_VISION` checks across arbitrary components or database services. All capability queries must go through the single capability registry.
 
 ---
 
 ## 3. Constraints
+
 - **Next.js App Router (React 19 / Server Components):** Capability checks on the server must work seamlessly in Server Components and Server Actions. Client Components must receive capability flags via props or a lightweight capability context/provider.
 - **Zero Runtime Overhead for Core:** When integrations are disabled, no network calls or module crashes should occur due to missing third-party environment variables.
 - **Database Compatibility:** SQLite / PostgreSQL schema fields like `flyerImageUrl` remain nullable so that core-only records work seamlessly.
@@ -40,24 +45,27 @@ The purpose of this refactoring is to decouple the **Core Domain** (Quiz lifecyc
 ## 4. Evaluated Approaches & Selection
 
 ### Approach 1: Capability-Driven Modular Core within Monolith (Selected)
+
 - **Description:** Maintain a single deployable app, but refactor code into an isolated Core and discrete feature modules (`src/features/vision`, `src/features/calendar`, `src/features/sharing`) managed by a central capability registry.
-- **Trade-offs:** 
-  - *Pros:* Simplest to implement, test, and deploy. Single Docker build. Effortless deployment configuration via environment variables. Paves the exact boundary lines needed for future extraction.
-  - *Cons:* Code for disabled modules remains present in the codebase.
+- **Trade-offs:**
+  - _Pros:_ Simplest to implement, test, and deploy. Single Docker build. Effortless deployment configuration via environment variables. Paves the exact boundary lines needed for future extraction.
+  - _Cons:_ Code for disabled modules remains present in the codebase.
 - **Decision:** **Accepted.** Best balance of simplicity, operational speed, and structural decoupling.
 
 ### Approach 2: Monorepo Workspaces (`packages/core` + `packages/integrations-*`)
+
 - **Description:** Split codebase using pnpm/Turborepo workspaces into independent packages with distinct `package.json` dependencies.
-- **Trade-offs:** 
-  - *Pros:* Physical dependency isolation (no OpenAI SDK in core).
-  - *Cons:* High tooling overhead, complex cross-package UI bundling, and slower iteration.
+- **Trade-offs:**
+  - _Pros:_ Physical dependency isolation (no OpenAI SDK in core).
+  - _Cons:_ High tooling overhead, complex cross-package UI bundling, and slower iteration.
 - **Decision:** **Deferred.** Can be adopted in a future phase if multi-package distribution is strictly required.
 
 ### Approach 3: Independent Microservices via HTTP/Webhooks
+
 - **Description:** Run AI vision and helper tools as standalone HTTP services queried by the core app.
-- **Trade-offs:** 
-  - *Pros:* Independent deployment lifecycles and runtimes.
-  - *Cons:* Excessive operational complexity (networking, service discovery, container orchestration).
+- **Trade-offs:**
+  - _Pros:_ Independent deployment lifecycles and runtimes.
+  - _Cons:_ Excessive operational complexity (networking, service discovery, container orchestration).
 - **Decision:** **Rejected for current scope.**
 
 ---
@@ -65,15 +73,18 @@ The purpose of this refactoring is to decouple the **Core Domain** (Quiz lifecyc
 ## 5. Architectural Specifications & Decisions
 
 ### 5.1 Capability Registry (`src/features/capabilities/`)
+
 A centralized module defining the deployment capabilities:
+
 ```typescript
 export interface AppCapabilities {
-  vision: boolean;            // ENABLE_AI_VISION === "true"
-  icalExport: boolean;        // ENABLE_ICAL_EXPORT === "true"
-  whatsappShare: boolean;     // ENABLE_WHATSAPP_SHARE === "true"
+  vision: boolean; // ENABLE_AI_VISION === "true"
+  icalExport: boolean; // ENABLE_ICAL_EXPORT === "true"
+  whatsappShare: boolean; // ENABLE_WHATSAPP_SHARE === "true"
   emailRegistration: boolean; // ENABLE_EMAIL_REGISTRATION === "true"
 }
 ```
+
 - **Resolution Strategy (Strictly Explicit Opt-In):**
   - Every integration capability defaults to `false` unless its environment variable is strictly equal to `"true"`.
   - Auto-detection based on API keys alone is explicitly disallowed to prevent unexpected runtime behavior or accidental API costs.
@@ -86,7 +97,9 @@ export interface AppCapabilities {
   - `useCapabilities(): AppCapabilities` (Client-side hook / context provider for client components)
 
 ### 5.2 Directory Boundaries
+
 Reorganize auxiliary code into modular feature folders:
+
 ```text
 src/
 ├── features/
@@ -100,6 +113,7 @@ src/
 ```
 
 ### 5.3 UI Adaptations
+
 1. **Quiz Creation (`src/components/QuizEntryForm.tsx`):**
    - **Flyer Attachment (Core):** Users can always upload/attach an event flyer image (`.jpg`, `.png`, `.webp`). An image upload endpoint (`POST /api/quizzes/upload-flyer`) persists the file via the storage provider (Vercel Blob in serverless or local filesystem) and assigns `flyerImageUrl`.
    - **AI Auto-Fill (Auxiliary):** Reads `capabilities.vision`.
@@ -116,6 +130,7 @@ src/
    - When a quiz has an attached flyer (`flyerImageUrl`), it displays the flyer poster as a rich image card/thumbnail so teammates can inspect event details.
 
 ### 5.4 Route Handlers Guardrails & OpenAPI Synchronization
+
 - `src/app/api/quizzes/upload-flyer/route.ts`: Core storage endpoint. Accepts multipart form data with image file, saves via storage provider, and returns `{ flyerImageUrl: string }`.
 - `src/app/api/quizzes/extract/route.ts`: Vision endpoint. Checks `getCapabilities().vision`. If false, returns `501 Not Implemented` with `{ error: "AI vision extraction is disabled in this deployment." }`.
 - `src/app/api/quizzes/[id]/calendar.ics/route.ts`: Checks `getCapabilities().icalExport`. If false, returns `501 Not Implemented` or `404 Not Found`.
@@ -127,6 +142,7 @@ src/
 ---
 
 ## 6. What's Left to the Builder
+
 - Implementing `tests/api/openapi-sync.test.ts` to enforce that code and `docs/api/openapi.yaml` stay synchronized on every test run.
 - Choosing whether to pass `capabilities` via a top-level React Context (`CapabilitiesProvider`) in `src/app/layout.tsx` or as explicit props down from Server Components (both are valid; Context is recommended for ease of access in nested components).
 - Updating existing test suites (`tests/`) to assert that core tests execute without mocking external OpenAI / storage services, and adding tests for capability-disabled behaviors.

@@ -3,15 +3,11 @@ import { renderToStaticMarkup } from "react-dom/server";
 import { TeamLineup } from "../../src/components/TeamLineup";
 
 describe("TeamLineup Declined Players Rendering", () => {
-  const dummyAttendees = [
-    { id: "1", name: "Alice", queuedSince: new Date(1000) },
-  ];
+  const dummyAttendees = [{ id: "1", name: "Alice", queuedSince: new Date(1000) }];
 
   // Review Focus #5: Zero declined players
   it("does not render the Afgemeld section when declinedMembers is empty or omitted", () => {
-    const html = renderToStaticMarkup(
-      <TeamLineup attendees={dummyAttendees} maxTeamSize={4} />
-    );
+    const html = renderToStaticMarkup(<TeamLineup attendees={dummyAttendees} maxTeamSize={4} />);
     expect(html).not.toContain("Afgemeld");
   });
 

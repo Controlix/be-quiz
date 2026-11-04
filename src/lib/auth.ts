@@ -34,9 +34,7 @@ export async function resetMemberPin(memberId: string): Promise<void> {
   });
 }
 
-export async function createSession(
-  memberId: string
-): Promise<{ token: string; expiresAt: Date }> {
+export async function createSession(memberId: string): Promise<{ token: string; expiresAt: Date }> {
   const rawToken = generateSecureToken();
   const tokenHash = hashToken(rawToken);
   const expiresAt = new Date(Date.now() + SESSION_DURATION_MS);
@@ -68,10 +66,12 @@ export async function validateSession(token: string): Promise<{ member: Member }
 
   // Rolling session: extend expiry
   const newExpiresAt = new Date(Date.now() + SESSION_DURATION_MS);
-  await prisma.session.update({
-    where: { id: session.id },
-    data: { expiresAt: newExpiresAt },
-  }).catch(() => {});
+  await prisma.session
+    .update({
+      where: { id: session.id },
+      data: { expiresAt: newExpiresAt },
+    })
+    .catch(() => {});
 
   return { member: session.member };
 }

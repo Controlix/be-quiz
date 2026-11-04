@@ -5,9 +5,16 @@ import { setRsvp, getRsvpLineup, adminOverrideAttend } from "../../src/services/
 
 describe("adminOverrideAttend Service", () => {
   it("re-enrolls a declined player to ATTENDING, updates queuedSince, and records admin audit info", async () => {
-    const admin = await prisma.member.create({ data: { name: `Admin-${Date.now()}`, role: "ADMIN" } });
+    const admin = await prisma.member.create({
+      data: { name: `Admin-${Date.now()}`, role: "ADMIN" },
+    });
     const quiz = await createQuiz(
-      { title: "Attend Override Quiz", startsAt: new Date(Date.now() + 86400000), location: "Gent", maxTeamSize: 4 },
+      {
+        title: "Attend Override Quiz",
+        startsAt: new Date(Date.now() + 86400000),
+        location: "Gent",
+        maxTeamSize: 4,
+      },
       admin.id
     );
     const member = await prisma.member.create({ data: { name: `DeclinedPlayer-${Date.now()}` } });
@@ -36,9 +43,16 @@ describe("adminOverrideAttend Service", () => {
 
   // Review Focus #1: Capacity check
   it("places re-enrolled player into reserves when active spots are full", async () => {
-    const admin = await prisma.member.create({ data: { name: `AdminCap-${Date.now()}`, role: "ADMIN" } });
+    const admin = await prisma.member.create({
+      data: { name: `AdminCap-${Date.now()}`, role: "ADMIN" },
+    });
     const quiz = await createQuiz(
-      { title: "Full Capacity Quiz", startsAt: new Date(Date.now() + 86400000), location: "Gent", maxTeamSize: 1 },
+      {
+        title: "Full Capacity Quiz",
+        startsAt: new Date(Date.now() + 86400000),
+        location: "Gent",
+        maxTeamSize: 1,
+      },
       admin.id
     );
     const m1 = await prisma.member.create({ data: { name: `Active1-${Date.now()}` } });

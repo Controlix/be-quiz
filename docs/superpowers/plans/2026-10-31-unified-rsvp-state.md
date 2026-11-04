@@ -30,15 +30,18 @@
 ### Task 1: Reducer & State Derivation Functions (`src/lib/rsvpReducer.ts`)
 
 **Files:**
+
 - Create: `src/lib/rsvpReducer.ts`
 - Test: `tests/lib/rsvpReducer.test.ts`
 
 **Interfaces:**
+
 - Produces: `ClientRsvp`, `RsvpAction`, `rsvpReducer`, `deriveCurrentUserStatus`, `deriveLineupRosters`
 
 - [x] **Step 1: Write the failing tests**
 
 Create `tests/lib/rsvpReducer.test.ts`:
+
 ```typescript
 import { describe, it, expect } from "vitest";
 import {
@@ -147,10 +150,12 @@ Expected: PASS
 ### Task 2: Refactor `QuizDetailClient.tsx` to Use Reducer
 
 **Files:**
+
 - Modify: `src/components/QuizDetailClient.tsx`
 - Test: `tests/components/QuizDetailDeclined.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `rsvpReducer`, `deriveCurrentUserStatus`, `deriveLineupRosters`, `ClientRsvp` from `@/lib/rsvpReducer`
 - Produces: Clean derived props for `RsvpControl` and `TeamLineup` with no duplicate state.
 
@@ -173,6 +178,7 @@ Expected: PASS
 ### Task 3: Full Test Suite Verification & Cleanup
 
 **Files:**
+
 - Modify: `docs/roadmap.md`
 
 - [x] **Step 1: Run full Vitest suite**

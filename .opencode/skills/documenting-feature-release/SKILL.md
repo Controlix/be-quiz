@@ -32,6 +32,7 @@ Before declaring work finished, run `git diff --stat HEAD` (or diff against your
 ---
 
 ### Gate 1: `CHANGELOG.md` Synchronization
+
 - **Format:** Follow the [Keep a Changelog](https://keepachangelog.com/en/1.1.0/) format.
 - **Header:** Include the version and date: `## [vX.Y.Z] - YYYY-MM-DD`.
 - **Categories:** Group changes cleanly under:
@@ -44,6 +45,7 @@ Before declaring work finished, run `git diff --stat HEAD` (or diff against your
 ---
 
 ### Gate 2: Roadmap & Feedback Lifecycle
+
 - **Active Backlog ONLY:** `docs/roadmap.md` is strictly for **active priorities and future backlog**. Completed features must NEVER linger as checked-off clutter in `docs/roadmap.md`.
 - **Immediate Archiving:** Move full descriptions, user feedback notes, and technical scopes of completed items into `docs/superpowers/feedback/archive-<milestone>-completed.md` (e.g. `archive-v2.0-completed.md`).
 - **Version Header:** Update `**Current App Version:**` at the top of `docs/roadmap.md` to match the newly completed version.
@@ -51,6 +53,7 @@ Before declaring work finished, run `git diff --stat HEAD` (or diff against your
 ---
 
 ### Gate 3: Deployment Documentation & Environment Variables
+
 - **Audit New Environment Variables:**
   ```bash
   git diff HEAD | grep -E "process\.env\.[A-Z0-9_]+"
@@ -62,6 +65,7 @@ Before declaring work finished, run `git diff --stat HEAD` (or diff against your
 ---
 
 ### Gate 4: Database Schema & API Contracts
+
 - **Database Schema (`docs/database/schema.md`):**
   - If `prisma/schema.prisma` was modified (new models, relations, or fields), update `docs/database/schema.md` to reflect the changes.
   - Verify migration instructions (`prisma db push` / `prisma migrate`).
@@ -71,6 +75,7 @@ Before declaring work finished, run `git diff --stat HEAD` (or diff against your
 ---
 
 ### Gate 5: Plan Checklists
+
 - Inspect the active implementation plan (`docs/superpowers/plans/...`).
 - Ensure every completed task and sub-step checkbox is checked (`- [x]`).
 - Record any code review findings or remediation items in the plan's review section.
@@ -79,19 +84,20 @@ Before declaring work finished, run `git diff --stat HEAD` (or diff against your
 
 ## Rationalization Prevention
 
-| Excuse | Reality |
-|---|---|
-| "The tests pass, docs can be done later." | "Later" never happens. Untracked docs create immediate blind spots for deployment and collaboration. |
-| "This was just an internal refactor, no changelog entry needed." | Architectural changes, event buses, and refactors are vital historical notes. Document them under `Architectural Changes`. |
-| "I'll leave the completed item in roadmap.md so people see it was done." | Anti-pattern. Roadmap is for active backlog only. Completed items belong in `CHANGELOG.md` and `docs/superpowers/feedback/archive-*.md`. |
+| Excuse                                                                    | Reality                                                                                                                                   |
+| ------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- |
+| "The tests pass, docs can be done later."                                 | "Later" never happens. Untracked docs create immediate blind spots for deployment and collaboration.                                      |
+| "This was just an internal refactor, no changelog entry needed."          | Architectural changes, event buses, and refactors are vital historical notes. Document them under `Architectural Changes`.                |
+| "I'll leave the completed item in roadmap.md so people see it was done."  | Anti-pattern. Roadmap is for active backlog only. Completed items belong in `CHANGELOG.md` and `docs/superpowers/feedback/archive-*.md`.  |
 | "The environment variable is optional, so DEPLOYMENT.md doesn't need it." | If an operator or teammate tries to enable the feature, they won't know what credentials or permissions are required. Always document it. |
-| "I already answered the user's questions, so we're done." | You are not done until the repo's single sources of truth are updated and verified. |
+| "I already answered the user's questions, so we're done."                 | You are not done until the repo's single sources of truth are updated and verified.                                                       |
 
 ---
 
 ## Red Flags
 
 STOP if you are about to:
+
 - Say "Implementation is complete!" without having checked `CHANGELOG.md`.
 - Say "All done!" while `git diff` shows new `process.env` keys that aren't in `DEPLOYMENT.md` and `.env.example`.
 - Leave completed milestone tasks inside `docs/roadmap.md`.

@@ -31,10 +31,12 @@
 ### Task 1: Decouple Registration Confirmation in ActionToolbar
 
 **Files:**
+
 - Modify: `src/components/ActionToolbar.tsx:90-117`
 - Test: `tests/ui/actionToolbarRegistration.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `ActionToolbarProps` (`isRegistered`, `onRegisterToggle`, `mailtoUrl`)
 - Produces: Decoupled mailto click (immediate browser trigger) and dedicated registration toggle button
 
@@ -71,7 +73,9 @@ describe("ActionToolbar - Decoupled Registration", () => {
     expect(onRegisterToggle).not.toHaveBeenCalled();
 
     // Explicit confirmation button must be visible
-    const confirmButton = screen.getByRole("button", { name: /Mail verzonden\? Bevestig registratie/i });
+    const confirmButton = screen.getByRole("button", {
+      name: /Mail verzonden\? Bevestig registratie/i,
+    });
     fireEvent.click(confirmButton);
     expect(onRegisterToggle).toHaveBeenCalledTimes(1);
 
@@ -129,11 +133,13 @@ git commit -m "fix(registration): decouple mailto trigger from registration conf
 ### Task 2: Prisma Schema & Storage for Feedback
 
 **Files:**
+
 - Modify: `prisma/schema.prisma:25-45`
 - Create: `src/lib/feedbackStorage.ts`
 - Test: `tests/db/feedbackSchema.test.ts`
 
 **Interfaces:**
+
 - Consumes: Prisma database connection (`@/lib/db`)
 - Produces: `FeedbackCategory` enum, `Feedback` model, `saveUploadedFeedbackImage(buffer: Buffer, mimeType: string): Promise<string>` and `deleteFeedbackImage(relativeUrl: string): Promise<void>`
 
@@ -172,11 +178,17 @@ describe("Feedback Schema & Storage", () => {
     expect(uploadedUrl).toMatch(/^\/uploads\/feedback\/[a-f0-9-]+\.jpg$/);
 
     const fullDiskPath = path.join(process.cwd(), "public", uploadedUrl);
-    const fileExistsBefore = await fs.access(fullDiskPath).then(() => true).catch(() => false);
+    const fileExistsBefore = await fs
+      .access(fullDiskPath)
+      .then(() => true)
+      .catch(() => false);
     expect(fileExistsBefore).toBe(true);
 
     await deleteFeedbackImage(uploadedUrl);
-    const fileExistsAfter = await fs.access(fullDiskPath).then(() => true).catch(() => false);
+    const fileExistsAfter = await fs
+      .access(fullDiskPath)
+      .then(() => true)
+      .catch(() => false);
     expect(fileExistsAfter).toBe(false);
   });
 });
@@ -190,6 +202,7 @@ Expected: FAIL (Cannot find module `@/lib/feedbackStorage` or `prisma.feedback` 
 - [x] **Step 3: Implement Schema & Storage**
 
 1. In `prisma/schema.prisma`, define:
+
 ```prisma
 enum FeedbackCategory {
   BUG
@@ -215,11 +228,12 @@ model Feedback {
   @@index([isResolved])
 }
 ```
+
 Add `feedbacks Feedback[]` to `Member`.
 Run: `npx prisma db push` and `npx prisma generate`.
 
 2. Create `src/lib/feedbackStorage.ts`:
-Implement `saveUploadedFeedbackImage(buffer, mimeType)` saving into `public/uploads/feedback/` and `deleteFeedbackImage(relativeUrl)` safely unlinking files.
+   Implement `saveUploadedFeedbackImage(buffer, mimeType)` saving into `public/uploads/feedback/` and `deleteFeedbackImage(relativeUrl)` safely unlinking files.
 
 - [x] **Step 4: Run test to verify it passes**
 
@@ -238,10 +252,12 @@ git commit -m "feat(feedback): add Feedback model to prisma schema and storage h
 ### Task 3: Feedback Server Actions
 
 **Files:**
+
 - Create: `src/actions/feedbackActions.ts`
 - Test: `tests/services/feedbackActions.test.ts`
 
 **Interfaces:**
+
 - Consumes: `prisma.feedback`, `getSessionMember()`, `saveUploadedFeedbackImage`, `deleteFeedbackImage`
 - Produces: `submitFeedbackAction(formData: FormData)`, `toggleFeedbackResolvedAction(feedbackId: string)`, `deleteFeedbackAction(feedbackId: string)`
 
@@ -250,7 +266,11 @@ git commit -m "feat(feedback): add Feedback model to prisma schema and storage h
 ```ts
 // tests/services/feedbackActions.test.ts
 import { describe, it, expect, beforeEach } from "vitest";
-import { submitFeedbackAction, toggleFeedbackResolvedAction, deleteFeedbackAction } from "@/actions/feedbackActions";
+import {
+  submitFeedbackAction,
+  toggleFeedbackResolvedAction,
+  deleteFeedbackAction,
+} from "@/actions/feedbackActions";
 import { prisma } from "@/lib/db";
 
 describe("Feedback Actions", () => {
@@ -326,6 +346,7 @@ Expected: FAIL with "Cannot find module '@/actions/feedbackActions'"
 - [x] **Step 3: Implement `src/actions/feedbackActions.ts`**
 
 Implement:
+
 - `submitFeedbackAction(formData)`: reads `message`, `category`, `pageUrl`, `userAgent`, optional screenshot `file`; validates message length >= 3; associates current member if authenticated; creates `Feedback` record; revalidates `/admin/feedback`.
 - `toggleFeedbackResolvedAction(feedbackId)`: verifies member is admin, toggles `isResolved` and `resolvedAt`, revalidates `/admin/feedback`.
 - `deleteFeedbackAction(feedbackId)`: verifies member is admin, removes screenshot file via `deleteFeedbackImage`, deletes DB record, revalidates `/admin/feedback`.
@@ -347,12 +368,14 @@ git commit -m "feat(feedback): implement feedback submission and management serv
 ### Task 4: In-App Feedback Widget Client Component with Viewport Capture
 
 **Files:**
+
 - Modify: `package.json` (install `html2canvas`)
 - Create: `src/components/FeedbackWidget.tsx`
 - Modify: `src/app/layout.tsx:28-34`
 - Test: `tests/ui/feedbackWidget.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `submitFeedbackAction`, dynamic `import("html2canvas")`
 - Produces: Floating action button + feedback drawer modal mounted globally in the app
 
@@ -413,6 +436,7 @@ Expected: FAIL with "Cannot find module '@/components/FeedbackWidget'"
 - [x] **Step 4: Implement `src/components/FeedbackWidget.tsx` and attach to `src/app/layout.tsx`**
 
 1. Create `src/components/FeedbackWidget.tsx`:
+
 - Render floating pill button fixed at bottom-right (`fixed bottom-5 right-5 z-40 bg-slate-900 text-white rounded-full px-4 py-2.5 shadow-lg active:scale-95`).
 - When opened:
   - Dynamically load `html2canvas` with `import("html2canvas")`.
@@ -421,6 +445,7 @@ Expected: FAIL with "Cannot find module '@/components/FeedbackWidget'"
   - Display category selector (`BUG`, `IDEA`, `QUESTION`), message textarea, screenshot thumbnail with "Verwijderen", device metadata indicator, and Submit/Cancel buttons.
   - On submit: call `submitFeedbackAction` with `FormData`.
   - On success: show confirmation toast and auto-close after 2 seconds.
+
 2. In `src/app/layout.tsx`, render `<FeedbackWidget />`.
 
 - [x] **Step 5: Run test to verify it passes**
@@ -440,11 +465,13 @@ git commit -m "feat(feedback): add floating FeedbackWidget with html2canvas view
 ### Task 5: Central Admin Hub (`/admin`) & Dashboard Navigation
 
 **Files:**
+
 - Create: `src/app/admin/page.tsx`
 - Modify: `src/components/QuizzesDashboard.tsx:28-58`
 - Test: `tests/ui/adminNav.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `getSessionMember()`, `prisma.feedback.count({ where: { isResolved: false } })`
 - Produces: `/admin` page and Admin navigation link in header
 
@@ -478,6 +505,7 @@ Expected: FAIL with "Unable to find an element with the role 'link' and name `/B
 - [x] **Step 3: Implement `/admin/page.tsx` and header link in `QuizzesDashboard.tsx`**
 
 1. Create `src/app/admin/page.tsx`:
+
 - Server component checking `getSessionMember()`. If role is not `ADMIN`, redirect to `/quizzes`.
 - Query `openFeedbackCount` from `prisma.feedback.count({ where: { isResolved: false } })`.
 - Query `totalMembers` from `prisma.member.count()`.
@@ -487,6 +515,7 @@ Expected: FAIL with "Unable to find an element with the role 'link' and name `/B
   - **Vrienden & PIN Beheer** (`/admin/members`) showing total members count.
   - **Teaminstellingen** (`/admin/settings`) showing current team name.
   - "← Terug naar KwisAgenda" link to `/quizzes`.
+
 2. In `src/app/quizzes/page.tsx`: pass `isAdmin={currentMember.role === "ADMIN"}` to `QuizzesDashboard`.
 3. In `src/components/QuizzesDashboard.tsx`: add prop `isAdmin?: boolean` and render the "Beheer" link button next to "Nieuwe Quiz" when `isAdmin` is true.
 
@@ -507,11 +536,13 @@ git commit -m "feat(admin): create central /admin hub and add Beheer header link
 ### Task 6: Admin Feedback Review Back-Office (`/admin/feedback`)
 
 **Files:**
+
 - Create: `src/app/admin/feedback/page.tsx`
 - Create: `src/components/AdminFeedbackClient.tsx`
 - Test: `tests/ui/adminFeedbackView.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `prisma.feedback.findMany(...)`, `toggleFeedbackResolvedAction`, `deleteFeedbackAction`
 - Produces: Desktop back-office page `/admin/feedback` for filtering, viewing screenshots, and resolving feedback
 
@@ -584,11 +615,14 @@ Expected: FAIL with "Cannot find module '@/components/AdminFeedbackClient'"
 - [x] **Step 3: Implement `src/app/admin/feedback/page.tsx` and `src/components/AdminFeedbackClient.tsx`**
 
 1. Create `src/app/admin/feedback/page.tsx`:
+
 - Guard with `getSessionMember()`; redirect non-admins to `/quizzes`.
 - Query `prisma.feedback.findMany({ include: { member: true }, orderBy: { createdAt: "desc" } })`.
 - Render page header with back link to `/admin` and mount `<AdminFeedbackClient initialFeedbacks={feedbacks} />`.
+
 2. Create `src/components/AdminFeedbackClient.tsx`:
-- Provide filter tabs: "Alle", "Openstaand", "Opgelost", plus category filters (*Bugs*, *Ideeën*, *Vragen*).
+
+- Provide filter tabs: "Alle", "Openstaand", "Opgelost", plus category filters (_Bugs_, _Ideeën_, _Vragen_).
 - Display items with European date & time (`formatEuropeanDateTime`), category badge (red for BUG, amber for IDEA, blue for QUESTION), member name, device user agent preview, and route URL.
 - Show screenshot thumbnail if present, with click-to-open fullscreen image lightbox.
 - Action buttons: "Markeer als opgelost" / "Heropenen" calling `toggleFeedbackResolvedAction`, and "Verwijderen" calling `deleteFeedbackAction`.
@@ -610,6 +644,7 @@ git commit -m "feat(admin): build /admin/feedback management back-office view wi
 ### Task 7: Full Verification & User Remarks Documentation Update
 
 **Files:**
+
 - Modify: `docs/superpowers/feedback/user-test-remarks.md:109-140`
 
 - [x] **Step 1: Run complete test suite**

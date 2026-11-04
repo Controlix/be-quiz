@@ -8,7 +8,11 @@ vi.mock("@/lib/auth", () => ({
 }));
 
 // Import actions after mock
-import { submitFeedbackAction, toggleFeedbackResolvedAction, deleteFeedbackAction } from "@/actions/feedbackActions";
+import {
+  submitFeedbackAction,
+  toggleFeedbackResolvedAction,
+  deleteFeedbackAction,
+} from "@/actions/feedbackActions";
 
 describe("Feedback Actions", () => {
   let createdId: string | null = null;

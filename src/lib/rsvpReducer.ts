@@ -39,24 +39,22 @@ export function rsvpReducer(state: ClientRsvp[], action: RsvpAction): ClientRsvp
 
     case "ADMIN_OVERRIDE_DECLINE": {
       return state.map((r) =>
-        r.memberId === action.memberId
-          ? { ...r, status: "DECLINED", queuedSince: null }
-          : r
+        r.memberId === action.memberId ? { ...r, status: "DECLINED", queuedSince: null } : r
       );
     }
 
     case "ADMIN_OVERRIDE_ATTEND": {
       return state.map((r) =>
-        r.memberId === action.memberId
-          ? { ...r, status: "ATTENDING", queuedSince: new Date() }
-          : r
+        r.memberId === action.memberId ? { ...r, status: "ATTENDING", queuedSince: new Date() } : r
       );
     }
 
     case "ADMIN_REORDER": {
       const attending = state
         .filter((r) => r.status === "ATTENDING")
-        .sort((a, b) => new Date(a.queuedSince || 0).getTime() - new Date(b.queuedSince || 0).getTime());
+        .sort(
+          (a, b) => new Date(a.queuedSince || 0).getTime() - new Date(b.queuedSince || 0).getTime()
+        );
 
       if (
         action.sourceIndex < 0 ||

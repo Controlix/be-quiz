@@ -10,11 +10,12 @@
 ## 1. Intent & The Why
 
 In `QuizDetailClient.tsx`, participation status was split into three independent state variables:
+
 - `attendees: LineupMember[]`
 - `declinedMembers: DeclinedMember[]`
 - `currentUserRsvp: "ATTENDING" | "DECLINED" | null`
 
-When an admin declined a member (including themselves via *"Afzeggen"*) or re-enrolled someone (via *"+ Aanmelden"*), only the lineup arrays updated. `currentUserRsvp` was never synchronized, leaving the *"Jouw deelname"* buttons (*"Ik doe mee"* / *"Ik pas"*) showing a stale, contradictory status until a browser refresh.
+When an admin declined a member (including themselves via _"Afzeggen"_) or re-enrolled someone (via _"+ Aanmelden"_), only the lineup arrays updated. `currentUserRsvp` was never synchronized, leaving the _"Jouw deelname"_ buttons (_"Ik doe mee"_ / _"Ik pas"_) showing a stale, contradictory status until a browser refresh.
 
 To eliminate this class of synchronization bugs permanently, we model the RSVP state as a **single source of truth** managed by a pure reducer, from which all UI statuses and roster lists are deterministically derived.
 
@@ -23,7 +24,9 @@ To eliminate this class of synchronization bugs permanently, we model the RSVP s
 ## 2. Architectural Design: Pure Reducer & Single Source of Truth
 
 ### 2.1 Domain Model & Action Types
+
 Stored in `src/lib/rsvpReducer.ts`:
+
 ```typescript
 export interface ClientRsvp {
   memberId: string;
@@ -40,6 +43,7 @@ export type RsvpAction =
 ```
 
 ### 2.2 Pure Reducer (`rsvpReducer`)
+
 ```typescript
 export function rsvpReducer(state: ClientRsvp[], action: RsvpAction): ClientRsvp[] {
   switch (action.type) {
@@ -69,24 +73,22 @@ export function rsvpReducer(state: ClientRsvp[], action: RsvpAction): ClientRsvp
 
     case "ADMIN_OVERRIDE_DECLINE": {
       return state.map((r) =>
-        r.memberId === action.memberId
-          ? { ...r, status: "DECLINED", queuedSince: null }
-          : r
+        r.memberId === action.memberId ? { ...r, status: "DECLINED", queuedSince: null } : r
       );
     }
 
     case "ADMIN_OVERRIDE_ATTEND": {
       return state.map((r) =>
-        r.memberId === action.memberId
-          ? { ...r, status: "ATTENDING", queuedSince: new Date() }
-          : r
+        r.memberId === action.memberId ? { ...r, status: "ATTENDING", queuedSince: new Date() } : r
       );
     }
 
     case "ADMIN_REORDER": {
       const attending = state
         .filter((r) => r.status === "ATTENDING")
-        .sort((a, b) => new Date(a.queuedSince || 0).getTime() - new Date(b.queuedSince || 0).getTime());
+        .sort(
+          (a, b) => new Date(a.queuedSince || 0).getTime() - new Date(b.queuedSince || 0).getTime()
+        );
 
       if (
         action.sourceIndex < 0 ||
@@ -123,7 +125,9 @@ export function rsvpReducer(state: ClientRsvp[], action: RsvpAction): ClientRsvp
 ```
 
 ### 2.3 Pure State Derivation Functions
+
 1. **User Status Derivation:**
+
 ```typescript
 export function deriveCurrentUserStatus(
   rsvps: ClientRsvp[],
@@ -134,6 +138,7 @@ export function deriveCurrentUserStatus(
 ```
 
 2. **Roster Derivation:**
+
 ```typescript
 export function deriveLineupRosters(
   rsvps: ClientRsvp[],
@@ -174,13 +179,14 @@ const { attendees, declined: declinedMembers } = deriveLineupRosters(rsvps, curr
 ```
 
 ### Mutation Handlers:
-* **`handleRsvpChange(status)`:**
+
+- **`handleRsvpChange(status)`:**
   `dispatchRsvp({ type: "USER_RSVP", memberId: currentMemberId, name: currentMemberName, status });`
-* **`confirmAdminOverrideDecline(memberId)`:**
+- **`confirmAdminOverrideDecline(memberId)`:**
   `dispatchRsvp({ type: "ADMIN_OVERRIDE_DECLINE", memberId });`
-* **`handleAdminOverrideAttend(memberId)`:**
+- **`handleAdminOverrideAttend(memberId)`:**
   `dispatchRsvp({ type: "ADMIN_OVERRIDE_ATTEND", memberId });`
-* **`handleReorder(sourceIndex, destinationIndex)`:**
+- **`handleReorder(sourceIndex, destinationIndex)`:**
   `dispatchRsvp({ type: "ADMIN_REORDER", sourceIndex, destinationIndex });`
 
 ---

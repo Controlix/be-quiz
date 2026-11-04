@@ -1,5 +1,8 @@
 function formatIcsDate(date: Date): string {
-  return date.toISOString().replace(/[-:]/g, "").replace(/\.\d{3}/, "");
+  return date
+    .toISOString()
+    .replace(/[-:]/g, "")
+    .replace(/\.\d{3}/, "");
 }
 
 function foldLine(line: string): string {

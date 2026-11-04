@@ -1,6 +1,7 @@
 # Context
 
 Met een aantal vrienden ga ik af en toe naar een quiz. Meestal verloopt dit als volgt:
+
 - iemand ziet een melding dat er ergens een quiz zal doorgaan
 - die deelt de melding in onze WhatsApp groepje
 - wie kan/wil deelnemen, reageert
@@ -14,7 +15,7 @@ Met een aantal vrienden ga ik af en toe naar een quiz. Meestal verloopt dit als 
 
 # Probleem
 
-Vaak komen er verschillende positieve en negatieve reacties op een zelfde quiz, verspreid over meerdere WhatsApp berichten. 
+Vaak komen er verschillende positieve en negatieve reacties op een zelfde quiz, verspreid over meerdere WhatsApp berichten.
 Hierdoor is het moeilijk een overzicht te krijgen van wie wel/niet kan.
 Ook staan er meldingen voor verschillende kwissen, wat het overzicht nog moeilijker maakt.
 
@@ -32,9 +33,9 @@ De applicatie die ik voor ogen heb, zou volgende flow kunnen ondersteunen:
 4. de app toont eenvoudig hoeveel kandidaat kwissers al positief reageerden en of het maximum aantal deelnemers reeds bereikt is
 5. wanneer er meer kandidaten zijn dan maximum toegelaten, zet de app ze op de reservenlijst. Dit is handig wanneer iemand later moet afzeggen.
 6. op elk moment kan iemand via de app de ploeg inschrijven
-6. wanneer iemand het inschrijvingsgeld vooraf betaald, onthoudt de app dat
-7. je kan gemakkelijk zien wie allemaal deelneemt
-8. je krijgt een overzicht van welke kwissen er gepland zijn, en of we wel/niet al ingeschreven zijn
+7. wanneer iemand het inschrijvingsgeld vooraf betaald, onthoudt de app dat
+8. je kan gemakkelijk zien wie allemaal deelneemt
+9. je krijgt een overzicht van welke kwissen er gepland zijn, en of we wel/niet al ingeschreven zijn
 
 # Omgeving
 

@@ -49,30 +49,31 @@ export function EditQuizClient({ quizId, teamId, currentCapacity }: EditQuizClie
   };
 
   return (
-    <div className="flex-1 flex flex-col p-4 pb-20">
-      <div className="flex items-center justify-between mb-4 pt-1">
+    <div className="flex flex-1 flex-col p-4 pb-20">
+      <div className="mb-4 flex items-center justify-between pt-1">
         <Link
           href={`/quizzes/${quizId}`}
-          className="inline-flex items-center gap-1 text-slate-600 hover:text-slate-900 text-sm font-semibold p-1 -ml-1 rounded-lg"
+          className="-ml-1 inline-flex items-center gap-1 rounded-lg p-1 text-sm font-semibold text-slate-600 hover:text-slate-900"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="h-4 w-4" />
           <span>Terug naar quiz</span>
         </Link>
-        <span className="text-xs text-red-600 font-bold bg-red-50 px-2.5 py-0.5 rounded-full border border-red-200">
+        <span className="rounded-full border border-red-200 bg-red-50 px-2.5 py-0.5 text-xs font-bold text-red-600">
           Admin Beheer
         </span>
       </div>
 
-      <div className="bg-white rounded-2xl border border-slate-200 p-5 shadow-sm space-y-6">
-        <h2 className="font-bold text-slate-900 text-base">Quiz Instellingen</h2>
+      <div className="space-y-6 rounded-2xl border border-slate-200 bg-white p-5 shadow-sm">
+        <h2 className="text-base font-bold text-slate-900">Quiz Instellingen</h2>
 
         {/* Capacity adjustment */}
-        <div className="pb-4 border-b border-slate-100">
-          <label className="block text-xs font-bold text-slate-700 mb-1">
+        <div className="border-b border-slate-100 pb-4">
+          <label className="mb-1 block text-xs font-bold text-slate-700">
             Maximum Ploeggrootte Wijzigen
           </label>
-          <p className="text-[11px] text-slate-500 mb-2">
-            Bij het verlagen van de ploeggrootte worden de laatst toegevoegde spelers automatisch naar de reservelijst verplaatst.
+          <p className="mb-2 text-[11px] text-slate-500">
+            Bij het verlagen van de ploeggrootte worden de laatst toegevoegde spelers automatisch
+            naar de reservelijst verplaatst.
           </p>
           <div className="flex items-center gap-3">
             <Stepper
@@ -85,7 +86,7 @@ export function EditQuizClient({ quizId, teamId, currentCapacity }: EditQuizClie
               type="button"
               onClick={handleUpdateCapacity}
               disabled={loading}
-              className="py-2 px-4 bg-slate-900 hover:bg-black text-white text-xs font-semibold rounded-xl"
+              className="rounded-xl bg-slate-900 px-4 py-2 text-xs font-semibold text-white hover:bg-black"
             >
               Capaciteit Aanpassen
             </button>
@@ -94,32 +95,32 @@ export function EditQuizClient({ quizId, teamId, currentCapacity }: EditQuizClie
 
         {/* Destructive Actions */}
         <div className="space-y-3">
-          <h3 className="text-xs font-bold text-slate-500 uppercase tracking-wider">
+          <h3 className="text-xs font-bold tracking-wider text-slate-500 uppercase">
             Beheersacties (Bevestiging vereist)
           </h3>
 
           <button
             type="button"
             onClick={() => setShowResetDialog(true)}
-            className="w-full flex items-center justify-between p-3 rounded-xl border border-amber-200 bg-amber-50/50 hover:bg-amber-50 text-amber-900 text-xs font-medium transition-colors"
+            className="flex w-full items-center justify-between rounded-xl border border-amber-200 bg-amber-50/50 p-3 text-xs font-medium text-amber-900 transition-colors hover:bg-amber-50"
           >
             <div className="flex items-center gap-2">
-              <RefreshCw className="w-4 h-4 text-amber-600" />
+              <RefreshCw className="h-4 w-4 text-amber-600" />
               <span>Inschrijving Ongedaan Maken</span>
             </div>
-            <span className="text-[10px] bg-amber-200/60 px-2 py-0.5 rounded-full">Reset</span>
+            <span className="rounded-full bg-amber-200/60 px-2 py-0.5 text-[10px]">Reset</span>
           </button>
 
           <button
             type="button"
             onClick={() => setShowCancelDialog(true)}
-            className="w-full flex items-center justify-between p-3 rounded-xl border border-red-200 bg-red-50/50 hover:bg-red-50 text-red-900 text-xs font-medium transition-colors"
+            className="flex w-full items-center justify-between rounded-xl border border-red-200 bg-red-50/50 p-3 text-xs font-medium text-red-900 transition-colors hover:bg-red-50"
           >
             <div className="flex items-center gap-2">
-              <XCircle className="w-4 h-4 text-red-600" />
+              <XCircle className="h-4 w-4 text-red-600" />
               <span>Quiz Annuleren (Naar Archief)</span>
             </div>
-            <span className="text-[10px] bg-red-200/60 px-2 py-0.5 rounded-full">Annuleer</span>
+            <span className="rounded-full bg-red-200/60 px-2 py-0.5 text-[10px]">Annuleer</span>
           </button>
         </div>
       </div>

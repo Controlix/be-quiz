@@ -12,14 +12,14 @@
 
 ## Global Constraints
 
-* Language: Dutch (`nl-BE`) for all labels, error banners, and date/time formatting.
-* Date format: strictly `DD/MM/YYYY` (e.g. `28/11/2026`).
-* Time format: strictly 24-hour `HH:mm` (e.g. `20:00`).
-* Team Name: permanently "Ben in Black".
-* Currency: Euro symbol `€` everywhere (no dollar signs).
-* Authentication: Name + 4-digit personal PIN (extensible architecture).
-* Mobile UX: Stepper buttons and drag handles must be compact and touch-friendly.
-* Production State: Clean zero-dummy-data initial state (only Marc as Admin, 0 quizzes).
+- Language: Dutch (`nl-BE`) for all labels, error banners, and date/time formatting.
+- Date format: strictly `DD/MM/YYYY` (e.g. `28/11/2026`).
+- Time format: strictly 24-hour `HH:mm` (e.g. `20:00`).
+- Team Name: permanently "Ben in Black".
+- Currency: Euro symbol `€` everywhere (no dollar signs).
+- Authentication: Name + 4-digit personal PIN (extensible architecture).
+- Mobile UX: Stepper buttons and drag handles must be compact and touch-friendly.
+- Production State: Clean zero-dummy-data initial state (only Marc as Admin, 0 quizzes).
 
 ## Review Focus
 
@@ -78,13 +78,16 @@ src/
 ### Task 1: European Date & Time Formatters
 
 **Files:**
+
 - Create: `src/lib/formatters.ts`
 - Modify: `src/components/QuizCard.tsx`, `src/components/QuizDetailClient.tsx`, `src/lib/mailto.ts`, `src/lib/whatsapp.ts`
 - Test: `tests/lib/formatters.test.ts`
 
 **Interfaces:**
+
 - Consumes: `Date` objects
 - Produces:
+
   ```typescript
   export function formatEuropeanDate(date: Date | string): string; // "14/11/2026"
   export function formatEuropeanTime(date: Date | string): string; // "20:00"
@@ -96,7 +99,11 @@ src/
 ```typescript
 // tests/lib/formatters.test.ts
 import { describe, it, expect } from "vitest";
-import { formatEuropeanDate, formatEuropeanTime, formatEuropeanDateTime } from "../../src/lib/formatters";
+import {
+  formatEuropeanDate,
+  formatEuropeanTime,
+  formatEuropeanDateTime,
+} from "../../src/lib/formatters";
 
 describe("European Date & Time Formatters", () => {
   const testDate = new Date("2026-11-14T20:05:00Z");
@@ -144,12 +151,15 @@ git commit -m "feat: implement centralized European date and 24-hour time format
 ### Task 2: Clean Email Body Generation & Fix Double-Encoding
 
 **Files:**
+
 - Modify: `src/lib/mailto.ts`, `src/components/ActionToolbar.tsx`
 - Test: `tests/lib/mailto.test.ts`
 
 **Interfaces:**
+
 - Consumes: `Quiz`, `Team`, `contactName`
 - Produces:
+
   ```typescript
   export function getRegistrationEmailPlainText(
     quiz: { title: string; startsAt: Date },
@@ -172,7 +182,11 @@ import { describe, it, expect } from "vitest";
 import { generateRegistrationMailto, getRegistrationEmailPlainText } from "../../src/lib/mailto";
 
 describe("Mailto & Plaintext Email Generation", () => {
-  const quiz = { title: "Herfstquiz", startsAt: new Date("2026-11-14T20:00:00Z"), organizerEmail: "org@quiz.be" };
+  const quiz = {
+    title: "Herfstquiz",
+    startsAt: new Date("2026-11-14T20:00:00Z"),
+    organizerEmail: "org@quiz.be",
+  };
   const team = { name: "Ben in Black" };
 
   it("produces clean unescaped text for clipboard with real newlines", () => {
@@ -218,10 +232,12 @@ git commit -m "fix: resolve email double-encoding bug and provide clean plaintex
 ### Task 3: Visible Logout Button & Euro Currency Symbol
 
 **Files:**
+
 - Modify: `src/components/QuizzesDashboard.tsx`, `src/components/ActionToolbar.tsx`, `src/components/QuizCard.tsx`
 - Test: `tests/ui/dashboardHeader.test.ts`
 
 **Interfaces:**
+
 - Consumes: None
 - Produces:
   - Header with `LogOut` icon button linking to `/auth/logout`.
@@ -274,10 +290,12 @@ git commit -m "feat: add visible logout button to header and replace dollar sign
 ### Task 4: Input Validation (Email Format & Field Length Bounds)
 
 **Files:**
+
 - Modify: `src/components/QuizEntryForm.tsx`, `src/actions/quizActions.ts`, `src/services/quizService.ts`
 - Test: `tests/ui/formValidation.test.ts`
 
 **Interfaces:**
+
 - Consumes: `CreateQuizInput`
 - Produces:
   - Client & server validation rejecting titles >100 chars, locations >120 chars, and invalid emails.
@@ -298,13 +316,21 @@ describe("Quiz Input Validation", () => {
   });
 
   it("rejects invalid email formats", () => {
-    const invalidEmail = validateQuizFields({ title: "Quiz", location: "Gent", organizerEmail: "invalid-email" });
+    const invalidEmail = validateQuizFields({
+      title: "Quiz",
+      location: "Gent",
+      organizerEmail: "invalid-email",
+    });
     expect(invalidEmail.isValid).toBe(false);
     expect(invalidEmail.errors.organizerEmail).toBeDefined();
   });
 
   it("accepts valid email and lengths", () => {
-    const valid = validateQuizFields({ title: "Quiz", location: "Gent", organizerEmail: "organisatie@quiz.be" });
+    const valid = validateQuizFields({
+      title: "Quiz",
+      location: "Gent",
+      organizerEmail: "organisatie@quiz.be",
+    });
     expect(valid.isValid).toBe(true);
   });
 });
@@ -336,12 +362,15 @@ git commit -m "feat: add email format validation and field length limits"
 ### Task 5: Mobile Stepper Component & Admin Capacity Bounds
 
 **Files:**
+
 - Create: `src/components/ui/Stepper.tsx`
 - Modify: `src/components/QuizEntryForm.tsx`, `src/components/EditQuizClient.tsx`, `src/actions/adminActions.ts`, `src/services/rsvpService.ts`
 - Test: `tests/ui/stepper.test.ts`
 
 **Interfaces:**
+
 - Produces:
+
   ```typescript
   export interface StepperProps {
     value: number;
@@ -394,10 +423,12 @@ git commit -m "feat: implement mobile-friendly stepper and enforce 1-10 team cap
 ### Task 6: Flyer Upload Drag-and-Drop & Clipboard Paste
 
 **Files:**
+
 - Modify: `src/components/FlyerUploader.tsx`
 - Test: `tests/ui/flyerUploader.test.ts`
 
 **Interfaces:**
+
 - Consumes: `onExtractionComplete` callback
 - Produces:
   - Full dropzone support on upload box (`onDragOver`, `onDragLeave`, `onDrop`).
@@ -450,13 +481,19 @@ git commit -m "feat: add drag-and-drop and clipboard screenshot paste support to
 ### Task 7: Structured Entry Fee (Amount & Unit Toggle)
 
 **Files:**
+
 - Modify: `src/components/QuizEntryForm.tsx`, `src/services/visionService.ts`, `src/services/quizService.ts`
 - Test: `tests/ui/entryFee.test.ts`
 
 **Interfaces:**
+
 - Produces:
+
   ```typescript
-  export function formatStructuredEntryFee(amount?: number | string, unit?: "TEAM" | "PERSON"): string | undefined;
+  export function formatStructuredEntryFee(
+    amount?: number | string,
+    unit?: "TEAM" | "PERSON"
+  ): string | undefined;
   // returns "€20 / ploeg" or "€5 / persoon"
   ```
 
@@ -508,12 +545,15 @@ git commit -m "feat: implement structured entry fee with amount input and team/p
 ### Task 8: Admin Touch Drag-and-Drop Roster Reordering
 
 **Files:**
+
 - Create: `src/actions/reorderActions.ts`
 - Modify: `src/services/rsvpService.ts`, `src/components/TeamLineup.tsx`, `src/components/QuizDetailClient.tsx`
 - Test: `tests/services/rosterReorder.test.ts`
 
 **Interfaces:**
+
 - Produces:
+
   ```typescript
   export async function adminReorderRsvpAction(
     teamId: string,
@@ -533,8 +573,18 @@ import { setRsvp, getRsvpLineup, reorderRsvps } from "../../src/services/rsvpSer
 
 describe("Admin Roster Reordering", () => {
   it("reorders attendees and updates active lineup and reserve boundary", async () => {
-    const admin = await prisma.member.create({ data: { name: `Admin-${Date.now()}`, role: "ADMIN" } });
-    const quiz = await createQuiz({ title: "Reorder Quiz", startsAt: new Date(Date.now() + 86400000), location: "Gent", maxTeamSize: 2 }, admin.id);
+    const admin = await prisma.member.create({
+      data: { name: `Admin-${Date.now()}`, role: "ADMIN" },
+    });
+    const quiz = await createQuiz(
+      {
+        title: "Reorder Quiz",
+        startsAt: new Date(Date.now() + 86400000),
+        location: "Gent",
+        maxTeamSize: 2,
+      },
+      admin.id
+    );
     const m1 = await prisma.member.create({ data: { name: `M1-${Date.now()}` } });
     const m2 = await prisma.member.create({ data: { name: `M2-${Date.now()}` } });
     const m3 = await prisma.member.create({ data: { name: `M3-${Date.now()}` } });
@@ -579,16 +629,27 @@ git commit -m "feat: implement admin touch drag-and-drop roster reordering"
 ### Task 9: Name + 4-Digit PIN Authentication & First-Time PIN Setup
 
 **Files:**
+
 - Modify: `prisma/schema.prisma`, `src/lib/auth.ts`, `src/actions/authActions.ts`, `src/actions/adminActions.ts`, `src/app/auth/login/page.tsx`, `src/components/MemberRosterClient.tsx`
 - Test: `tests/auth/pinAuth.test.ts`
 
 **Interfaces:**
+
 - Consumes: `prisma.member`
 - Produces:
+
   ```typescript
-  export async function loginWithPinAction(memberId: string, pin: string): Promise<{ success: boolean; error?: string }>;
-  export async function setupInitialPinAction(memberId: string, pin: string): Promise<{ success: boolean; error?: string }>;
-  export async function adminResetMemberPinAction(memberId: string): Promise<{ success: boolean; error?: string }>;
+  export async function loginWithPinAction(
+    memberId: string,
+    pin: string
+  ): Promise<{ success: boolean; error?: string }>;
+  export async function setupInitialPinAction(
+    memberId: string,
+    pin: string
+  ): Promise<{ success: boolean; error?: string }>;
+  export async function adminResetMemberPinAction(
+    memberId: string
+  ): Promise<{ success: boolean; error?: string }>;
   ```
 
 - [x] **Step 1: Write the failing test**
@@ -642,10 +703,12 @@ git commit -m "feat: implement name + 4-digit PIN authentication, first-time PIN
 ### Task 10: Clean Production Seed & Dashboard Empty State
 
 **Files:**
+
 - Modify: `prisma/seed.ts`, `src/components/QuizzesDashboard.tsx`
 - Test: `tests/ui/emptyDashboard.test.ts`
 
 **Interfaces:**
+
 - Produces:
   - Clean production seed: exactly 1 member (`Marc`, `ADMIN`), 0 dummy members, 0 dummy quizzes.
   - Dashboard friendly empty state prompting to add the first quiz when list is empty.
@@ -679,7 +742,7 @@ Expected: FAIL
 
 - [x] **Step 3: Update `seed.ts` and `QuizzesDashboard.tsx`**
 
-In `prisma/seed.ts`, remove all dummy quizzes and dummy members, keeping strictly Marc as Admin and `defaultTeamName: "Ben in Black"`; in `QuizzesDashboard.tsx`, render a clean Dutch empty state: *"Nog geen quizzen gepland. Tik op '+ Nieuwe Quiz' om de eerste quiz toe te voegen!"* with a prominent button.
+In `prisma/seed.ts`, remove all dummy quizzes and dummy members, keeping strictly Marc as Admin and `defaultTeamName: "Ben in Black"`; in `QuizzesDashboard.tsx`, render a clean Dutch empty state: _"Nog geen quizzen gepland. Tik op '+ Nieuwe Quiz' om de eerste quiz toe te voegen!"_ with a prominent button.
 
 - [x] **Step 4: Run test to verify it passes**
 

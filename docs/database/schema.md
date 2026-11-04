@@ -18,7 +18,7 @@ erDiagram
     Member ||--o{ Feedback : "submits (SetNull)"
 
     Quiz ||--o| Team : "has one team in v1 (Cascade)"
-    
+
     Team ||--o{ Rsvp : "has members (Cascade)"
 
     Member {
@@ -124,19 +124,23 @@ erDiagram
 ## 2. Enums
 
 ### `Role`
+
 - `USER`
 - `ADMIN`
 
 ### `QuizStatus`
+
 - `OPEN`
 - `CANCELLED`
 - `ARCHIVED`
 
 ### `RsvpStatus`
+
 - `ATTENDING`
 - `DECLINED`
 
 ### `FeedbackCategory`
+
 - `BUG`
 - `IDEA`
 - `QUESTION`
@@ -146,7 +150,9 @@ erDiagram
 ## 3. Detailed Model Specifications
 
 ### 3.1 `Member`
+
 Represents users/players and administrators.
+
 - **Attributes:**
   - `id` (`String` / `cuid`, PK)
   - `name` (`String`)
@@ -166,7 +172,9 @@ Represents users/players and administrators.
 ---
 
 ### 3.2 `Quiz`
+
 Represents an organized quiz event.
+
 - **Attributes:**
   - `id` (`String` / `cuid`, PK)
   - `title` (`String`)
@@ -191,7 +199,9 @@ Represents an organized quiz event.
 ---
 
 ### 3.3 `Team`
+
 Represents our quiz team participation for a particular quiz.
+
 - **Attributes:**
   - `id` (`String` / `cuid`, PK)
   - `quizId` (`String`, unique FK $\to$ `Quiz.id`): Enforces 1 team per quiz in v1.
@@ -213,7 +223,9 @@ Represents our quiz team participation for a particular quiz.
 ---
 
 ### 3.4 `Rsvp`
+
 Tracks a member's attendance intention, queue order, and administrative overrides.
+
 - **Attributes:**
   - `id` (`String` / `cuid`, PK)
   - `teamId` (`String`, FK $\to$ `Team.id`)
@@ -234,7 +246,9 @@ Tracks a member's attendance intention, queue order, and administrative override
 ---
 
 ### 3.5 `Invite` & `Session`
+
 Authentication and onboarding credentials.
+
 - **`Invite`**:
   - `id`, `memberId` (unique FK $\to$ `Member.id`), `tokenHash` (unique), `expiresAt?`, `usedAt?`, `createdAt`.
   - Delete rule: Cascade on `Member` delete.
@@ -245,7 +259,9 @@ Authentication and onboarding credentials.
 ---
 
 ### 3.6 `TeamSetting`
+
 A singleton table storing system-wide team defaults.
+
 - `id` (`String`, PK, default: `"singleton"`)
 - `defaultTeamName` (`String`, default: `"Ben in Black"`)
 - `updatedAt` (`DateTime`)
@@ -253,7 +269,9 @@ A singleton table storing system-wide team defaults.
 ---
 
 ### 3.7 `Feedback`
+
 Captures in-app user feedback, bug reports, and screenshots.
+
 - **Attributes:**
   - `id` (`String` / `cuid`, PK)
   - `category` (`FeedbackCategory`, default: `BUG`)
@@ -272,7 +290,9 @@ Captures in-app user feedback, bug reports, and screenshots.
 ---
 
 ### 3.8 `CalendarEventMapping` (Integration Model)
+
 Tracks synchronization state between internal quizzes and external Google Calendar events for the shared team calendar.
+
 - **Decoupling Invariant:** Stored separately from `Quiz` and `Team` so that core domain tables remain 100% agnostic of external Google Calendar IDs and metadata.
 - **Attributes:**
   - `id` (`String` / `cuid`, PK)

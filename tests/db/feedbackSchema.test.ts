@@ -29,11 +29,17 @@ describe("Feedback Schema & Storage", () => {
     expect(uploadedUrl).toMatch(/^\/uploads\/feedback\/[a-f0-9-]+\.jpg$/);
 
     const fullDiskPath = path.join(process.cwd(), "public", uploadedUrl);
-    const fileExistsBefore = await fs.access(fullDiskPath).then(() => true).catch(() => false);
+    const fileExistsBefore = await fs
+      .access(fullDiskPath)
+      .then(() => true)
+      .catch(() => false);
     expect(fileExistsBefore).toBe(true);
 
     await deleteFeedbackImage(uploadedUrl);
-    const fileExistsAfter = await fs.access(fullDiskPath).then(() => true).catch(() => false);
+    const fileExistsAfter = await fs
+      .access(fullDiskPath)
+      .then(() => true)
+      .catch(() => false);
     expect(fileExistsAfter).toBe(false);
   });
 });

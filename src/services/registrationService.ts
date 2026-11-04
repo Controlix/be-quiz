@@ -37,4 +37,3 @@ export async function adminResetRegistration(teamId: string): Promise<void> {
 
 export const registerTeam = setTeamRegistered;
 export const unregisterTeam = adminResetRegistration;
-

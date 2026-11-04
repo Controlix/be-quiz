@@ -23,17 +23,17 @@ export default async function AdminFeedbackPage() {
   });
 
   return (
-    <div className="flex-1 flex flex-col p-4 pb-20">
+    <div className="flex flex-1 flex-col p-4 pb-20">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4 pt-1">
+      <div className="mb-4 flex items-center justify-between pt-1">
         <Link
           href="/admin"
-          className="inline-flex items-center gap-1 text-slate-600 hover:text-slate-900 text-sm font-semibold p-1 -ml-1 rounded-lg"
+          className="-ml-1 inline-flex items-center gap-1 rounded-lg p-1 text-sm font-semibold text-slate-600 hover:text-slate-900"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="h-4 w-4" />
           <span>Admin Hub</span>
         </Link>
-        <span className="text-xs text-rose-600 font-bold bg-rose-50 px-2.5 py-0.5 rounded-full border border-rose-200">
+        <span className="rounded-full border border-rose-200 bg-rose-50 px-2.5 py-0.5 text-xs font-bold text-rose-600">
           Feedback & Meldingen
         </span>
       </div>

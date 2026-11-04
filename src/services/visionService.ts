@@ -66,7 +66,7 @@ export function parseVisionExtractionResponse(rawInput: string): VisionExtractio
         entryFee: parsed.entryFee || undefined,
       },
     };
-  } catch (err: any) {
+  } catch (_err: any) {
     return {
       isValid: false,
       missingFields: ["title", "date", "time", "location", "maxTeamSize"],
@@ -80,10 +80,20 @@ function detectImageMimeType(buffer: Buffer, fallback: string): string {
   if (buffer.length >= 3 && buffer[0] === 0xff && buffer[1] === 0xd8 && buffer[2] === 0xff) {
     return "image/jpeg";
   }
-  if (buffer.length >= 4 && buffer[0] === 0x89 && buffer[1] === 0x50 && buffer[2] === 0x4e && buffer[3] === 0x47) {
+  if (
+    buffer.length >= 4 &&
+    buffer[0] === 0x89 &&
+    buffer[1] === 0x50 &&
+    buffer[2] === 0x4e &&
+    buffer[3] === 0x47
+  ) {
     return "image/png";
   }
-  if (buffer.length >= 12 && buffer.toString("ascii", 0, 4) === "RIFF" && buffer.toString("ascii", 8, 12) === "WEBP") {
+  if (
+    buffer.length >= 12 &&
+    buffer.toString("ascii", 0, 4) === "RIFF" &&
+    buffer.toString("ascii", 8, 12) === "WEBP"
+  ) {
     return "image/webp";
   }
   return fallback || "image/jpeg";
@@ -156,7 +166,7 @@ export async function extractQuizDetailsFromImage(
 
       const content = data.candidates?.[0]?.content?.parts?.[0]?.text || "";
       return parseVisionExtractionResponse(content);
-    } catch (err: any) {
+    } catch (_err: any) {
       clearTimeout(timeoutId);
       return parseVisionExtractionResponse("TIMEOUT");
     }
@@ -208,7 +218,7 @@ export async function extractQuizDetailsFromImage(
       const data = await response.json();
       const content = data.choices[0]?.message?.content || "";
       return parseVisionExtractionResponse(content);
-    } catch (err: any) {
+    } catch (_err: any) {
       clearTimeout(timeoutId);
       return parseVisionExtractionResponse("TIMEOUT");
     }

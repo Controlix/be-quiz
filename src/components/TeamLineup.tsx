@@ -131,27 +131,27 @@ export function TeamLineup({
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-slate-200 p-4 mb-4 shadow-sm">
-      <div className="flex items-center justify-between mb-3 pb-2 border-b border-slate-100">
+    <div className="mb-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      <div className="mb-3 flex items-center justify-between border-b border-slate-100 pb-2">
         <div>
-          <h3 className="font-bold text-slate-900 text-sm">Opstelling</h3>
+          <h3 className="text-sm font-bold text-slate-900">Opstelling</h3>
           <p className="text-xs text-slate-500">
             {active.length} / {maxTeamSize} spelers
           </p>
         </div>
         {isComplete ? (
-          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-100 text-emerald-800">
+          <span className="rounded-full bg-emerald-100 px-2.5 py-1 text-xs font-semibold text-emerald-800">
             ✓ Ploeg Compleet
           </span>
         ) : (
-          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-amber-100 text-amber-800">
+          <span className="rounded-full bg-amber-100 px-2.5 py-1 text-xs font-semibold text-amber-800">
             Nog {maxTeamSize - active.length} nodig
           </span>
         )}
       </div>
 
       {/* Active Lineup */}
-      <ul className="space-y-1.5 mb-3">
+      <ul className="mb-3 space-y-1.5">
         {active.map((member, idx) => {
           const overallIndex = idx;
           const isBeingDragged = draggedIndex === overallIndex;
@@ -165,38 +165,38 @@ export function TeamLineup({
               onDragStart={(e) => handleDragStart(e, overallIndex)}
               onDragOver={(e) => handleDragOver(e, overallIndex)}
               onDrop={(e) => handleDrop(e, overallIndex)}
-              className={`flex items-center justify-between text-sm py-1.5 px-2 rounded-xl transition-all ${
+              className={`flex items-center justify-between rounded-xl px-2 py-1.5 text-sm transition-all ${
                 isBeingDragged
-                  ? "opacity-40 bg-slate-100"
+                  ? "bg-slate-100 opacity-40"
                   : isTarget
-                  ? "bg-blue-50 border border-blue-300"
-                  : "hover:bg-slate-50"
+                    ? "border border-blue-300 bg-blue-50"
+                    : "hover:bg-slate-50"
               }`}
             >
-              <div className="flex items-center gap-2 min-w-0">
+              <div className="flex min-w-0 items-center gap-2">
                 {isAdmin && (
                   <div
                     onTouchStart={() => handleTouchStart(overallIndex)}
                     onTouchMove={handleTouchMove}
                     onTouchEnd={handleTouchEnd}
-                    className="cursor-grab active:cursor-grabbing p-1 -ml-1 text-slate-400 hover:text-slate-600 touch-none shrink-0"
+                    className="-ml-1 shrink-0 cursor-grab touch-none p-1 text-slate-400 hover:text-slate-600 active:cursor-grabbing"
                     title="Sleep om volgorde te wijzigen"
                   >
-                    <GripVertical className="w-4 h-4" />
+                    <GripVertical className="h-4 w-4" />
                   </div>
                 )}
-                <span className="w-5 h-5 rounded-full bg-blue-100 text-blue-700 text-xs font-bold flex items-center justify-center shrink-0">
+                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-blue-100 text-xs font-bold text-blue-700">
                   {idx + 1}
                 </span>
-                <span className="font-medium text-slate-800 truncate">{member.name}</span>
+                <span className="truncate font-medium text-slate-800">{member.name}</span>
               </div>
-              <div className="flex items-center gap-2 shrink-0">
+              <div className="flex shrink-0 items-center gap-2">
                 <span className="text-xs text-slate-400">Speler</span>
                 {isAdmin && onAdminOverrideDecline && (
                   <button
                     type="button"
                     onClick={() => onAdminOverrideDecline(member.id)}
-                    className="text-[10px] text-red-600 hover:text-red-700 font-semibold px-1.5 py-0.5 rounded bg-red-50 hover:bg-red-100"
+                    className="rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-red-600 hover:bg-red-100 hover:text-red-700"
                   >
                     Afzeggen
                   </button>
@@ -208,9 +208,9 @@ export function TeamLineup({
         {Array.from({ length: Math.max(0, maxTeamSize - active.length) }).map((_, idx) => (
           <li
             key={`empty-${idx}`}
-            className="flex items-center gap-2 text-sm text-slate-400 py-1.5 px-2 italic"
+            className="flex items-center gap-2 px-2 py-1.5 text-sm text-slate-400 italic"
           >
-            <span className="w-5 h-5 rounded-full bg-slate-100 text-slate-400 text-xs font-bold flex items-center justify-center">
+            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-slate-100 text-xs font-bold text-slate-400">
               {active.length + idx + 1}
             </span>
             <span>Open plaats...</span>
@@ -220,8 +220,10 @@ export function TeamLineup({
 
       {/* Reserve List */}
       {reserves.length > 0 && (
-        <div className="mt-3 pt-3 border-t border-dashed border-slate-200">
-          <h4 className="text-xs font-bold text-slate-600 mb-2">Reservelijst ({reserves.length})</h4>
+        <div className="mt-3 border-t border-dashed border-slate-200 pt-3">
+          <h4 className="mb-2 text-xs font-bold text-slate-600">
+            Reservelijst ({reserves.length})
+          </h4>
           <ul className="space-y-1.5">
             {reserves.map((member, idx) => {
               const overallIndex = active.length + idx;
@@ -236,35 +238,35 @@ export function TeamLineup({
                   onDragStart={(e) => handleDragStart(e, overallIndex)}
                   onDragOver={(e) => handleDragOver(e, overallIndex)}
                   onDrop={(e) => handleDrop(e, overallIndex)}
-                  className={`flex items-center justify-between text-xs py-1.5 px-2 rounded-xl transition-all border ${
+                  className={`flex items-center justify-between rounded-xl border px-2 py-1.5 text-xs transition-all ${
                     isBeingDragged
-                      ? "opacity-40 bg-amber-100/50 border-amber-300"
+                      ? "border-amber-300 bg-amber-100/50 opacity-40"
                       : isTarget
-                      ? "bg-blue-50 border-blue-400"
-                      : "bg-amber-50/70 text-amber-900 border-amber-200"
+                        ? "border-blue-400 bg-blue-50"
+                        : "border-amber-200 bg-amber-50/70 text-amber-900"
                   }`}
                 >
-                  <div className="flex items-center gap-2 min-w-0">
+                  <div className="flex min-w-0 items-center gap-2">
                     {isAdmin && (
                       <div
                         onTouchStart={() => handleTouchStart(overallIndex)}
                         onTouchMove={handleTouchMove}
                         onTouchEnd={handleTouchEnd}
-                        className="cursor-grab active:cursor-grabbing p-1 -ml-1 text-amber-500 hover:text-amber-700 touch-none shrink-0"
+                        className="-ml-1 shrink-0 cursor-grab touch-none p-1 text-amber-500 hover:text-amber-700 active:cursor-grabbing"
                         title="Sleep om volgorde te wijzigen"
                       >
-                        <GripVertical className="w-4 h-4" />
+                        <GripVertical className="h-4 w-4" />
                       </div>
                     )}
-                    <span className="font-medium truncate">{member.name}</span>
+                    <span className="truncate font-medium">{member.name}</span>
                   </div>
-                  <div className="flex items-center gap-2 shrink-0">
+                  <div className="flex shrink-0 items-center gap-2">
                     <span className="font-semibold text-amber-700">{formatReserveBadge(idx)}</span>
                     {isAdmin && onAdminOverrideDecline && (
                       <button
                         type="button"
                         onClick={() => onAdminOverrideDecline(member.id)}
-                        className="text-[10px] text-red-600 hover:text-red-700 font-semibold px-1 py-0.5 rounded bg-red-100"
+                        className="rounded bg-red-100 px-1 py-0.5 text-[10px] font-semibold text-red-600 hover:text-red-700"
                       >
                         Verwijder
                       </button>
@@ -279,23 +281,23 @@ export function TeamLineup({
 
       {/* Declined List */}
       {declinedMembers && declinedMembers.length > 0 && (
-        <div className="mt-3 pt-3 border-t border-slate-100">
-          <h4 className="text-xs font-bold text-slate-500 mb-2">
+        <div className="mt-3 border-t border-slate-100 pt-3">
+          <h4 className="mb-2 text-xs font-bold text-slate-500">
             Afgemeld ({declinedMembers.length})
           </h4>
           <div className="flex flex-wrap gap-1.5">
             {declinedMembers.map((member) => (
               <span
                 key={member.id}
-                className="inline-flex items-center gap-1.5 text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full border border-slate-200"
+                className="inline-flex items-center gap-1.5 rounded-full border border-slate-200 bg-slate-100 px-2.5 py-1 text-xs text-slate-600"
               >
-                <span className="text-slate-400 font-bold">✕</span>
+                <span className="font-bold text-slate-400">✕</span>
                 <span className="font-medium">{member.name}</span>
                 {isAdmin && onAdminOverrideAttend && (
                   <button
                     type="button"
                     onClick={() => onAdminOverrideAttend(member.id)}
-                    className="ml-1 text-[10px] font-semibold text-blue-700 bg-blue-100 hover:bg-blue-200 px-1.5 py-0.5 rounded-full transition-colors"
+                    className="ml-1 rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] font-semibold text-blue-700 transition-colors hover:bg-blue-200"
                     title="Meld deze speler aan"
                   >
                     + Aanmelden

@@ -19,12 +19,14 @@ Team RSVPs ─────┼─► useState<DeclinedMember[]>(declinedMembers)
 ```
 
 ### Why this broke:
-When an admin clicked *"Afzeggen"* to decline themselves or another member:
+
+When an admin clicked _"Afzeggen"_ to decline themselves or another member:
+
 1. The `attendees` array updated.
 2. The `declinedMembers` array updated.
 3. **`currentUserRsvp` did NOT update.**
 
-Result: The lineup showed the player as declined, but their personal buttons (*"Ik doe mee"* / *"Ik pas"*) still said they were attending until the page was reloaded.
+Result: The lineup showed the player as declined, but their personal buttons (_"Ik doe mee"_ / _"Ik pas"_) still said they were attending until the page was reloaded.
 
 ---
 
@@ -59,7 +61,9 @@ We replaced all three state variables with a **single state array** managed by a
 ## 3. Data Model & Actions
 
 ### State: `ClientRsvp[]`
+
 Located in `src/lib/rsvpReducer.ts`:
+
 ```typescript
 export interface ClientRsvp {
   memberId: string;
@@ -70,14 +74,15 @@ export interface ClientRsvp {
 ```
 
 ### Actions: `RsvpAction`
+
 Every change goes through `dispatchRsvp`:
 
-| Action | When it happens | What it does |
-|---|---|---|
-| `USER_RSVP` | Player taps *"Ik doe mee"* or *"Ik pas"* | Updates or adds the member's status; sets `queuedSince = now` if attending. |
-| `ADMIN_OVERRIDE_DECLINE` | Admin clicks *"Afzeggen"* for any player | Sets status to `"DECLINED"` and zeroes `queuedSince = null`. |
-| `ADMIN_OVERRIDE_ATTEND` | Admin clicks `+ Aanmelden` on a declined chip | Sets status to `"ATTENDING"` and assigns new `queuedSince = now`. |
-| `ADMIN_REORDER` | Admin drag-and-drops active lineup members | Re-indexes `queuedSince` timestamps among attending players. Leaves declined players untouched. |
+| Action                   | When it happens                               | What it does                                                                                    |
+| ------------------------ | --------------------------------------------- | ----------------------------------------------------------------------------------------------- |
+| `USER_RSVP`              | Player taps _"Ik doe mee"_ or _"Ik pas"_      | Updates or adds the member's status; sets `queuedSince = now` if attending.                     |
+| `ADMIN_OVERRIDE_DECLINE` | Admin clicks _"Afzeggen"_ for any player      | Sets status to `"DECLINED"` and zeroes `queuedSince = null`.                                    |
+| `ADMIN_OVERRIDE_ATTEND`  | Admin clicks `+ Aanmelden` on a declined chip | Sets status to `"ATTENDING"` and assigns new `queuedSince = now`.                               |
+| `ADMIN_REORDER`          | Admin drag-and-drops active lineup members    | Re-indexes `queuedSince` timestamps among attending players. Leaves declined players untouched. |
 
 ---
 

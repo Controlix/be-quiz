@@ -23,16 +23,16 @@ export default async function AdminMembersPage() {
   });
 
   return (
-    <div className="flex-1 flex flex-col p-4 pb-20">
-      <div className="flex items-center justify-between mb-4 pt-1">
+    <div className="flex flex-1 flex-col p-4 pb-20">
+      <div className="mb-4 flex items-center justify-between pt-1">
         <Link
           href="/quizzes"
-          className="inline-flex items-center gap-1 text-slate-600 hover:text-slate-900 text-sm font-semibold p-1 -ml-1 rounded-lg"
+          className="-ml-1 inline-flex items-center gap-1 rounded-lg p-1 text-sm font-semibold text-slate-600 hover:text-slate-900"
         >
-          <ArrowLeft className="w-4 h-4" />
+          <ArrowLeft className="h-4 w-4" />
           <span>Overzicht</span>
         </Link>
-        <span className="text-xs text-blue-600 font-bold bg-blue-50 px-2.5 py-0.5 rounded-full border border-blue-200">
+        <span className="rounded-full border border-blue-200 bg-blue-50 px-2.5 py-0.5 text-xs font-bold text-blue-600">
           Vrienden Beheer
         </span>
       </div>

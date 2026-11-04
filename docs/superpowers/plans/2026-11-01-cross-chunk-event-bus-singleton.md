@@ -22,15 +22,18 @@
 ### Task 1: Write Automated Invariant & Regression Tests
 
 **Files:**
+
 - Create: `tests/unit/events/bus-singleton.test.ts`
 
 **Interfaces:**
+
 - Consumes: `domainEvents` from `@/lib/events`, `registerSharedCalendarSubscriber` from `@/features/calendar`
 - Produces: Vitest suite verifying cross-module `globalThis` singleton identity and subscriber registration idempotency.
 
 - [x] **Step 1: Write the failing test**
 
 Create `tests/unit/events/bus-singleton.test.ts` asserting:
+
 1. Accessing `domainEvents` reuses `globalThis.__domainEvents__`.
 2. Emitting an event on a re-imported or separate reference triggers handlers registered on `globalThis.__domainEvents__`.
 3. Calling `registerSharedCalendarSubscriber()` multiple times attaches event handlers only once (idempotent across warm serverless calls).
@@ -81,16 +84,19 @@ Expected: FAIL (because `globalThis.__domainEvents__` is currently undefined).
 ### Task 2: Implement `globalThis` Singleton and Idempotency Guard
 
 **Files:**
+
 - Modify: `src/lib/events/index.ts`
 - Modify: `src/features/calendar/shared/subscriber.ts`
 
 **Interfaces:**
+
 - `domainEvents`: `DomainEventBus` singleton exported from `@/lib/events`.
 - `registerSharedCalendarSubscriber(options?)`: Idempotent registration function.
 
 - [x] **Step 1: Update `src/lib/events/index.ts`**
 
 Attach `domainEvents` to `globalThis.__domainEvents__`:
+
 ```ts
 import { EventBus } from "./bus";
 import type { DomainEventBus } from "./types";
@@ -103,13 +109,13 @@ const globalForEvents = globalThis as unknown as {
 };
 
 export const domainEvents: DomainEventBus =
-  globalForEvents.__domainEvents__ ??
-  (globalForEvents.__domainEvents__ = new EventBus());
+  globalForEvents.__domainEvents__ ?? (globalForEvents.__domainEvents__ = new EventBus());
 ```
 
 - [x] **Step 2: Update `src/features/calendar/shared/subscriber.ts`**
 
 Add container-level idempotency on `globalThis.__calendarSubscriberRegistered__`:
+
 ```ts
 const globalForCalendar = globalThis as unknown as {
   __calendarSubscriberRegistered__?: boolean;
@@ -149,6 +155,7 @@ Expected: Zero TypeScript errors.
 ### Task 3: Document Invariant 8 in Architecture and Agent Rules
 
 **Files:**
+
 - Modify: `docs/architecture/overview.md`
 - Modify: `AGENTS.md`
 
@@ -156,6 +163,7 @@ Expected: Zero TypeScript errors.
 
 In Section 4.4, document chunk-safe singleton persistence on `globalThis`.  
 In Section 5, add **Invariant 8: Cross-Chunk In-Process Singleton Persistence**:
+
 ```markdown
 8. **Cross-Chunk In-Process Singleton Persistence:** In Next.js server runtimes where Webpack/Turbopack code-splits Server Components, Server Actions, Route Handlers, and Instrumentation into isolated module scopes, any stateful in-process infrastructure intended to be shared across execution boundaries (such as database connection pools or domain event brokers) must be anchored to `globalThis`. Naive file-level `new Service()` singletons are strictly prohibited for shared runtime infrastructure because chunk isolation causes silent state divergence in serverless deployments.
 ```

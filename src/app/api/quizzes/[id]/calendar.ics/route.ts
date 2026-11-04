@@ -3,10 +3,7 @@ import { getQuizById } from "@/services/quizService";
 import { generateIcsCalendar } from "@/features/calendar";
 import { getCapabilities } from "@/features/capabilities/capabilities";
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   if (!getCapabilities().icalExport) {
     return NextResponse.json(
       { error: "Calendar iCal export integration is disabled in this deployment." },

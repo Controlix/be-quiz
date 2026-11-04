@@ -25,10 +25,7 @@ export function MemberRosterClient({ initialMembers }: MemberRosterClientProps) 
 
     if (res.success && res.inviteUrl) {
       setNewInviteUrl(res.inviteUrl);
-      setMembers((prev) => [
-        ...prev,
-        { id: res.memberId, name: name.trim(), role: "USER" },
-      ]);
+      setMembers((prev) => [...prev, { id: res.memberId, name: name.trim(), role: "USER" }]);
       setName("");
     }
   };
@@ -64,10 +61,10 @@ export function MemberRosterClient({ initialMembers }: MemberRosterClientProps) 
     if (window.confirm(`Weet je zeker dat je de PIN van ${memberName} wilt resetten?`)) {
       const res = await adminResetMemberPinAction(memberId);
       if (res.success) {
-        setMembers((prev) =>
-          prev.map((m) => (m.id === memberId ? { ...m, pinHash: null } : m))
+        setMembers((prev) => prev.map((m) => (m.id === memberId ? { ...m, pinHash: null } : m)));
+        alert(
+          `PIN van ${memberName} is gereset. Bij de volgende aanmelding kan een nieuwe PIN worden gekozen.`
         );
-        alert(`PIN van ${memberName} is gereset. Bij de volgende aanmelding kan een nieuwe PIN worden gekozen.`);
       } else {
         alert(res.error || "Kon PIN niet resetten.");
       }
@@ -77,9 +74,9 @@ export function MemberRosterClient({ initialMembers }: MemberRosterClientProps) 
   return (
     <div className="space-y-4">
       {/* Add member card */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
-        <h3 className="font-bold text-slate-900 text-sm mb-2 flex items-center gap-1.5">
-          <UserPlus className="w-4 h-4 text-blue-600" />
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <h3 className="mb-2 flex items-center gap-1.5 text-sm font-bold text-slate-900">
+          <UserPlus className="h-4 w-4 text-blue-600" />
           <span>Nieuwe Vriend Toevoegen</span>
         </h3>
 
@@ -89,31 +86,31 @@ export function MemberRosterClient({ initialMembers }: MemberRosterClientProps) 
             value={name}
             onChange={(e) => setName(e.target.value)}
             placeholder="Voornaam (bv. Laura)"
-            className="w-full text-sm p-2.5 rounded-xl border border-slate-200"
+            className="w-full rounded-xl border border-slate-200 p-2.5 text-sm"
           />
 
           <button
             type="submit"
             disabled={loading || !name.trim()}
-            className="w-full py-2.5 px-4 bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs rounded-xl transition-all disabled:opacity-50"
+            className="w-full rounded-xl bg-blue-600 px-4 py-2.5 text-xs font-semibold text-white transition-all hover:bg-blue-700 disabled:opacity-50"
           >
             {loading ? "Toevoegen..." : "Vriend Toevoegen & Link Maken"}
           </button>
         </form>
 
         {newInviteUrl && (
-          <div className="mt-3 p-3 bg-emerald-50 rounded-xl border border-emerald-200">
-            <p className="text-xs font-semibold text-emerald-800 mb-1">
+          <div className="mt-3 rounded-xl border border-emerald-200 bg-emerald-50 p-3">
+            <p className="mb-1 text-xs font-semibold text-emerald-800">
               Uitnodigingslink gegenereerd:
             </p>
-            <div className="flex items-center gap-1 bg-white p-1.5 rounded-lg border border-emerald-200 text-xs">
-              <span className="truncate flex-1 text-slate-600">{newInviteUrl}</span>
+            <div className="flex items-center gap-1 rounded-lg border border-emerald-200 bg-white p-1.5 text-xs">
+              <span className="flex-1 truncate text-slate-600">{newInviteUrl}</span>
               <button
                 type="button"
                 onClick={() => copyToClipboard(newInviteUrl)}
-                className="p-1 text-emerald-700 hover:bg-emerald-50 rounded"
+                className="rounded p-1 text-emerald-700 hover:bg-emerald-50"
               >
-                {copied ? <Check className="w-4 h-4" /> : <Copy className="w-4 h-4" />}
+                {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
               </button>
             </div>
           </div>
@@ -121,24 +118,24 @@ export function MemberRosterClient({ initialMembers }: MemberRosterClientProps) 
       </div>
 
       {/* Roster list */}
-      <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-sm">
-        <h3 className="font-bold text-slate-900 text-sm mb-3 flex items-center gap-1.5">
-          <Users className="w-4 h-4 text-blue-600" />
+      <div className="rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+        <h3 className="mb-3 flex items-center gap-1.5 text-sm font-bold text-slate-900">
+          <Users className="h-4 w-4 text-blue-600" />
           <span>Vriendenlijst ({members.length})</span>
         </h3>
 
         <ul className="divide-y divide-slate-100">
           {members.map((m) => (
-            <li key={m.id} className="py-2.5 flex items-center justify-between text-sm">
+            <li key={m.id} className="flex items-center justify-between py-2.5 text-sm">
               <span className="font-medium text-slate-800">{m.name}</span>
               <div className="flex items-center gap-2">
-                <span className="text-[10px] uppercase font-bold tracking-wider px-2 py-0.5 rounded-full bg-slate-100 text-slate-600">
+                <span className="rounded-full bg-slate-100 px-2 py-0.5 text-[10px] font-bold tracking-wider text-slate-600 uppercase">
                   {m.role}
                 </span>
                 <button
                   type="button"
                   onClick={() => handleResetPin(m.id, m.name)}
-                  className="text-[11px] text-amber-700 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 font-semibold px-2 py-1 rounded-lg border border-amber-200 transition-colors"
+                  className="rounded-lg border border-amber-200 bg-amber-50 px-2 py-1 text-[11px] font-semibold text-amber-700 transition-colors hover:bg-amber-100 hover:text-amber-800"
                 >
                   Reset PIN
                 </button>

@@ -30,12 +30,15 @@
 ### Task 1: Capability Registry & Explicit Opt-In Flags
 
 **Files:**
+
 - Create: `src/features/capabilities/capabilities.ts`
 - Create: `src/features/capabilities/types.ts`
 - Test: `tests/features/capabilities.test.ts`
 
 **Interfaces:**
+
 - Produces:
+
   ```typescript
   export interface AppCapabilities {
     vision: boolean;
@@ -49,6 +52,7 @@
 - [x] **Step 1: Write the failing tests for capability resolution**
 
 Create `tests/features/capabilities.test.ts`:
+
 ```typescript
 import { describe, it, expect } from "vitest";
 import { getCapabilities } from "@/features/capabilities/capabilities";
@@ -116,6 +120,7 @@ git commit -m "feat(capabilities): implement central deployment capability regis
 ### Task 2: Modularize Integration Folders & Core Isolation
 
 **Files:**
+
 - Create: `src/features/vision/index.ts`
 - Create: `src/features/calendar/index.ts`
 - Create: `src/features/sharing/index.ts`
@@ -123,6 +128,7 @@ git commit -m "feat(capabilities): implement central deployment capability regis
 - Test: `tests/features/core-isolation.test.ts`
 
 **Interfaces:**
+
 - Consumes: `src/services/visionService.ts`, `src/lib/ical.ts`, `src/lib/whatsapp.ts`, `src/lib/mailto.ts`
 - Produces:
   - `src/features/vision/index.ts` re-exporting vision extraction and storage
@@ -132,6 +138,7 @@ git commit -m "feat(capabilities): implement central deployment capability regis
 - [x] **Step 1: Write architectural boundary test**
 
 Create `tests/features/core-isolation.test.ts`:
+
 ```typescript
 import { describe, it, expect } from "vitest";
 import * as fs from "fs";
@@ -177,24 +184,24 @@ git commit -m "refactor(modules): isolate integration modules and enforce core i
 ### Task 3: Automated OpenAPI Sync & Contract Testing
 
 **Files:**
+
 - Create: `tests/api/openapi-sync.test.ts`
 
 **Interfaces:**
+
 - Consumes: `docs/api/openapi.yaml`, file system routes in `src/app/api/` and `src/app/auth/`
 
 - [x] **Step 1: Write the failing OpenAPI synchronization test**
 
 Create `tests/api/openapi-sync.test.ts`:
+
 ```typescript
 import { describe, it, expect } from "vitest";
 import * as fs from "fs";
 import * as path from "path";
 
 describe("OpenAPI Synchronization", () => {
-  const openApiContent = fs.readFileSync(
-    path.join(process.cwd(), "docs/api/openapi.yaml"),
-    "utf8"
-  );
+  const openApiContent = fs.readFileSync(path.join(process.cwd(), "docs/api/openapi.yaml"), "utf8");
 
   it("documents /auth/join and /auth/logout", () => {
     expect(openApiContent).toContain("/auth/join:");
@@ -257,6 +264,7 @@ git commit -m "test(api): add automated OpenAPI contract and route synchronizati
 ### Task 4: Core Flyer Upload & Route Guardrails
 
 **Files:**
+
 - Create: `src/app/api/quizzes/upload-flyer/route.ts`
 - Modify: `src/app/api/quizzes/extract/route.ts`
 - Modify: `src/app/api/quizzes/[id]/calendar.ics/route.ts`
@@ -264,8 +272,9 @@ git commit -m "test(api): add automated OpenAPI contract and route synchronizati
 - Test: `tests/api/upload-flyer.test.ts`
 
 **Interfaces:**
+
 - Consumes: `saveUploadedFlyer` from `src/lib/storage`, `getCapabilities` from `src/features/capabilities/capabilities`
-- Produces: 
+- Produces:
   - `POST /api/quizzes/upload-flyer`: Returns `{ flyerImageUrl: string }`
   - Returns 501 when integration is disabled for `/extract` or `calendar.ics`
 
@@ -305,15 +314,21 @@ git commit -m "feat(api): add core upload-flyer endpoint and capability guardrai
 ### Task 5: Client Capabilities Context Provider & Hook
 
 **Files:**
+
 - Create: `src/features/capabilities/CapabilitiesContext.tsx`
 - Create: `src/features/capabilities/index.ts`
 - Modify: `src/app/layout.tsx`
 - Test: `tests/features/CapabilitiesContext.test.tsx`
 
 **Interfaces:**
+
 - Produces:
+
   ```typescript
-  export const CapabilitiesProvider: React.FC<{ capabilities: AppCapabilities; children: React.ReactNode }>;
+  export const CapabilitiesProvider: React.FC<{
+    capabilities: AppCapabilities;
+    children: React.ReactNode;
+  }>;
   export function useCapabilities(): AppCapabilities;
   ```
 
@@ -349,16 +364,19 @@ git commit -m "feat(ui): add client CapabilitiesProvider and useCapabilities hoo
 ### Task 6: Adaptive UI - Quiz Creation Form (Flyer Attachment & Optional AI)
 
 **Files:**
+
 - Modify: `src/components/FlyerUploader.tsx`
 - Modify: `src/components/QuizEntryForm.tsx`
 - Test: `tests/components/QuizEntryFormAdaptive.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `useCapabilities` from `@/features/capabilities`
 
 - [x] **Step 1: Write test for adaptive flyer attachment**
 
 Create `tests/components/QuizEntryFormAdaptive.test.tsx`:
+
 - Assert flyer image attachment is available regardless of `capabilities.vision`.
 - When `capabilities.vision` is `true`: OCR extraction trigger / auto-fill is rendered.
 - When `capabilities.vision` is `false`: Only manual attachment and image preview are rendered (no AI extraction trigger).
@@ -390,18 +408,21 @@ git commit -m "feat(ui): decouple core flyer upload from optional AI vision auto
 ### Task 7: Adaptive UI - Action Toolbar & Detail View Flyer Display
 
 **Files:**
+
 - Modify: `src/components/ActionToolbar.tsx`
 - Modify: `src/components/QuizDetailClient.tsx`
 - Test: `tests/components/ActionToolbarAdaptive.test.tsx`
 - Test: `tests/components/QuizDetailFlyer.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `useCapabilities` from `@/features/capabilities`
 - Produces: Preserves core payment and registration controls while hiding inactive calendar and sharing buttons, and renders flyer poster when present.
 
 - [x] **Step 1: Write tests for ActionToolbar and QuizDetail flyer display**
 
 Create `tests/components/ActionToolbarAdaptive.test.tsx` and `tests/components/QuizDetailFlyer.test.tsx`:
+
 1. Assert Registration card and Payment toggle button ARE rendered unconditionally in `ActionToolbar`.
 2. Assert `ActionToolbar` only renders Calendar, WhatsApp, and Email buttons when their respective flags are true.
 3. Assert `QuizDetailClient` renders the flyer image when `quiz.flyerImageUrl` is populated.
@@ -439,12 +460,14 @@ git commit -m "feat(ui): adapt action toolbar and display attached flyer in deta
 ### Task 8: Full Verification & Environment Documentation
 
 **Files:**
+
 - Modify: `.env.example`
 - Run all test suites & build verification
 
 - [x] **Step 1: Update `.env.example`**
 
 Add documentation and defaults for:
+
 ```bash
 # Deployment Capabilities (Strictly explicit opt-in: default is false)
 ENABLE_AI_VISION=false          # Set to true to enable flyer upload & AI extraction

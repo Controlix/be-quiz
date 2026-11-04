@@ -1,14 +1,26 @@
 import { describe, it, expect } from "vitest";
 import { prisma } from "../../src/lib/db";
 import { createQuiz } from "../../src/services/quizService";
-import { setRsvp, getRsvpLineup, adminOverrideDecline, updateTeamCapacity } from "../../src/services/rsvpService";
+import {
+  setRsvp,
+  getRsvpLineup,
+  adminOverrideDecline,
+  updateTeamCapacity,
+} from "../../src/services/rsvpService";
 
 describe("Admin Override & Capacity Demotion Logic", () => {
   // Review Focus #2: Admin RSVP Override Audit & Promotion
   it("audits admin decline overrides and promotes the earliest reserve", async () => {
-    const admin = await prisma.member.create({ data: { name: `Admin-${Date.now()}`, role: "ADMIN" } });
+    const admin = await prisma.member.create({
+      data: { name: `Admin-${Date.now()}`, role: "ADMIN" },
+    });
     const quiz = await createQuiz(
-      { title: "Admin Quiz", startsAt: new Date(Date.now() + 86400000), location: "Gent", maxTeamSize: 1 },
+      {
+        title: "Admin Quiz",
+        startsAt: new Date(Date.now() + 86400000),
+        location: "Gent",
+        maxTeamSize: 1,
+      },
       admin.id
     );
     const m1 = await prisma.member.create({ data: { name: `Player 1-${Date.now()}` } });
@@ -31,9 +43,16 @@ describe("Admin Override & Capacity Demotion Logic", () => {
 
   // Review Focus #3: Lowering maxTeamSize Demotion
   it("demotes latest attendee to reserve #1 while preserving queuedSince when maxTeamSize is reduced", async () => {
-    const admin = await prisma.member.create({ data: { name: `Admin2-${Date.now()}`, role: "ADMIN" } });
+    const admin = await prisma.member.create({
+      data: { name: `Admin2-${Date.now()}`, role: "ADMIN" },
+    });
     const quiz = await createQuiz(
-      { title: "Capacity Quiz", startsAt: new Date(Date.now() + 86400000), location: "Gent", maxTeamSize: 2 },
+      {
+        title: "Capacity Quiz",
+        startsAt: new Date(Date.now() + 86400000),
+        location: "Gent",
+        maxTeamSize: 2,
+      },
       admin.id
     );
     const m1 = await prisma.member.create({ data: { name: `Player A-${Date.now()}` } });
