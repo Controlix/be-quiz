@@ -1,10 +1,7 @@
 # Pub Quiz App (BE-Quiz) — Roadmap & Feature Backlog
 
-**Current App Version:** `v2.0.0` (Shared Team Google Calendar & Domain Event Bus)  
+**Current App Version:** `v2.0.1` (Shared Google Calendar Sync & Cross-Chunk Event Bus Singleton)  
 This document is the **single source of truth for active and planned roadmap items**. For past releases and completed milestone notes, see [CHANGELOG.md](../CHANGELOG.md) and [Feedback Archives](superpowers/feedback/).
-
-**Active Implementation Plan:**
-- [ ] `[Active Plan]` [Cross-Chunk Event Bus Singleton & Invariant 9](superpowers/plans/2026-11-01-cross-chunk-event-bus-singleton.md)
 
 ---
 

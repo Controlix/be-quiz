@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [v2.0.1] - 2026-11-04
+
+### Fixed
+- **Cross-Chunk Event Bus Singleton & Subscriber Idempotency (`src/lib/events/index.ts`, `src/features/calendar/shared/subscriber.ts`):** Anchored `domainEvents` to `globalThis.__domainEvents__` to prevent module closure divergence across Next.js Webpack chunks in serverless Lambda environments. Added container-level idempotency to `registerSharedCalendarSubscriber` on `globalThis.__calendarSubscriberRegistered__` to prevent duplicate listeners during warm container reuse.
+
+### Added
+- **Architectural Invariant 9 (`docs/architecture/overview.md`, `AGENTS.md`):** Formally codified "Cross-Chunk In-Process Singleton Persistence" prohibiting file-level module singletons for server runtime infrastructure.
+- **Regression Test Suite (`tests/unit/events/bus-singleton.test.ts`):** Added automated Vitest tests verifying cross-chunk singleton sharing and subscriber idempotency.
+
+---
+
 ## [v2.0.0] - 2026-11-01
 
 ### Added

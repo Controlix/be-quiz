@@ -168,6 +168,6 @@ Add the Cross-Chunk Singleton Invariant under "Uncompromising Architectural Qual
 
 ### Task 4: Verify Live Production Sync
 
-- [ ] **Step 1: Deploy to production (with user consent)**
-- [ ] **Step 2: Re-register the quiz on `https://be-quiz-six.vercel.app`**
-- [ ] **Step 3: Verify the event appears in Google Calendar**
+- [x] **Step 1: Deploy to production (with user consent)**
+- [x] **Step 2: Re-register the quiz on `https://be-quiz-six.vercel.app`**
+- [x] **Step 3: Verify the event appears in Google Calendar**
