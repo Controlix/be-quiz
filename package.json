@@ -32,6 +32,12 @@
   "prisma": {
     "seed": "tsx prisma/seed.ts"
   },
+  "overrides": {
+    "@vercel/blob": {
+      "@vercel/oidc": "^4.0.6"
+    },
+    "deepmerge-ts": "^8.0.2"
+  },
   "dependencies": {
     "@prisma/client": "^6.19.3",
     "@vercel/blob": "^2.8.2",

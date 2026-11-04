@@ -1,5 +1,5 @@
 {
   "$schema": "https://raw.githubusercontent.com/IBM/audit-ci/main/docs/schema.json",
   "high": true,
-  "allowlist": ["GHSA-ggr8-5vv4-36mx", "GHSA-mrhx-c7xc-m3w5"]
+  "allowlist": []
 }
