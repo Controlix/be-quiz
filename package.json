@@ -36,7 +36,8 @@
     "@vercel/blob": {
       "@vercel/oidc": "^4.0.6"
     },
-    "deepmerge-ts": "^8.0.2"
+    "deepmerge-ts": "^8.0.2",
+    "minimatch": "^11.0.4"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",

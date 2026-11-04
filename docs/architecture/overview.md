@@ -200,7 +200,7 @@ To maintain high architectural standards without relying on remote CI, code qual
 - **Formatting (Single Source of Truth):** Prettier (`.prettierrc.json`) formats TypeScript, TSX, CSS, JSON, and Markdown. The `prettier-plugin-tailwindcss` plugin automatically organizes utility classes into deterministic order across all UI components.
 - **Linting & Code Quality:** ESLint (`eslint.config.mjs`) uses ESLint 9 flat configuration extending `@next/eslint-plugin-next/core-web-vitals` and TypeScript rules. `eslint-config-prettier` turns off all conflicting stylistic rules so formatting is solely owned by Prettier.
 - **Local Secret Scanning:** `secretlint` (`.secretlintrc.json`) scans for API keys, database connection strings, JWT tokens, and private keys. It is 100% pure Node.js, running natively across Linux, macOS, and Windows with zero binary dependencies.
-- **Dependency CVE Auditing:** `audit-ci` (`audit-ci.json`) verifies upstream npm packages against high and critical advisories. Transitive vendor advisories are actively patched via `package.json#overrides` to keep the allowlist strictly empty (`[]`). Premature or unmonitored allowlisting is prohibited.
+- **Dependency CVE Auditing:** `audit-ci` (`audit-ci.json`) verifies upstream npm packages against moderate, high, and critical advisories. Transitive vendor advisories are actively patched via `package.json#overrides` to keep the allowlist strictly empty (`[]`). Premature or unmonitored allowlisting is prohibited.
 - **Sub-Second Pre-Commit Verification:** Git hooks via `husky` and `lint-staged` execute Secretlint, Prettier, and ESLint strictly on staged files prior to commit creation, ensuring zero developer lag and preventing secret leaks from entering Git history.
 - **Verification Commands:**
   - `npm run lint`: Runs ESLint across all codebase files.
@@ -208,5 +208,5 @@ To maintain high architectural standards without relying on remote CI, code qual
   - `npm run format:check`: Confirms all files conform to Prettier code style.
   - `npm run format:write`: Formats all repository files and sorts Tailwind classes.
   - `npm run scan:secrets`: Runs Secretlint across all tracked files.
-  - `npm run audit:check`: Verifies that no unallowlisted high/critical CVEs exist.
+  - `npm run audit:check`: Verifies that no unallowlisted moderate, high, or critical CVEs exist.
   - `npm run check:all`: Runs typecheck, unit tests, linter, formatting checks, security audit, and secret scanning in a unified pipeline.
