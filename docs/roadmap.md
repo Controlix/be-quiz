@@ -124,3 +124,34 @@ This document is the **single source of truth for active and planned roadmap ite
       - **Immediate Context on the Entry Screen:**
         - _"💡 You previously participated in this quiz! Previous rating: ⭐⭐⭐⭐☆ (4/5)"_
       - Provides immediate decision support when deciding whether to add and register for a recurring annual pub quiz.
+
+### E. CI/CD & Dependency Automation Infrastructure
+
+12. **GitHub Actions CI: PostgreSQL Service Container for Automated Test Suites:**
+    - **Status:** `[ ] Open`
+    - **Problem / Observed Evidence:** Every Pull Request and commit push currently fails the `Code Quality & Security Verification` workflow in `.github/workflows/ci.yml`. The job crashes during `npm run check:all` -> `vitest run` with:
+      ```text
+      PrismaClientInitializationError: Can't reach database server at `localhost:5432`
+      ```
+      This causes all Dependabot and feature PRs to be flagged with red "Failed" badges even when application code is healthy.
+    - **Root Cause:** Integration tests in `tests/db/*`, `tests/auth/*`, and `tests/admin/*` require a live PostgreSQL instance, but `.github/workflows/ci.yml` runs tests directly on `ubuntu-latest` without a PostgreSQL service container or database initialization.
+    - **Requirement:**
+      1. Add a `postgres:16` service container to the `validate` job in `.github/workflows/ci.yml` (matching `docker-compose.yml` credentials and port `5432`).
+      2. Add a workflow setup step to run `npx prisma db push` against the ephemeral test database prior to executing `npm run check:all`.
+      3. Supply `DATABASE_URL` in the workflow environment (`postgresql://postgres:postgres@localhost:5432/be_quiz?schema=public`) so all tests run deterministically in CI.
+
+13. **Dependency Automation & Major Upgrade Strategy (Prisma 7 & TypeScript 7):**
+    - **Status:** `[ ] Open`
+    - **Problem / Observed Evidence:** Automated Dependabot PRs for major dependency bumps fail deployment and build checks:
+      - **Prisma 7 (`PR #13`, `PR #7`):** Fails Vercel deployment with `Error code: P1012: The datasource property 'url' is no longer supported in schema files`. Dependabot decoupled `prisma` from `@prisma/client`, causing engine version mismatches and failing on Prisma 7's breaking schema architecture.
+      - **TypeScript 7 (`PR #11`):** Fails `npm install` due to a strict peer dependency conflict with `typescript-eslint@8.x` (`peer typescript@">=4.8.4 <6.1.0"`).
+    - **Root Cause:** `.github/dependabot.yml` currently runs unconstrained weekly updates without grouping related packages together or ignoring major breaking version jumps that require deliberate codebase refactoring.
+    - **Requirement:**
+      1. **Dependabot Configuration Polish:** Update `.github/dependabot.yml` to:
+         - Group `prisma` and `@prisma/client` together so they are never bumped out of sync.
+         - Configure `ignore` rules for major upgrades of ecosystem-sensitive packages (like `prisma` and `typescript`) until they are intentionally scheduled for migration.
+      2. **Planned Prisma 7 Migration (When Scheduled):** When ready to adopt Prisma 7, perform a coordinated migration:
+         - Upgrade both `prisma` and `@prisma/client` together.
+         - Migrate database connection URLs out of `schema.prisma` into `prisma.config.ts`.
+         - Configure driver adapters (e.g. `@prisma/adapter-pg`) in `src/lib/prisma.ts`.
+      3. **TypeScript 7 Ecosystem Alignment:** Defer upgrading to TypeScript 7 until `@typescript-eslint` and Next.js release official peer support.
