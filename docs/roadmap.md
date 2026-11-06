@@ -1,6 +1,6 @@
 # Pub Quiz App (BE-Quiz) — Roadmap & Feature Backlog
 
-**Current App Version:** `v2.1.0` (Code Quality & Security Tooling)  
+**Current App Version:** `v2.1.1` (CI PostgreSQL Service Container)  
 This document is the **single source of truth for active and planned roadmap items**. For past releases and completed milestone notes, see [CHANGELOG.md](../CHANGELOG.md) and [Feedback Archives](superpowers/feedback/).
 
 ---
@@ -127,20 +127,7 @@ This document is the **single source of truth for active and planned roadmap ite
 
 ### E. CI/CD & Dependency Automation Infrastructure
 
-12. **GitHub Actions CI: PostgreSQL Service Container for Automated Test Suites:**
-    - **Status:** `[ ] Open`
-    - **Problem / Observed Evidence:** Every Pull Request and commit push currently fails the `Code Quality & Security Verification` workflow in `.github/workflows/ci.yml`. The job crashes during `npm run check:all` -> `vitest run` with:
-      ```text
-      PrismaClientInitializationError: Can't reach database server at `localhost:5432`
-      ```
-      This causes all Dependabot and feature PRs to be flagged with red "Failed" badges even when application code is healthy.
-    - **Root Cause:** Integration tests in `tests/db/*`, `tests/auth/*`, and `tests/admin/*` require a live PostgreSQL instance, but `.github/workflows/ci.yml` runs tests directly on `ubuntu-latest` without a PostgreSQL service container or database initialization.
-    - **Requirement:**
-      1. Add a `postgres:16` service container to the `validate` job in `.github/workflows/ci.yml` (matching `docker-compose.yml` credentials and port `5432`).
-      2. Add a workflow setup step to run `npx prisma db push` against the ephemeral test database prior to executing `npm run check:all`.
-      3. Supply `DATABASE_URL` in the workflow environment (`postgresql://postgres:postgres@localhost:5432/be_quiz?schema=public`) so all tests run deterministically in CI.
-
-13. **Dependency Automation & Major Upgrade Strategy (Prisma 7 & TypeScript 7):**
+12. **Dependency Automation & Major Upgrade Strategy (Prisma 7 & TypeScript 7):**
     - **Status:** `[ ] Open`
     - **Problem / Observed Evidence:** Automated Dependabot PRs for major dependency bumps fail deployment and build checks:
       - **Prisma 7 (`PR #13`, `PR #7`):** Fails Vercel deployment with `Error code: P1012: The datasource property 'url' is no longer supported in schema files`. Dependabot decoupled `prisma` from `@prisma/client`, causing engine version mismatches and failing on Prisma 7's breaking schema architecture.

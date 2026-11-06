@@ -11,6 +11,24 @@ jobs:
     name: Code Quality & Security Verification
     runs-on: ubuntu-latest
 
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: quiz
+          POSTGRES_PASSWORD: quiz
+          POSTGRES_DB: be_quiz
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U quiz -d be_quiz"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: "postgresql://quiz:quiz@localhost:5432/be_quiz?schema=test"
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -23,6 +41,12 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Push Prisma schema to test database
+        run: npx prisma db push
+
+      - name: Seed test database
+        run: npx prisma db seed
 
       - name: Run complete verification suite
         run: npm run check:all

@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [v2.1.1] - 2026-11-06
+
+### Fixed
+
+- **GitHub Actions CI PostgreSQL Service Container (`.github/workflows/ci.yml`):** Added a `postgres:16-alpine` service container with container healthchecks (`pg_isready -U quiz -d be_quiz`), `DATABASE_URL` environment configuration, and automated `npx prisma db push` schema initialization so full verification and integration test suites run deterministically in CI.
+
+### Added
+
+- **Architecture Decision Record (`docs/adr/0005-ci-postgresql-service-container.md`):** Documented deciders, drivers, and considered options (Testcontainers vs. Prisma Mocking vs. GitHub Actions native service containers).
+
+---
+
 ## [v2.1.0] - 2026-11-04
 
 ### Added
