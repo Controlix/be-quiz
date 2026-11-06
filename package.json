@@ -68,7 +68,7 @@
     "postcss": "^8.5.31",
     "prettier": "^3.9.10",
     "prettier-plugin-tailwindcss": "^0.8.1",
-    "prisma": "^6.19.3",
+    "prisma": "^7.10.1",
     "secretlint": "^13.1.0",
     "tailwindcss": "^4.3.3",
     "tsx": "^4.23.15",
