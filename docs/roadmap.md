@@ -1,6 +1,6 @@
 # Pub Quiz App (BE-Quiz) — Roadmap & Feature Backlog
 
-**Current App Version:** `v2.1.0` (Code Quality & Security Tooling)  
+**Current App Version:** `v2.1.1` (CI PostgreSQL Service Container)  
 This document is the **single source of truth for active and planned roadmap items**. For past releases and completed milestone notes, see [CHANGELOG.md](../CHANGELOG.md) and [Feedback Archives](superpowers/feedback/).
 
 ---
@@ -124,3 +124,21 @@ This document is the **single source of truth for active and planned roadmap ite
       - **Immediate Context on the Entry Screen:**
         - _"💡 You previously participated in this quiz! Previous rating: ⭐⭐⭐⭐☆ (4/5)"_
       - Provides immediate decision support when deciding whether to add and register for a recurring annual pub quiz.
+
+### E. CI/CD & Dependency Automation Infrastructure
+
+12. **Dependency Automation & Major Upgrade Strategy (Prisma 7 & TypeScript 7):**
+    - **Status:** `[ ] Open`
+    - **Problem / Observed Evidence:** Automated Dependabot PRs for major dependency bumps fail deployment and build checks:
+      - **Prisma 7 (`PR #13`, `PR #7`):** Fails Vercel deployment with `Error code: P1012: The datasource property 'url' is no longer supported in schema files`. Dependabot decoupled `prisma` from `@prisma/client`, causing engine version mismatches and failing on Prisma 7's breaking schema architecture.
+      - **TypeScript 7 (`PR #11`):** Fails `npm install` due to a strict peer dependency conflict with `typescript-eslint@8.x` (`peer typescript@">=4.8.4 <6.1.0"`).
+    - **Root Cause:** `.github/dependabot.yml` currently runs unconstrained weekly updates without grouping related packages together or ignoring major breaking version jumps that require deliberate codebase refactoring.
+    - **Requirement:**
+      1. **Dependabot Configuration Polish:** Update `.github/dependabot.yml` to:
+         - Group `prisma` and `@prisma/client` together so they are never bumped out of sync.
+         - Configure `ignore` rules for major upgrades of ecosystem-sensitive packages (like `prisma` and `typescript`) until they are intentionally scheduled for migration.
+      2. **Planned Prisma 7 Migration (When Scheduled):** When ready to adopt Prisma 7, perform a coordinated migration:
+         - Upgrade both `prisma` and `@prisma/client` together.
+         - Migrate database connection URLs out of `schema.prisma` into `prisma.config.ts`.
+         - Configure driver adapters (e.g. `@prisma/adapter-pg`) in `src/lib/prisma.ts`.
+      3. **TypeScript 7 Ecosystem Alignment:** Defer upgrading to TypeScript 7 until `@typescript-eslint` and Next.js release official peer support.
