@@ -16,6 +16,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+- **Next.js 16 Proxy Convention (`src/proxy.ts`):** Migrated deprecated `src/middleware.ts` to `src/proxy.ts` and renamed exported entrypoint to `export function proxy()`.
+- **Gitignore `next-env.d.ts` (`.gitignore`):** Gitignored `next-env.d.ts` and untracked it from Git per Next.js 16 recommendations, preventing dirty working tree conflicts between `next dev` and `next build`.
 - **Neutral Seed Team Name (`prisma/seed.ts`, `prisma/schema.prisma`):** Updated default singleton team name and database seed from `"Ben in Black"` to `"Onze Quizploeg"`.
 
 ---
