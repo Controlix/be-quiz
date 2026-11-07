@@ -33,6 +33,25 @@ Before planning, modifying, or implementing any features, database models, or st
   - NEVER run `git commit` or create git commits unless the user has explicitly requested or consented to a commit.
   - Doing work, editing files, or running scripts does not imply permission to commit. Always ask first.
 
+- **<HARD-GATE> Mandatory Git Pre-Flight & Branch Verification Protocol:**
+  - Before invoking any skills, modifying files, drafting plans, or beginning brainstorming in ANY session, the agent MUST execute the Git Pre-Flight check:
+    1. Run `git status`, `git branch --show-current`, and `git fetch origin`.
+    2. Check tracking status against `origin/main`.
+    3. **The Branch Mismatch Stop Rule:** If the current branch is NOT `main` and its name does not literally match the user's requested task (or if it was already merged into `origin/main`), the agent is **STRICTLY FORBIDDEN** from proceeding with code or plans.
+    4. When a mismatch or doubt exists, the agent MUST immediately halt and ask:
+       ```
+       ⚠️ Git Pre-Flight Check:
+       - Active Branch: [branch-name] (remote status: [synced/ahead/behind])
+       - Requested Task: [user task]
+       - Mismatch Warning: Active branch does not match requested task.
+
+       How should we proceed?
+       1. Switch to main (pulling latest)
+       2. Create a new branch: feat/[task-name]
+       3. Continue on [branch-name]
+       ```
+    5. **Zero Assumptions on Git State:** NEVER assume an existing checked-out branch is intended. When in doubt, ALWAYS ask before doing any work.
+
 - **Mandatory Instant Feedback (WHAT and WHY):**
   - Before taking ANY action or executing ANY tool call (reading files, executing commands, searching, editing code, running tests, or dispatching subagents), you MUST provide instant message feedback to the user.
   - For every single step or action, explicitly state:
