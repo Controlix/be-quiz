@@ -184,7 +184,7 @@ export function registerSharedCalendarSubscriber(
       }
     } catch (error) {
       console.error("[GoogleCalendarSync] Error syncing quiz:", {
-        quizId: event.quizId,
+        quizId: "quizId" in event ? event.quizId : undefined,
         eventType: event.type,
         error,
       });

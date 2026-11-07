@@ -2,6 +2,7 @@ import fs from "fs/promises";
 import path from "path";
 import crypto from "crypto";
 import { put, del } from "@vercel/blob";
+import { domainEvents } from "@/lib/events";
 
 const FEEDBACK_UPLOADS_DIR = path.join(process.cwd(), "public", "uploads", "feedback");
 
@@ -18,19 +19,29 @@ export async function saveUploadedFeedbackImage(
   const extension = allowedMimes[mimeType] || ".jpg";
   const filename = `${crypto.randomUUID()}${extension}`;
 
+  let feedbackUrl: string;
+
   if (process.env.BLOB_READ_WRITE_TOKEN) {
     const blob = await put(`uploads/feedback/${filename}`, fileBuffer, {
       access: "public",
       contentType: mimeType,
     });
-    return blob.url;
+    feedbackUrl = blob.url;
+  } else {
+    await fs.mkdir(FEEDBACK_UPLOADS_DIR, { recursive: true });
+    const filePath = path.join(FEEDBACK_UPLOADS_DIR, filename);
+    await fs.writeFile(filePath, fileBuffer);
+    feedbackUrl = `/uploads/feedback/${filename}`;
   }
 
-  await fs.mkdir(FEEDBACK_UPLOADS_DIR, { recursive: true });
-  const filePath = path.join(FEEDBACK_UPLOADS_DIR, filename);
-  await fs.writeFile(filePath, fileBuffer);
+  domainEvents.emit({
+    type: "asset.uploaded",
+    url: feedbackUrl,
+    category: "feedback",
+    occurredAt: new Date(),
+  });
 
-  return `/uploads/feedback/${filename}`;
+  return feedbackUrl;
 }
 
 export async function deleteFeedbackImage(relativeUrl: string): Promise<void> {

@@ -81,4 +81,24 @@ describe("DomainEventBus", () => {
     domainEvents.emit({ type: "team.registered", quizId: "quiz-1", occurredAt: new Date() });
     expect(handler).not.toHaveBeenCalled();
   });
+
+  it("emits and receives asset.uploaded domain events", () => {
+    const received: any[] = [];
+    domainEvents.subscribe("asset.uploaded", (e) => {
+      received.push(e);
+    });
+
+    const now = new Date();
+    domainEvents.emit({
+      type: "asset.uploaded",
+      url: "/uploads/test-flyer.jpg",
+      category: "flyer",
+      occurredAt: now,
+    });
+
+    expect(received).toHaveLength(1);
+    expect(received[0].url).toBe("/uploads/test-flyer.jpg");
+    expect(received[0].category).toBe("flyer");
+    expect(received[0].occurredAt).toEqual(now);
+  });
 });

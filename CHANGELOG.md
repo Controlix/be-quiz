@@ -5,9 +5,22 @@ All notable changes to the **Pub Quiz App (BE-Quiz)** project will be documented
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
----
+## [v2.2.0] - 2026-11-07
 
-## [v2.1.2] - 2026-11-07
+### Added
+
+- **Opportunistic Storage Garbage Collection (`src/lib/storagePruner.ts`, `src/lib/storagePrunerSubscriber.ts`):** Implemented an automated in-process garbage collector that prunes unreferenced quiz flyers and feedback screenshots across both local volume storage (`public/uploads`) and Vercel Blob (`@vercel/blob`).
+- **Safe 24-Hour Retention Window (TTL):** Guaranteed that unreferenced files younger than 24 hours are never pruned, preventing disruption to in-flight quiz creation and feedback submission forms.
+- **`asset.uploaded` Domain Event (`src/lib/events/types.ts`):** Added a decoupled domain event emitted by `saveUploadedFlyer` and `saveUploadedFeedbackImage` upon file save.
+- **Architecture Decision Record (`docs/adr/0007-opportunistic-storage-garbage-collection.md`):** Formally documented the decision to adopt opportunistic background garbage collection over HTTP GET cron routes to preserve strict REST semantics and eliminate external cron complexity.
+- **Standalone Maintenance CLI (`scripts/prune-uploads.ts`):** Refactored the CLI script with `--dry-run` and `--force` options for one-off storage audits and developer cleanups.
+
+### Architectural Changes
+
+- **Serverless Event-Driven Background Coordination (`src/instrumentation.ts`):** Hooked `registerStoragePrunerSubscriber` into Next.js `register()` on startup in the Node.js runtime. Pruning runs out-of-band via Next.js `after()` coordination on the domain event bus, ensuring zero perceptible latency for users uploading flyers or screenshots.
+- **Process-Wide Cooldown Throttling:** Anchored `__beQuizLastPruneTimestamp` and `__storagePrunerSubscriberRegistered__` to `globalThis` to prevent duplicate concurrent scans across Next.js Webpack chunks and hot-module reloadings.
+
+---
 
 ### Added
 

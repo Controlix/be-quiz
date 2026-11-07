@@ -50,6 +50,15 @@ flowchart TD
 - **Persistence Requirement:** In Docker deployments, mount a persistent volume at `/app/public/uploads` so uploaded files survive container updates and restarts.
 - **Asset URLs:** Served directly as relative paths (e.g. `/uploads/filename.jpg` and `/uploads/feedback/screenshot.png`).
 
+### 2.3 Opportunistic Storage Garbage Collection (ADR 0007)
+
+To prevent orphaned files from accumulating when users abandon forms or replace upload images:
+
+- **Event-Driven Decoupled Trigger:** Upload functions (`saveUploadedFlyer` and `saveUploadedFeedbackImage`) emit `asset.uploaded` on `domainEvents`. A dedicated subscriber (`registerStoragePrunerSubscriber`) runs background garbage collection via Next.js `after()`, returning instant upload responses to the user.
+- **24-Hour Cooldown & Safe TTL:** Background pruning is throttled to at most once every 24 hours via `globalThis.__beQuizLastPruneTimestamp`. Only files unreferenced in the database AND older than 24 hours are pruned, guaranteeing that in-flight quiz creations are never interrupted.
+- **Dual Engine Execution:** Pruning supports both local filesystem cleanup and `@vercel/blob` cursor pagination (`list({ prefix: "uploads/" })` and `del()`).
+- **CLI Maintenance:** Developers and sysadmins can run `npm run prune-uploads` directly, with `--dry-run` to preview candidates or `--force` to bypass the 24-hour TTL for developer environments.
+
 ---
 
 ## 3. Network & Ingress Layer

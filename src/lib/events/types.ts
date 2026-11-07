@@ -4,7 +4,8 @@ export type DomainEvent =
   | { type: "quiz.details_updated"; quizId: string; occurredAt: Date }
   | { type: "team.roster_changed"; quizId: string; occurredAt: Date }
   | { type: "team.payment_changed"; quizId: string; occurredAt: Date }
-  | { type: "quiz.cancelled"; quizId: string; occurredAt: Date };
+  | { type: "quiz.cancelled"; quizId: string; occurredAt: Date }
+  | { type: "asset.uploaded"; url: string; category: "flyer" | "feedback"; occurredAt: Date };
 
 export interface DomainEventBus {
   emit(event: DomainEvent): void;

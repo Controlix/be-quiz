@@ -176,3 +176,20 @@ To pull production environment variables to a local `.env.local` file:
 ```bash
 npx vercel env pull .env.local --environment=production
 ```
+
+### Storage Garbage Collection & Orphan Pruning
+
+The application automatically collects orphaned uploads in the background when assets are uploaded (throttled to once every 24 hours, safely deleting only unreferenced files older than 24 hours; see ADR 0007).
+
+To manually inspect or prune storage on demand:
+
+```bash
+# Preview unreferenced candidates in dry-run mode (safe, no deletion):
+npm run prune-uploads -- --dry-run
+
+# Run cleanup with 24-hour retention safety window:
+npm run prune-uploads
+
+# Force immediate pruning (developer/testing use only, bypasses 24h retention):
+npm run prune-uploads -- --force
+```

@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { register } from "@/instrumentation";
 import * as calendarModule from "@/features/calendar";
 import * as capabilitiesModule from "@/features/capabilities";
+import * as prunerSubscriberModule from "@/lib/storagePrunerSubscriber";
 
 describe("instrumentation.ts", () => {
   const originalRuntime = process.env.NEXT_RUNTIME;
@@ -17,13 +18,15 @@ describe("instrumentation.ts", () => {
   it("does nothing when NEXT_RUNTIME is not nodejs", async () => {
     process.env.NEXT_RUNTIME = "edge";
     const registerSpy = vi.spyOn(calendarModule, "registerSharedCalendarSubscriber");
+    const prunerSpy = vi.spyOn(prunerSubscriberModule, "registerStoragePrunerSubscriber");
 
     await register();
 
     expect(registerSpy).not.toHaveBeenCalled();
+    expect(prunerSpy).not.toHaveBeenCalled();
   });
 
-  it("registers subscriber when nodejs runtime and capability is true", async () => {
+  it("registers storage pruner subscriber and calendar subscriber when nodejs runtime", async () => {
     process.env.NEXT_RUNTIME = "nodejs";
     vi.spyOn(capabilitiesModule, "getCapabilities").mockReturnValue({
       vision: false,
@@ -32,13 +35,17 @@ describe("instrumentation.ts", () => {
       emailRegistration: false,
       sharedGoogleCalendar: true,
     });
-    const registerSpy = vi
+    const calendarSpy = vi
       .spyOn(calendarModule, "registerSharedCalendarSubscriber")
+      .mockReturnValue(() => {});
+    const prunerSpy = vi
+      .spyOn(prunerSubscriberModule, "registerStoragePrunerSubscriber")
       .mockReturnValue(() => {});
 
     await register();
 
-    expect(registerSpy).toHaveBeenCalledTimes(1);
+    expect(prunerSpy).toHaveBeenCalledTimes(1);
+    expect(calendarSpy).toHaveBeenCalledTimes(1);
   });
 
   it("does not register subscriber when capability is false", async () => {
