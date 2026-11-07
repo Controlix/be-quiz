@@ -9,10 +9,16 @@ import { Plus, Trophy, LogOut, Shield } from "lucide-react";
 interface QuizzesDashboardProps {
   initialQuizzes: any[];
   isAdmin?: boolean;
+  teamName?: string;
 }
 
-export function QuizzesDashboard({ initialQuizzes, isAdmin = false }: QuizzesDashboardProps) {
+export function QuizzesDashboard({
+  initialQuizzes,
+  isAdmin = false,
+  teamName,
+}: QuizzesDashboardProps) {
   const [activeTab, setActiveTab] = useState<TabCategory>("IN_BERAAD");
+  const resolvedTeamName = teamName?.trim() ? teamName.trim() : "KwisVrienden";
 
   const counts: Record<TabCategory, number> = {
     IN_BERAAD: initialQuizzes.filter((q) => categorizeQuizForTabs(q) === "IN_BERAAD").length,
@@ -31,7 +37,7 @@ export function QuizzesDashboard({ initialQuizzes, isAdmin = false }: QuizzesDas
             <Trophy className="h-4 w-4" />
           </div>
           <div>
-            <h1 className="text-lg leading-none font-bold text-slate-900">KwisVrienden</h1>
+            <h1 className="text-lg leading-none font-bold text-slate-900">{resolvedTeamName}</h1>
             <p className="mt-0.5 text-xs text-slate-500">Jullie kwisagenda</p>
           </div>
         </div>

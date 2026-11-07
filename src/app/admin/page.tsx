@@ -117,7 +117,7 @@ export default async function AdminHomePage() {
                   Teaminstellingen
                 </h3>
                 <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[10px] font-bold text-amber-900">
-                  {teamSetting?.defaultTeamName || "Ben in Black"}
+                  {teamSetting?.defaultTeamName || "Onze Quizploeg"}
                 </span>
               </div>
               <p className="mt-0.5 text-xs text-slate-500">

@@ -2,6 +2,14 @@ import { prisma } from "@/lib/db";
 import { Quiz, Team } from "@prisma/client";
 import { domainEvents } from "@/lib/events";
 
+export async function getDefaultTeamName(): Promise<string> {
+  const settings = await prisma.teamSetting.findUnique({
+    where: { id: "singleton" },
+  });
+  const name = settings?.defaultTeamName?.trim();
+  return name && name.length > 0 ? name : "KwisVrienden";
+}
+
 export function formatStructuredEntryFee(
   amount?: number | string,
   unit: "TEAM" | "PERSON" = "TEAM"

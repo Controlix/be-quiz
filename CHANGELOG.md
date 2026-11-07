@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ---
 
+## [v2.1.2] - 2026-11-07
+
+### Added
+
+- **App Header Dynamic Team Name Branding (`src/components/QuizzesDashboard.tsx`, `src/services/quizService.ts`):** Enabled the main dashboard header to dynamically display the team name configured in `TeamSetting` via `getDefaultTeamName()` while falling back to `"KwisVrienden"` if unspecified.
+- **External Integrations Specification (`docs/integrations.md`):** Added a comprehensive documentation guide and architectural diagram detailing all active zero-setup protocols (WhatsApp, email, iCal), credential-backed cloud integrations (AI vision, Vercel Blob, Google Calendar sync), and roadmap items.
+
+### Changed
+
+- **Neutral Seed Team Name (`prisma/seed.ts`, `prisma/schema.prisma`):** Updated default singleton team name and database seed from `"Ben in Black"` to `"Onze Quizploeg"`.
+
+---
+
 ## [v2.1.1] - 2026-11-06
 
 ### Fixed

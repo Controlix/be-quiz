@@ -263,7 +263,7 @@ Authentication and onboarding credentials.
 A singleton table storing system-wide team defaults.
 
 - `id` (`String`, PK, default: `"singleton"`)
-- `defaultTeamName` (`String`, default: `"Ben in Black"`)
+- `defaultTeamName` (`String`, default: `"Onze Quizploeg"`)
 - `updatedAt` (`DateTime`)
 
 ---

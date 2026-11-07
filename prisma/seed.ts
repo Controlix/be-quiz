@@ -19,11 +19,11 @@ async function main() {
   await prisma.teamSetting.upsert({
     where: { id: "singleton" },
     update: {
-      defaultTeamName: "Ben in Black",
+      defaultTeamName: "Onze Quizploeg",
     },
     create: {
       id: "singleton",
-      defaultTeamName: "Ben in Black",
+      defaultTeamName: "Onze Quizploeg",
     },
   });
 
