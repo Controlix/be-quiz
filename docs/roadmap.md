@@ -76,6 +76,17 @@ This document is the **single source of truth for active and planned roadmap ite
 - **Requirement:** Warn the user when creating a quiz if another quiz already exists on the same date or at the same venue.
 - **Scope:** `QuizEntryForm.tsx` and `quizService.ts`.
 
+### 8. Quiz Start Lockdown & Historical Immutability
+
+- **Status:** `[ ] Spec Ready: [docs/superpowers/specs/2026-11-08-quiz-start-lockdown-design.md](superpowers/specs/2026-11-08-quiz-start-lockdown-design.md)`
+- **Feedback:** When a quiz has started or ended, the lineup and details should be fixed to preserve historical records and prevent accidental changes.
+- **Requirement:**
+  - Automatically freeze RSVPs, roster lineup ordering, and metadata changes for regular users once `startsAt` has arrived.
+  - Administrators retain full override capabilities at all times.
+  - Dynamically enforce in domain services and server actions without requiring schema migrations or cron runners.
+  - Display clear read-only status indicators in the lineup and detail view for non-admins.
+- **Scope:** `src/lib/quizLock.ts`, `rsvpService.ts`, `QuizDetailClient.tsx`, `TeamLineup.tsx`, and `ActionToolbar.tsx`.
+
 ---
 
 ## Part 2: v2 Major Feature & Architecture Backlog
@@ -102,19 +113,23 @@ This document is the **single source of truth for active and planned roadmap ite
 
 ### D. Post-Quiz Evaluation & Historical Insights
 
-11. **Lightweight Quiz Rating (1 to 5 Stars/Smileys) & Historical Match on Entry:**
+11. **Lightweight Quiz Rating & Display (1 to 5 Stars):**
+    - **Status:** `[ ] Spec Ready: [docs/superpowers/specs/2026-11-08-quiz-rating-design.md](superpowers/specs/2026-11-08-quiz-rating-design.md)`
     - **Simplicity & Zero Overhead:**
       - Once a quiz has ended (date and start time passed), participating team members can quickly rate the quiz on a **1 to 5 scale (stars or smileys)**: how enjoyable was the event?
       - No cumbersome questionnaires or forms: a single tap records the team's impression.
-    - **Smart Historical Suggestion When Entering a New Quiz:**
-      - When an admin scans a flyer or types in a quiz title and location (e.g. _"Den Dries Kwies 4"_), the system automatically checks whether the team has participated in prior editions in past years.
-      - **Immediate Context on the Entry Screen:**
-        - _"💡 You previously participated in this quiz! Previous rating: ⭐⭐⭐⭐☆ (4/5)"_
-      - Provides immediate decision support when deciding whether to add and register for a recurring annual pub quiz.
+      - Display the rating (e.g., aggregate score and personal rating) on the completed quiz detail view.
+
+12. **Smart Historical Suggestion When Entering a New Quiz:**
+    - **Status:** `[ ] Open (Deferred / Future Backlog)`
+    - When an admin scans a flyer or types in a quiz title and location (e.g. _"Den Dries Kwies 4"_), the system automatically checks whether the team has participated in prior editions in past years.
+    - **Immediate Context on the Entry Screen:**
+      - _"💡 You previously participated in this quiz! Previous rating: ⭐⭐⭐⭐☆ (4/5)"_
+    - Provides immediate decision support when deciding whether to add and register for a recurring annual pub quiz.
 
 ### E. CI/CD & Dependency Automation Infrastructure
 
-12. **Dependency Automation & Major Upgrade Strategy (Prisma 7 & TypeScript 7):**
+13. **Dependency Automation & Major Upgrade Strategy (Prisma 7 & TypeScript 7):**
     - **Status:** `[ ] Open`
     - **Problem / Observed Evidence:** Automated Dependabot PRs for major dependency bumps fail deployment and build checks:
       - **Prisma 7 (`PR #13`, `PR #7`):** Fails Vercel deployment with `Error code: P1012: The datasource property 'url' is no longer supported in schema files`. Dependabot decoupled `prisma` from `@prisma/client`, causing engine version mismatches and failing on Prisma 7's breaking schema architecture.

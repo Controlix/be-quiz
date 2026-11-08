@@ -75,6 +75,8 @@ export interface ClientRsvp {
 
 ### Actions: `RsvpAction`
 
+The reducer explicitly separates a player's personal RSVP intention (`USER_RSVP`) from administrative overrides (`ADMIN_OVERRIDE_*`). While personal RSVPs reflect self-service attendance choices, administrative overrides exist for real-world team coordination (e.g., dropping an absent teammate when they message in WhatsApp or adding a late substitute). Because administrators are also playing teammates, any action targeting an admin's own `memberId` flows through the same reducer to maintain single-source-of-truth integrity.
+
 Every change goes through `dispatchRsvp`:
 
 | Action                   | When it happens                               | What it does                                                                                    |

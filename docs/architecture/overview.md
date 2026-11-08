@@ -136,17 +136,25 @@ The application cleanly partitions responsibilities between code executing in th
 
 ## 4. Core Architectural Subsystems
 
-### 4.1 Authentication & Authorization
+### 4.1 Authentication, Roles & Player Dual-Identity
 
 - **Session & PIN Auth:** Passwordless/PIN-based authentication for team members, using cryptographically secure session tokens stored in the database (`Session` model) and encrypted HTTP cookies (`auth.ts`, `crypto.ts`).
 - **Invite-based Onboarding:** Unique invitation links (`Invite` model) to onboard team members directly with pre-assigned roles (`USER` or `ADMIN`).
+- **Player Dual-Identity:** In **be-quiz**, there is no detached or abstract "super-admin" persona. Administrators are active teammates who participate in quizzes, RSVP for lineups, and sit at the table alongside everyone else. An admin's personal interaction with an event (RSVPing, viewing lineups, rating) is identical to a regular member, but their session carries elevated permissions to manage team logistics and correct records.
 - **Role Enforcement:** Server Actions and Admin routes check the active session's role before executing privileged operations (e.g. member management, overrides, settings).
 
-### 4.2 Quiz Lifecycle & Roster Concurrency
+### 4.2 Quiz Lifecycle, Roster Concurrency & Administrative Overrides
 
 - **Event Management:** Quizzes track scheduling, Europe/Brussels time zones, durations, locations, entry fees, and flyer assets.
 - **Roster & Queueing:** Each Quiz is linked 1-to-1 with a `Team`. Members RSVP as `ATTENDING` or `DECLINED`.
 - **First-Come, First-Served Queue:** When the team limit (`maxTeamSize`) is reached, excess RSVPs enter a reserve queue ordered by `queuedSince`.
+- **Administrative Roster Overrides:**
+  - **Intent & Real-World Logistics:** In practice, teammates often communicate cancellations, late arrivals, or last-minute substitutes via WhatsApp, phone calls, or verbally at the venue rather than opening the app themselves.
+  - **Override Capabilities:** To prevent team rosters from stalling, administrators have explicit authority to act on behalf of any teammate directly from the lineup interface:
+    - _Override Decline:_ Mark an attending player as declined, which automatically promotes the next reserve player in FIFO queue order.
+    - _Override Attend:_ Re-enroll a previously declined or reserve player into attendance.
+    - _Roster Reordering:_ Drag-and-drop or re-index active attendees when specific lineup composition or table agreements require custom priority.
+  - **Self-Override Invariant:** Because admins are also players, an admin can override their own status via admin controls. The client state architecture guarantees that personal RSVP buttons and roster entries stay 100% synchronized in the same render cycle (see [Client RSVP State: Single Source of Truth](./rsvp-state.md)).
 - **Concurrency & Reordering:** Strict transactional updates via Prisma ensure that concurrent RSVPs, admin declines, and manual roster reordering maintain roster consistency without race conditions.
 
 ### 4.3 Capability Registry & Modular Features
