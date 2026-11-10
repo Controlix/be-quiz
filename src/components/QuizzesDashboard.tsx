@@ -10,14 +10,18 @@ interface QuizzesDashboardProps {
   initialQuizzes: any[];
   isAdmin?: boolean;
   teamName?: string;
+  ratingsMap?: Record<string, { average: number; count: number }>;
+  initialTab?: TabCategory;
 }
 
 export function QuizzesDashboard({
   initialQuizzes,
   isAdmin = false,
   teamName,
+  ratingsMap,
+  initialTab = "IN_BERAAD",
 }: QuizzesDashboardProps) {
-  const [activeTab, setActiveTab] = useState<TabCategory>("IN_BERAAD");
+  const [activeTab, setActiveTab] = useState<TabCategory>(initialTab);
   const resolvedTeamName = teamName?.trim() ? teamName.trim() : "KwisVrienden";
 
   const counts: Record<TabCategory, number> = {
@@ -101,6 +105,7 @@ export function QuizzesDashboard({
           filteredQuizzes.map((quiz) => (
             <QuizCard
               key={quiz.id}
+              rating={ratingsMap?.[quiz.id]}
               quiz={{
                 id: quiz.id,
                 title: quiz.title,

@@ -39,6 +39,7 @@ model Member {
   teamsPaid       Team[]      @relation("TeamPayer")
   overridesGiven  Rsvp[]      @relation("RsvpOverrider")
   feedbacks       Feedback[]
+  quizRatings     QuizRating[]
 }
 
 model Invite {
@@ -81,8 +82,25 @@ model Quiz {
 
   // 1-to-1 in v1, prepared for 1-to-many in v2
   team            Team?
+  ratings         QuizRating[]
 
   @@index([startsAt, status])
+}
+
+model QuizRating {
+  id        String   @id @default(cuid())
+  quizId    String
+  memberId  String
+  score     Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  quiz   Quiz   @relation(fields: [quizId], references: [id], onDelete: Cascade)
+  member Member @relation(fields: [memberId], references: [id], onDelete: Cascade)
+
+  @@unique([quizId, memberId])
+  @@index([quizId])
+  @@index([memberId])
 }
 
 model Team {

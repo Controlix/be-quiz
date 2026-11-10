@@ -5,9 +5,10 @@ import { Calendar, MapPin, Users, CheckCircle, Clock, AlertTriangle } from "luci
 
 interface QuizCardProps {
   quiz: MockQuiz;
+  rating?: { average: number; count: number } | null;
 }
 
-export function QuizCard({ quiz }: QuizCardProps) {
+export function QuizCard({ quiz, rating }: QuizCardProps) {
   const attendingCount = quiz.team.rsvps.filter((r) => r.status === "ATTENDING").length;
   const isFull = attendingCount >= quiz.team.maxTeamSize;
   const isRegistered = quiz.team.registeredAt !== null;
@@ -19,7 +20,14 @@ export function QuizCard({ quiz }: QuizCardProps) {
     <Link href={`/quizzes/${quiz.id}`} className="block">
       <div className="mb-3 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm transition-shadow hover:shadow-md active:scale-[0.99]">
         <div className="mb-2 flex items-start justify-between gap-2">
-          <h3 className="text-base leading-snug font-bold text-slate-900">{quiz.title}</h3>
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="text-base leading-snug font-bold text-slate-900">{quiz.title}</h3>
+            {rating && rating.count > 0 && !isCancelled && (
+              <span className="inline-flex shrink-0 items-center gap-1 rounded-full border border-amber-200 bg-amber-50 px-2 py-0.5 text-xs font-semibold text-amber-800">
+                ★ {rating.average.toFixed(1)}
+              </span>
+            )}
+          </div>
           {isCancelled ? (
             <span className="inline-flex shrink-0 items-center gap-1 rounded-full bg-red-100 px-2 py-0.5 text-xs font-semibold text-red-700">
               <AlertTriangle className="h-3 w-3" /> Geannuleerd

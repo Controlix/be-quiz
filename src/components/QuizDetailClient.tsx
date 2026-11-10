@@ -18,6 +18,8 @@ import {
   deriveLineupRosters,
   ClientRsvp,
 } from "@/lib/rsvpReducer";
+import { isQuizConcluded, QuizRatingSummary } from "@/lib/ratingRules";
+import { QuizRatingWidget } from "@/components/QuizRatingWidget";
 import { ArrowLeft, MapPin, Calendar, Coins, Settings } from "lucide-react";
 
 interface QuizDetailClientProps {
@@ -25,6 +27,7 @@ interface QuizDetailClientProps {
   currentMemberId: string;
   currentMemberName?: string;
   isAdmin?: boolean;
+  initialRatingSummary?: QuizRatingSummary;
 }
 
 export function QuizDetailClient({
@@ -32,6 +35,7 @@ export function QuizDetailClient({
   currentMemberId,
   currentMemberName = "Lid",
   isAdmin = false,
+  initialRatingSummary,
 }: QuizDetailClientProps) {
   const team = quiz.team;
   const initialRsvps: ClientRsvp[] = (team?.rsvps || []).map((r: any) => ({
@@ -53,6 +57,9 @@ export function QuizDetailClient({
   const [isRegistered, setIsRegistered] = useState(team?.registeredAt !== null);
   const [isPaid, setIsPaid] = useState(team?.paidAt !== null);
   const [selectedMemberToDecline, setSelectedMemberToDecline] = useState<string | null>(null);
+  const [ratingSummary, setRatingSummary] = useState<QuizRatingSummary | undefined>(
+    initialRatingSummary
+  );
 
   const handleRsvpChange = async (status: "ATTENDING" | "DECLINED") => {
     dispatchRsvp({
@@ -62,9 +69,15 @@ export function QuizDetailClient({
       status,
     });
     if (status === "ATTENDING") {
-      await joinQuizRsvpAction(team.id, currentMemberId);
+      const res = await joinQuizRsvpAction(team.id, currentMemberId, quiz.id);
+      if (res.success && res.ratingSummary) {
+        setRatingSummary(res.ratingSummary);
+      }
     } else {
-      await declineQuizRsvpAction(team.id, currentMemberId);
+      const res = await declineQuizRsvpAction(team.id, currentMemberId, quiz.id);
+      if (res.success && res.ratingSummary) {
+        setRatingSummary(res.ratingSummary);
+      }
     }
   };
 
@@ -104,6 +117,8 @@ export function QuizDetailClient({
   const currentUserIndex = attendees.findIndex((a) => a.id === currentMemberId);
   const isReserve = currentUserIndex >= (team?.maxTeamSize || 4);
   const reservePosition = isReserve ? currentUserIndex - (team?.maxTeamSize || 4) + 1 : null;
+  const isEligible = currentUserIndex !== -1 && !isReserve;
+  const isConcluded = isQuizConcluded(quiz.startsAt, quiz.durationMinutes || 180);
 
   const dateStr = formatEuropeanDateTime(quiz.startsAt);
 
@@ -179,6 +194,18 @@ export function QuizDetailClient({
           </div>
         )}
       </div>
+
+      {/* Quiz Rating Widget (Concluded Quizzes) */}
+      {ratingSummary && (
+        <QuizRatingWidget
+          quizId={quiz.id}
+          summary={ratingSummary}
+          isConcluded={isConcluded}
+          isEligible={isEligible}
+          isCancelled={quiz.status === "CANCELLED"}
+          onRatingChange={setRatingSummary}
+        />
+      )}
 
       {/* Interactive RSVP Control */}
       <RsvpControl

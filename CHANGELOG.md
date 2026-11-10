@@ -5,6 +5,15 @@ All notable changes to the **Pub Quiz App (BE-Quiz)** project will be documented
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.3.0] - 2026-11-10
+
+### Added
+
+- **Lightweight Quiz Rating & Display (`src/services/ratingService.ts`, `src/components/QuizRatingWidget.tsx`, `src/actions/ratingActions.ts`):** Implemented a 1-to-5 star post-event evaluation system for concluded quizzes with strict individual vote privacy, server-side dynamic lineup filtering, optimistic client rating, accessible ARIA radio controls, and compact amber rating badges on dashboard cards.
+- **`QuizRating` Database Model (`prisma/schema.prisma`, `docs/database/schema.md`):** Added dedicated `QuizRating` table with foreign key cascade deletion and unique `(quizId, memberId)` constraint.
+
+---
+
 ## [v2.2.0] - 2026-11-07
 
 ### Added

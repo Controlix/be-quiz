@@ -16,8 +16,10 @@ erDiagram
     Member ||--o{ Rsvp : "attends via (Restrict)"
     Member ||--o{ Rsvp : "overrides (RsvpOverrider, Restrict)"
     Member ||--o{ Feedback : "submits (SetNull)"
+    Member ||--o{ QuizRating : "submits (Cascade)"
 
     Quiz ||--o| Team : "has one team in v1 (Cascade)"
+    Quiz ||--o{ QuizRating : "receives (Cascade)"
 
     Team ||--o{ Rsvp : "has members (Cascade)"
 
@@ -304,3 +306,23 @@ Tracks synchronization state between internal quizzes and external Google Calend
 - **Indexes:**
   - `@@unique([quizId])`
   - `@@index([quizId])`
+
+---
+
+### 3.9 `QuizRating` (Evaluation Model)
+
+Stores post-quiz evaluations (1 to 5 stars) submitted by confirmed active team players.
+
+- **Attributes:**
+  - `id` (`String` / `cuid`, PK)
+  - `quizId` (`String`, FK $\to$ `Quiz.id`, Cascade delete)
+  - `memberId` (`String`, FK $\to$ `Member.id`, Cascade delete)
+  - `score` (`Int`): Constrained to 1, 2, 3, 4, or 5 in the domain service.
+  - `createdAt` / `updatedAt` (`DateTime`)
+- **Constraints & Indexes:**
+  - `@@unique([quizId, memberId])`
+  - `@@index([quizId])`
+  - `@@index([memberId])`
+- **Relations:**
+  - `quiz`: `Quiz` (Cascade delete).
+  - `member`: `Member` (Cascade delete).

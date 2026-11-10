@@ -1,6 +1,6 @@
 # Pub Quiz App (BE-Quiz) — Roadmap & Feature Backlog
 
-**Current App Version:** `v2.2.0` (Opportunistic Storage Garbage Collection)  
+**Current App Version:** `v2.3.0` (Lightweight Quiz Rating & Display)  
 This document is the **single source of truth for active and planned roadmap items**. For past releases and completed milestone notes, see [CHANGELOG.md](../CHANGELOG.md) and [Feedback Archives](superpowers/feedback/).
 
 ---
@@ -112,13 +112,6 @@ This document is the **single source of truth for active and planned roadmap ite
 10. **Hard Delete with Confirmation:** A permanent deletion action for quizzes created entirely by mistake (as opposed to cancelling/archiving).
 
 ### D. Post-Quiz Evaluation & Historical Insights
-
-11. **Lightweight Quiz Rating & Display (1 to 5 Stars):**
-    - **Status:** `[ ] Spec Ready: [docs/superpowers/specs/2026-11-08-quiz-rating-design.md](superpowers/specs/2026-11-08-quiz-rating-design.md)`
-    - **Simplicity & Zero Overhead:**
-      - Once a quiz has ended (date and start time passed), participating team members can quickly rate the quiz on a **1 to 5 scale (stars or smileys)**: how enjoyable was the event?
-      - No cumbersome questionnaires or forms: a single tap records the team's impression.
-      - Display the rating (e.g., aggregate score and personal rating) on the completed quiz detail view.
 
 12. **Smart Historical Suggestion When Entering a New Quiz:**
     - **Status:** `[ ] Open (Deferred / Future Backlog)`
