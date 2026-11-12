@@ -26,6 +26,7 @@ Before declaring work finished, run `git diff --stat HEAD` (or diff against your
 │ 3. DEPLOYMENT.md & Env       → .env.example, setup guides   │
 │ 4. Schema & OpenAPI Specs    → DB schema.md, openapi.yaml   │
 │ 5. Plan Tracking             → All plan checkboxes marked   │
+│ 6. Git Release Tagging       → Annotated tag vX.Y.Z pushed  │
 └─────────────────────────────────────────────────────────────┘
 ```
 
@@ -82,6 +83,22 @@ Before declaring work finished, run `git diff --stat HEAD` (or diff against your
 
 ---
 
+### Gate 6: Git Release Tagging
+
+- **Immutable Version Tag:** When a release or milestone is approved, committed, and ready for shipping:
+  - Check `package.json` and `CHANGELOG.md` for the release version `vX.Y.Z`.
+  - Create the annotated git tag matching the version:
+    ```bash
+    git tag -a vX.Y.Z -m "Release vX.Y.Z: <short summary of release>"
+    ```
+  - Push tags to remote:
+    ```bash
+    git push origin vX.Y.Z  # or git push origin --tags
+    ```
+  - Verify `git tag -n1` confirms the tag exists and is synchronized with GitHub.
+
+---
+
 ## Rationalization Prevention
 
 | Excuse                                                                    | Reality                                                                                                                                   |
@@ -101,4 +118,5 @@ STOP if you are about to:
 - Say "Implementation is complete!" without having checked `CHANGELOG.md`.
 - Say "All done!" while `git diff` shows new `process.env` keys that aren't in `DEPLOYMENT.md` and `.env.example`.
 - Leave completed milestone tasks inside `docs/roadmap.md`.
+- Declare a version release shipped without creating and pushing its annotated Git tag.
 - Modify `prisma/schema.prisma` without updating `docs/database/schema.md`.
