@@ -38,6 +38,7 @@ model Member {
   teamsRegistered Team[]      @relation("TeamRegistrar")
   teamsPaid       Team[]      @relation("TeamPayer")
   overridesGiven  Rsvp[]      @relation("RsvpOverrider")
+  guestRsvps      Rsvp[]      @relation("GuestInviter")
   feedbacks       Feedback[]
   quizRatings     QuizRating[]
 }
@@ -132,8 +133,13 @@ model Rsvp {
   id             String     @id @default(cuid())
   teamId         String
   team           Team       @relation(fields: [teamId], references: [id], onDelete: Cascade)
-  memberId       String
-  member         Member     @relation(fields: [memberId], references: [id], onDelete: Restrict)
+  memberId       String?
+  member         Member?    @relation(fields: [memberId], references: [id], onDelete: Restrict)
+
+  // Guest fields
+  guestName      String?
+  invitedById    String?
+  invitedBy      Member?    @relation("GuestInviter", fields: [invitedById], references: [id], onDelete: Restrict)
 
   status         RsvpStatus
   queuedSince    DateTime?  // Single timestamp tracking place in line
@@ -148,6 +154,7 @@ model Rsvp {
 
   @@unique([teamId, memberId])
   @@index([teamId, status, queuedSince])
+  @@index([invitedById])
 }
 
 model TeamSetting {

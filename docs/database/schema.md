@@ -15,6 +15,7 @@ erDiagram
     Member ||--o{ Team : "pays (TeamPayer, Restrict)"
     Member ||--o{ Rsvp : "attends via (Restrict)"
     Member ||--o{ Rsvp : "overrides (RsvpOverrider, Restrict)"
+    Member ||--o{ Rsvp : "invites guest (GuestInviter, Restrict)"
     Member ||--o{ Feedback : "submits (SetNull)"
     Member ||--o{ QuizRating : "submits (Cascade)"
 
@@ -82,7 +83,9 @@ erDiagram
     Rsvp {
         string id PK "cuid"
         string teamId FK
-        string memberId FK
+        string memberId FK "nullable"
+        string guestName "nullable"
+        string invitedById FK "nullable"
         RsvpStatus status
         datetime queuedSince "nullable"
         string overriddenById FK "nullable"
@@ -169,7 +172,9 @@ Represents users/players and administrators.
   - `teamsPaid`: 1-to-many with `Team` (`@relation("TeamPayer")`, Restrict delete).
   - `rsvps`: 1-to-many with `Rsvp` (Restrict delete).
   - `overridesGiven`: 1-to-many with `Rsvp` (`@relation("RsvpOverrider")`, Restrict delete).
+  - `guestRsvps`: 1-to-many with `Rsvp` (`@relation("GuestInviter")`, Restrict delete).
   - `feedbacks`: 1-to-many with `Feedback` (SetNull delete).
+  - `quizRatings`: 1-to-many with `QuizRating` (Cascade delete).
 
 ---
 
@@ -231,7 +236,9 @@ Tracks a member's attendance intention, queue order, and administrative override
 - **Attributes:**
   - `id` (`String` / `cuid`, PK)
   - `teamId` (`String`, FK $\to$ `Team.id`)
-  - `memberId` (`String`, FK $\to$ `Member.id`)
+  - `memberId` (`String?`, FK $\to$ `Member.id`): Nullable for external guest players.
+  - `guestName` (`String?`): Name of the external guest player.
+  - `invitedById` (`String?`, FK $\to$ `Member.id`): Member who invited the guest player.
   - `status` (`RsvpStatus`): `ATTENDING` or `DECLINED`.
   - `queuedSince` (`DateTime?`): Timestamp tracking place in the roster queue.
   - `overriddenById` (`String?`, FK $\to$ `Member.id`): Member who issued an administrative decline.
@@ -240,9 +247,11 @@ Tracks a member's attendance intention, queue order, and administrative override
 - **Constraints & Indexes:**
   - `@@unique([teamId, memberId])`
   - `@@index([teamId, status, queuedSince])`
+  - `@@index([invitedById])`
 - **Relations:**
   - `team`: `Team` (Cascade delete).
-  - `member`: `Member` (Restrict delete).
+  - `member`: `Member?` (Restrict delete).
+  - `invitedBy`: `Member?` (`@relation("GuestInviter")`, Restrict delete).
   - `overriddenBy`: `Member?` (`@relation("RsvpOverrider")`).
 
 ---

@@ -5,6 +5,24 @@ All notable changes to the **Pub Quiz App (BE-Quiz)** project will be documented
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.5.0] - 2026-11-12
+
+### Added
+
+- **Guest Players Support (`src/services/rsvpService.ts`, `src/actions/guestActions.ts`, `src/components/AddGuestDialog.tsx`, `src/components/TeamLineup.tsx`):** Allowed authenticated team members and administrators to add external guests by name to a quiz lineup, participating under standard FIFO queueing alongside registered teammates without requiring credentials or PIN accounts.
+- **Guest Attribution & Lineup Badging:** Clearly badged external guests with their name and inviter (`Sarah (Gast van Alice)`), rendering distinct status badges in both active slots and reserve queues.
+- **Guest Management & Deletion Controls:** Enabled the member who invited a guest (and Admins) to remove the guest directly from the lineup via a "Verwijderen" action, with hard deletion semantics that immediately promote the next waitlisted player.
+- **Dedicated `AddGuestDialog` Modal (`src/components/AddGuestDialog.tsx`):** Added a clean, thumb-friendly modal dialog on the quiz details page for fast guest entry with name validation.
+- **Quiz Lockdown Integration:** Enforced historical immutability on guest creation and removal once a quiz start time has passed, preserving historical records for regular members while allowing admin override.
+
+### Architectural Changes & Invariants
+
+- **Unified Single Source of Truth (`Rsvp` Model & `rsvpReducer`):** Kept all lineup spots within the single `Rsvp` table and client state array rather than creating parallel tables or detached guest arrays.
+- **Downstream Subscriber Null-Safety (`src/features/calendar/shared/subscriber.ts`, `formatter.ts`):** Guarded background Google Calendar sync handlers against null member references when external guests participate in lineups.
+- **Post-Quiz Rating Quorum Isolation (`src/services/ratingService.ts`):** Filtered non-voting external guests out of `totalEligible` calculation to guarantee accurate rating participation ratios.
+
+---
+
 ## [v2.4.0] - 2026-11-11
 
 ### Added

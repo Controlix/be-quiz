@@ -6,6 +6,24 @@ export interface GoogleCalendarEventPayload {
   description: string;
 }
 
+export function formatLineupSummary(
+  attendees: Array<{
+    member?: { name: string } | null;
+    guestName?: string | null;
+    invitedBy?: { name: string } | null;
+  }>
+): string[] {
+  return attendees.map(
+    (r) =>
+      r.member?.name ??
+      (r.guestName
+        ? r.invitedBy
+          ? `${r.guestName} (Gast van ${r.invitedBy.name})`
+          : r.guestName
+        : "Gast")
+  );
+}
+
 export function formatGoogleCalendarPayload(params: {
   quiz: {
     id: string;

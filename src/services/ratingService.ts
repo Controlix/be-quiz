@@ -40,7 +40,10 @@ export async function getQuizRatingSummary(
   }
 
   const maxTeamSize = quiz.team?.maxTeamSize || 4;
-  const activeMemberIds = (quiz.team?.rsvps || []).slice(0, maxTeamSize).map((r) => r.memberId);
+  const activeMemberIds = (quiz.team?.rsvps || [])
+    .slice(0, maxTeamSize)
+    .map((r) => r.memberId)
+    .filter((id): id is string => Boolean(id));
 
   return computeRatingSummary({
     ratings: quiz.ratings,
@@ -91,7 +94,10 @@ export async function submitQuizRating(params: {
   }
 
   const maxTeamSize = quiz.team?.maxTeamSize || 4;
-  const activeMemberIds = (quiz.team?.rsvps || []).slice(0, maxTeamSize).map((r) => r.memberId);
+  const activeMemberIds = (quiz.team?.rsvps || [])
+    .slice(0, maxTeamSize)
+    .map((r) => r.memberId)
+    .filter((id): id is string => Boolean(id));
 
   if (!activeMemberIds.includes(memberId)) {
     throw new Error("NOT_ELIGIBLE");
@@ -152,7 +158,10 @@ export async function getBatchQuizRatings(
 
   for (const quiz of quizzes) {
     const maxTeamSize = quiz.team?.maxTeamSize || 4;
-    const activeMemberIds = (quiz.team?.rsvps || []).slice(0, maxTeamSize).map((r) => r.memberId);
+    const activeMemberIds = (quiz.team?.rsvps || [])
+      .slice(0, maxTeamSize)
+      .map((r) => r.memberId)
+      .filter((id): id is string => Boolean(id));
     const summary = computeRatingSummary({
       ratings: quiz.ratings,
       activeMemberIds,

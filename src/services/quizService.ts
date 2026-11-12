@@ -124,6 +124,7 @@ export async function getAllQuizzes() {
           rsvps: {
             include: {
               member: true,
+              invitedBy: true,
             },
           },
         },
@@ -145,6 +146,7 @@ export async function getQuizById(id: string) {
           rsvps: {
             include: {
               member: true,
+              invitedBy: true,
             },
             orderBy: {
               queuedSince: "asc",

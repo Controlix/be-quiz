@@ -121,7 +121,7 @@ export function QuizzesDashboard({
                   paidByName: quiz.team?.paidBy?.name,
                   rsvps: (quiz.team?.rsvps || []).map((r: any) => ({
                     id: r.id,
-                    memberName: r.member?.name || "Lid",
+                    memberName: r.member?.name || r.guestName || "Gast",
                     status: r.status,
                   })),
                 },
