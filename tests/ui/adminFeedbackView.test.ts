@@ -23,4 +23,10 @@ describe("Admin Feedback Management Back-Office", () => {
     expect(file).toContain("Opgelost");
     expect(file).toContain("Screenshot bekijken");
   });
+
+  it("does not use native window.confirm or window.alert in AdminFeedbackClient", () => {
+    const file = fs.readFileSync("src/components/AdminFeedbackClient.tsx", "utf-8");
+    expect(file).not.toContain("window.confirm");
+    expect(file).not.toContain("window.alert");
+  });
 });

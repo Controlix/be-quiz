@@ -1,16 +1,16 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/db";
 import { getSessionMember } from "@/lib/auth";
 import { AdminFeedbackClient } from "@/components/AdminFeedbackClient";
+import { AdminUnauthorizedDialog } from "@/components/AdminUnauthorizedDialog";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminFeedbackPage() {
   const currentMember = await getSessionMember();
   if (!currentMember || currentMember.role !== "ADMIN") {
-    redirect("/quizzes");
+    return <AdminUnauthorizedDialog />;
   }
 
   const feedbacks = await prisma.feedback.findMany({

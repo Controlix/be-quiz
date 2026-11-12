@@ -1,16 +1,14 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { ArrowLeft, MessageSquare, Users, Settings, ChevronRight, ShieldCheck } from "lucide-react";
 import { prisma } from "@/lib/db";
-import { getSessionMember } from "@/lib/auth";
+import { requireAdminSession } from "@/lib/auth";
+import { AdminUnauthorizedDialog } from "@/components/AdminUnauthorizedDialog";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminHomePage() {
-  const currentMember = await getSessionMember();
-  if (!currentMember || currentMember.role !== "ADMIN") {
-    redirect("/quizzes");
-  }
+  const admin = await requireAdminSession();
+  if (!admin) return <AdminUnauthorizedDialog />;
 
   const [openFeedbackCount, totalMembers, teamSetting] = await Promise.all([
     prisma.feedback.count({ where: { isResolved: false } }),

@@ -88,3 +88,11 @@ export async function getSessionMember(): Promise<Member | null> {
     return null;
   }
 }
+
+export async function requireAdminSession(): Promise<Member | null> {
+  const currentMember = await getSessionMember();
+  if (!currentMember || currentMember.role !== "ADMIN") {
+    return null;
+  }
+  return currentMember;
+}

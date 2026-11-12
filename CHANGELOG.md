@@ -5,6 +5,28 @@ All notable changes to the **Pub Quiz App (BE-Quiz)** project will be documented
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.4.0] - 2026-11-11
+
+### Added
+
+- **Admin Role Management (`src/services/memberService.ts`, `src/actions/adminActions.ts`, `src/components/MemberRosterClient.tsx`):** Implemented role promotion and demotion directly in `/admin/members`, allowing administrators to elevate members to `ADMIN` or demote admins back to `USER`.
+- **Partitioned Team Overview:** Redesigned `/admin/members` into two distinct sections (**Beheerders** and **Leden**) with dedicated headers, member counts, and contextual transfer buttons (`↑ Maak Beheerder` and `↓ Naar Leden`).
+- **Confirmation Safety Modal:** Guarded role promotions and demotions behind the existing `ConfirmDialog` modal to prevent accidental privilege modifications on touchscreens.
+- **Modal-Driven PIN Reset Confirmation:** Replaced legacy browser `window.confirm()` popups with `ConfirmDialog` for resetting teammate PINs.
+- **Dedicated `AlertDialog` Component (`src/components/AlertDialog.tsx`):** Added a reusable notification/warning dialog replacing raw browser `window.alert()` calls with styled, accessible modal dialogs supporting `warning`, `error`, `info`, and `success` variants.
+- **Complete Elimination of Native Browser Popups:** Replaced all legacy `window.confirm()` and `window.alert()` calls across `AdminFeedbackClient` and `MemberRosterClient` with accessible in-app `ConfirmDialog` and `AlertDialog` components.
+- **Graceful Unauthorized Session Recovery:** When a demoted member attempts an admin operation in an already-open browser tab, the application displays a friendly warning dialog (_"Toegang Gewijzigd"_) explaining that their administrative rights were updated, with a 1-tap navigation button back to `/quizzes` where the "Beheer" link is removed.
+
+### Architectural Changes & Safety Guardrails
+
+- **Domain Service Isolation & Transactional Integrity (`src/services/memberService.ts`):** Encapsulated role change logic inside `prisma.$transaction`, strictly enforcing:
+  - **Self-Demotion Guard:** Prevents an admin from accidentally revoking their own administrator rights.
+  - **Sole Admin Guard:** Prevents demoting the team's last remaining administrator, eliminating accidental lockout.
+  - **Idempotency:** Early return when the target member is already in the requested role.
+- **Single Source of Truth State Derivation:** Maintained a single unified `members` state array in `MemberRosterClient`, deriving `admins` and `regularMembers` via pure `.filter()` projections without parallel arrays.
+
+---
+
 ## [v2.3.0] - 2026-11-10
 
 ### Added

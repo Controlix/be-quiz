@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { formatEuropeanDateTime } from "@/lib/formatters";
 import { toggleFeedbackResolvedAction, deleteFeedbackAction } from "@/actions/feedbackActions";
+import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { AlertDialog } from "@/components/AlertDialog";
 
 export interface FeedbackItem {
   id: string;
@@ -42,6 +44,15 @@ export function AdminFeedbackClient({ initialFeedbacks }: AdminFeedbackClientPro
   const [statusFilter, setStatusFilter] = useState<"ALL" | "OPEN" | "RESOLVED">("OPEN");
   const [categoryFilter, setCategoryFilter] = useState<"ALL" | "BUG" | "IDEA" | "QUESTION">("ALL");
   const [activeScreenshotUrl, setActiveScreenshotUrl] = useState<string | null>(null);
+  const [feedbackToDelete, setFeedbackToDelete] = useState<string | null>(null);
+  const [alertState, setAlertState] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    actionLabel?: string;
+    variant?: "error" | "warning" | "info" | "success";
+    onAction?: () => void;
+  } | null>(null);
 
   const filtered = feedbacks.filter((item) => {
     if (statusFilter === "OPEN" && item.isResolved) return false;
@@ -70,28 +81,50 @@ export function AdminFeedbackClient({ initialFeedbacks }: AdminFeedbackClientPro
       const res = await toggleFeedbackResolvedAction(id);
       if (!res.success) {
         setFeedbacks(originalFeedbacks);
-        window.alert(res.error || "Kon status niet bijwerken.");
+        setAlertState({
+          isOpen: true,
+          title: "Actie Mislukt",
+          message: res.error || "Kon status niet bijwerken.",
+          variant: "error",
+        });
       }
     } catch (err: any) {
       setFeedbacks(originalFeedbacks);
-      window.alert(err.message || "Er ging iets mis bij het bijwerken.");
+      setAlertState({
+        isOpen: true,
+        title: "Actie Mislukt",
+        message: err.message || "Er ging iets mis bij het bijwerken.",
+        variant: "error",
+      });
     }
   };
 
-  const handleDelete = async (id: string) => {
-    if (window.confirm("Ben je zeker dat je deze melding wilt verwijderen?")) {
-      const originalFeedbacks = feedbacks;
-      setFeedbacks((prev) => prev.filter((f) => f.id !== id));
-      try {
-        const res = await deleteFeedbackAction(id);
-        if (!res.success) {
-          setFeedbacks(originalFeedbacks);
-          window.alert(res.error || "Kon melding niet verwijderen.");
-        }
-      } catch (err: any) {
+  const handleConfirmDelete = async () => {
+    if (!feedbackToDelete) return;
+    const id = feedbackToDelete;
+    setFeedbackToDelete(null);
+
+    const originalFeedbacks = feedbacks;
+    setFeedbacks((prev) => prev.filter((f) => f.id !== id));
+    try {
+      const res = await deleteFeedbackAction(id);
+      if (!res.success) {
         setFeedbacks(originalFeedbacks);
-        window.alert(err.message || "Er ging iets mis bij het verwijderen.");
+        setAlertState({
+          isOpen: true,
+          title: "Verwijderen Mislukt",
+          message: res.error || "Kon melding niet verwijderen.",
+          variant: "error",
+        });
       }
+    } catch (err: any) {
+      setFeedbacks(originalFeedbacks);
+      setAlertState({
+        isOpen: true,
+        title: "Verwijderen Mislukt",
+        message: err.message || "Er ging iets mis bij het verwijderen.",
+        variant: "error",
+      });
     }
   };
 
@@ -310,7 +343,7 @@ export function AdminFeedbackClient({ initialFeedbacks }: AdminFeedbackClientPro
 
                 <button
                   type="button"
-                  onClick={() => handleDelete(item.id)}
+                  onClick={() => setFeedbackToDelete(item.id)}
                   title="Verwijderen"
                   className="rounded-lg p-1.5 text-slate-400 transition-colors hover:bg-rose-50 hover:text-rose-600"
                 >
@@ -321,6 +354,34 @@ export function AdminFeedbackClient({ initialFeedbacks }: AdminFeedbackClientPro
           ))
         )}
       </div>
+
+      {/* Delete Confirmation Dialog */}
+      <ConfirmDialog
+        isOpen={feedbackToDelete !== null}
+        title="Melding Verwijderen?"
+        message="Ben je zeker dat je deze melding wilt verwijderen? Deze actie kan niet ongedaan worden gemaakt."
+        confirmLabel="Ja, Verwijderen"
+        cancelLabel="Annuleren"
+        isDestructive={true}
+        onConfirm={handleConfirmDelete}
+        onCancel={() => setFeedbackToDelete(null)}
+      />
+
+      {/* Alert / Error Dialog */}
+      <AlertDialog
+        isOpen={alertState?.isOpen ?? false}
+        title={alertState?.title ?? ""}
+        message={alertState?.message ?? ""}
+        actionLabel={alertState?.actionLabel}
+        variant={alertState?.variant}
+        onClose={() => {
+          if (alertState?.onAction) {
+            alertState.onAction();
+          } else {
+            setAlertState(null);
+          }
+        }}
+      />
 
       {/* Screenshot Lightbox Modal */}
       {activeScreenshotUrl && (

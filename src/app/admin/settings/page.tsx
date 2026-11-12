@@ -1,17 +1,15 @@
 import Link from "next/link";
-import { redirect } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
 import { prisma } from "@/lib/db";
-import { getSessionMember } from "@/lib/auth";
+import { requireAdminSession } from "@/lib/auth";
 import { TeamSettingsClient } from "@/components/TeamSettingsClient";
+import { AdminUnauthorizedDialog } from "@/components/AdminUnauthorizedDialog";
 
 export const dynamic = "force-dynamic";
 
 export default async function AdminSettingsPage() {
-  const currentMember = await getSessionMember();
-  if (currentMember && currentMember.role !== "ADMIN") {
-    redirect("/quizzes");
-  }
+  const currentMember = await requireAdminSession();
+  if (!currentMember) return <AdminUnauthorizedDialog />;
 
   const setting = await prisma.teamSetting.findUnique({
     where: { id: "singleton" },
