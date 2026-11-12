@@ -5,12 +5,19 @@ import { GripVertical } from "lucide-react";
 
 export interface LineupMember {
   id: string;
+  rsvpId?: string;
+  memberId?: string | null;
   name: string;
+  isGuest?: boolean;
+  guestName?: string | null;
+  invitedById?: string | null;
+  invitedByName?: string | null;
   queuedSince: Date;
 }
 
 export interface DeclinedMember {
   id: string;
+  memberId?: string;
   name: string;
 }
 
@@ -38,8 +45,11 @@ interface TeamLineupProps {
   declinedMembers?: DeclinedMember[];
   maxTeamSize: number;
   isAdmin?: boolean;
+  isLocked?: boolean;
+  currentMemberId?: string;
   onAdminOverrideDecline?: (memberId: string) => void;
   onAdminOverrideAttend?: (memberId: string) => void;
+  onRemoveGuest?: (rsvpId: string) => void;
   onReorder?: (sourceIndex: number, destinationIndex: number) => Promise<void> | void;
 }
 
@@ -48,8 +58,11 @@ export function TeamLineup({
   declinedMembers = [],
   maxTeamSize,
   isAdmin = false,
+  isLocked = false,
+  currentMemberId,
   onAdminOverrideDecline,
   onAdminOverrideAttend,
+  onRemoveGuest,
   onReorder,
 }: TeamLineupProps) {
   const sortedAttendees = [...attendees].sort(
@@ -125,13 +138,14 @@ export function TeamLineup({
     ) {
       onReorder?.(touchStartIndexRef.current, dragOverIndex);
     }
-    touchStartIndexRef.current = null;
     setDraggedIndex(null);
     setDragOverIndex(null);
+    touchStartIndexRef.current = null;
   };
 
   return (
     <div className="mb-4 rounded-2xl border border-slate-200 bg-white p-4 shadow-sm">
+      {/* Header */}
       <div className="mb-3 flex items-center justify-between border-b border-slate-100 pb-2">
         <div>
           <h3 className="text-sm font-bold text-slate-900">Opstelling</h3>
@@ -156,6 +170,10 @@ export function TeamLineup({
           const overallIndex = idx;
           const isBeingDragged = draggedIndex === overallIndex;
           const isTarget = dragOverIndex === overallIndex;
+          const canRemoveGuest =
+            member.isGuest &&
+            (isAdmin ||
+              (!isLocked && Boolean(currentMemberId && member.invitedById === currentMemberId)));
 
           return (
             <li
@@ -189,18 +207,34 @@ export function TeamLineup({
                   {idx + 1}
                 </span>
                 <span className="truncate font-medium text-slate-800">{member.name}</span>
+                {member.isGuest && (
+                  <span className="shrink-0 rounded border border-amber-200 bg-amber-50 px-1.5 py-0.5 text-[10px] font-medium text-amber-700">
+                    {member.invitedByName ? `Gast van ${member.invitedByName}` : "Gast"}
+                  </span>
+                )}
               </div>
               <div className="flex shrink-0 items-center gap-2">
                 <span className="text-xs text-slate-400">Speler</span>
-                {isAdmin && onAdminOverrideDecline && (
-                  <button
-                    type="button"
-                    onClick={() => onAdminOverrideDecline(member.id)}
-                    className="rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-red-600 hover:bg-red-100 hover:text-red-700"
-                  >
-                    Afzeggen
-                  </button>
-                )}
+                {member.isGuest
+                  ? canRemoveGuest && (
+                      <button
+                        type="button"
+                        onClick={() => onRemoveGuest?.(member.rsvpId || member.id)}
+                        className="rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-red-600 hover:bg-red-100 hover:text-red-700"
+                      >
+                        Verwijderen
+                      </button>
+                    )
+                  : isAdmin &&
+                    onAdminOverrideDecline && (
+                      <button
+                        type="button"
+                        onClick={() => onAdminOverrideDecline(member.memberId || member.id)}
+                        className="rounded bg-red-50 px-1.5 py-0.5 text-[10px] font-semibold text-red-600 hover:bg-red-100 hover:text-red-700"
+                      >
+                        Afzeggen
+                      </button>
+                    )}
               </div>
             </li>
           );
@@ -229,6 +263,9 @@ export function TeamLineup({
               const overallIndex = active.length + idx;
               const isBeingDragged = draggedIndex === overallIndex;
               const isTarget = dragOverIndex === overallIndex;
+              const canRemoveGuest =
+                member.isGuest &&
+                (isAdmin || (currentMemberId && member.invitedById === currentMemberId));
 
               return (
                 <li
@@ -259,18 +296,34 @@ export function TeamLineup({
                       </div>
                     )}
                     <span className="truncate font-medium">{member.name}</span>
+                    {member.isGuest && (
+                      <span className="shrink-0 rounded border border-amber-300 bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium text-amber-800">
+                        {member.invitedByName ? `Gast van ${member.invitedByName}` : "Gast"}
+                      </span>
+                    )}
                   </div>
                   <div className="flex shrink-0 items-center gap-2">
                     <span className="font-semibold text-amber-700">{formatReserveBadge(idx)}</span>
-                    {isAdmin && onAdminOverrideDecline && (
-                      <button
-                        type="button"
-                        onClick={() => onAdminOverrideDecline(member.id)}
-                        className="rounded bg-red-100 px-1 py-0.5 text-[10px] font-semibold text-red-600 hover:text-red-700"
-                      >
-                        Verwijder
-                      </button>
-                    )}
+                    {member.isGuest
+                      ? canRemoveGuest && (
+                          <button
+                            type="button"
+                            onClick={() => onRemoveGuest?.(member.rsvpId || member.id)}
+                            className="rounded bg-red-100 px-1 py-0.5 text-[10px] font-semibold text-red-600 hover:text-red-700"
+                          >
+                            Verwijderen
+                          </button>
+                        )
+                      : isAdmin &&
+                        onAdminOverrideDecline && (
+                          <button
+                            type="button"
+                            onClick={() => onAdminOverrideDecline(member.memberId || member.id)}
+                            className="rounded bg-red-100 px-1 py-0.5 text-[10px] font-semibold text-red-600 hover:text-red-700"
+                          >
+                            Verwijder
+                          </button>
+                        )}
                   </div>
                 </li>
               );
@@ -296,7 +349,7 @@ export function TeamLineup({
                 {isAdmin && onAdminOverrideAttend && (
                   <button
                     type="button"
-                    onClick={() => onAdminOverrideAttend(member.id)}
+                    onClick={() => onAdminOverrideAttend(member.memberId || member.id)}
                     className="ml-1 rounded-full bg-blue-100 px-1.5 py-0.5 text-[10px] font-semibold text-blue-700 transition-colors hover:bg-blue-200"
                     title="Meld deze speler aan"
                   >

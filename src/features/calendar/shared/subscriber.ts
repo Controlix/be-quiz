@@ -2,7 +2,7 @@ import { domainEvents, DomainEvent } from "@/lib/events";
 import { prisma } from "@/lib/db";
 import { mappingRepository } from "./mappingRepository";
 import { GoogleCalendarClient, getGoogleCalendarClient } from "./googleCalendarClient";
-import { formatGoogleCalendarPayload } from "./formatter";
+import { formatGoogleCalendarPayload, formatLineupSummary } from "./formatter";
 
 export interface SharedCalendarSubscriberOptions {
   client?: GoogleCalendarClient | null;
@@ -42,7 +42,7 @@ export function registerSharedCalendarSubscriber(
             team: {
               include: {
                 rsvps: {
-                  include: { member: true },
+                  include: { member: true, invitedBy: true },
                   orderBy: { queuedSince: "asc" },
                 },
                 paidBy: true,
@@ -56,7 +56,7 @@ export function registerSharedCalendarSubscriber(
         }
 
         const attendingRsvps = quiz.team.rsvps.filter((r) => r.status === "ATTENDING");
-        const lineup = attendingRsvps.slice(0, quiz.team.maxTeamSize).map((r) => r.member.name);
+        const lineup = formatLineupSummary(attendingRsvps.slice(0, quiz.team.maxTeamSize));
 
         const payment = {
           fee: quiz.entryFee,
@@ -125,7 +125,7 @@ export function registerSharedCalendarSubscriber(
             team: {
               include: {
                 rsvps: {
-                  include: { member: true },
+                  include: { member: true, invitedBy: true },
                   orderBy: { queuedSince: "asc" },
                 },
                 paidBy: true,
@@ -144,7 +144,7 @@ export function registerSharedCalendarSubscriber(
         }
 
         const attendingRsvps = quiz.team.rsvps.filter((r) => r.status === "ATTENDING");
-        const lineup = attendingRsvps.slice(0, quiz.team.maxTeamSize).map((r) => r.member.name);
+        const lineup = formatLineupSummary(attendingRsvps.slice(0, quiz.team.maxTeamSize));
 
         const payment = {
           fee: quiz.entryFee,

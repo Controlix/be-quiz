@@ -1,6 +1,6 @@
 # Pub Quiz App (BE-Quiz) — Roadmap & Feature Backlog
 
-**Current App Version:** `v2.4.0` (Admin Role Management)  
+**Current App Version:** `v2.5.0` (Guest Players)  
 This document is the **single source of truth for active and planned roadmap items**. For past releases and completed milestone notes, see [CHANGELOG.md](../CHANGELOG.md) and [Feedback Archives](superpowers/feedback/).
 
 ---
@@ -99,7 +99,6 @@ This document is the **single source of truth for active and planned roadmap ite
 ### B. Teams & Headcount
 
 4. **Multiple Teams per Quiz (e.g. Team A / Team B):** When more friends want to join than the maximum team limit (e.g. 8 people for a 4-person quiz), allow fielding a second team instead of putting everyone on reserve. _(The schema already decouples `Team` from `Quiz` to make this seamless)._
-5. **Guest Players:** Ability to add an external guest or partner to the lineup who is not an official registered app member.
 
 ### C. Member Management & Security
 

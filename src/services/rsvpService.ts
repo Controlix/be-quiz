@@ -2,11 +2,15 @@ import { prisma } from "@/lib/db";
 import { Rsvp, Member } from "@prisma/client";
 import { domainEvents } from "@/lib/events";
 
-export type RsvpWithMember = Rsvp & { member: Member };
+export type RsvpWithDetails = Rsvp & {
+  member: Member | null;
+  invitedBy?: Member | null;
+};
+export type RsvpWithMember = RsvpWithDetails;
 
 export async function getRsvpLineup(
   teamId: string
-): Promise<{ active: RsvpWithMember[]; reserves: RsvpWithMember[] }> {
+): Promise<{ active: RsvpWithDetails[]; reserves: RsvpWithDetails[] }> {
   const team = await prisma.team.findUniqueOrThrow({
     where: { id: teamId },
     select: { maxTeamSize: true },
@@ -19,6 +23,7 @@ export async function getRsvpLineup(
     },
     include: {
       member: true,
+      invitedBy: true,
     },
     orderBy: {
       queuedSince: "asc",
@@ -203,6 +208,119 @@ export async function updateTeamCapacity(teamId: string, newMaxTeamSize: number)
   domainEvents.emit({
     type: "team.roster_changed",
     quizId: team.quizId,
+    occurredAt: new Date(),
+  });
+}
+
+export async function addGuestRsvp(
+  teamId: string,
+  guestName: string,
+  invitedById: string
+): Promise<Rsvp & { invitedBy: Member | null }> {
+  const trimmed = guestName?.trim().replace(/\s+/g, " ");
+  if (!trimmed || trimmed.length === 0 || trimmed.length > 50) {
+    throw new Error("Naam van de gastspeler moet tussen 1 en 50 tekens zijn.");
+  }
+
+  const { rsvp, quizId } = await prisma.$transaction(async (tx) => {
+    await tx.$executeRaw`SELECT id FROM "Team" WHERE id = ${teamId} FOR UPDATE`;
+
+    const existing = await tx.rsvp.findFirst({
+      where: {
+        teamId,
+        invitedById,
+        status: "ATTENDING",
+        guestName: {
+          equals: trimmed,
+          mode: "insensitive",
+        },
+      },
+    });
+
+    if (existing) {
+      throw new Error("Gast met deze naam is al toegevoegd door jou.");
+    }
+
+    const created = await tx.rsvp.create({
+      data: {
+        teamId,
+        guestName: trimmed,
+        invitedById,
+        status: "ATTENDING",
+        queuedSince: new Date(),
+      },
+      include: {
+        invitedBy: true,
+      },
+    });
+
+    const team = await tx.team.findUniqueOrThrow({
+      where: { id: teamId },
+      select: { quizId: true },
+    });
+
+    return { rsvp: created, quizId: team.quizId };
+  });
+
+  domainEvents.emit({
+    type: "team.roster_changed",
+    quizId,
+    occurredAt: new Date(),
+  });
+
+  return rsvp;
+}
+
+export async function removeGuestRsvp(
+  rsvpId: string,
+  actorId: string,
+  actorRole: string
+): Promise<void> {
+  const initialTarget = await prisma.rsvp.findUnique({
+    where: { id: rsvpId },
+    select: { teamId: true },
+  });
+
+  if (!initialTarget) {
+    throw new Error("Gast niet gevonden");
+  }
+
+  const quizId = await prisma.$transaction(async (tx) => {
+    await tx.$executeRaw`SELECT id FROM "Team" WHERE id = ${initialTarget.teamId} FOR UPDATE`;
+
+    const target = await tx.rsvp.findUnique({
+      where: { id: rsvpId },
+      select: {
+        id: true,
+        teamId: true,
+        guestName: true,
+        invitedById: true,
+      },
+    });
+
+    if (!target || !target.guestName) {
+      throw new Error("Gast niet gevonden");
+    }
+
+    if (actorRole !== "ADMIN" && target.invitedById !== actorId) {
+      throw new Error("Geen toegang om deze gast te verwijderen");
+    }
+
+    await tx.rsvp.delete({
+      where: { id: rsvpId },
+    });
+
+    const team = await tx.team.findUniqueOrThrow({
+      where: { id: target.teamId },
+      select: { quizId: true },
+    });
+
+    return team.quizId;
+  });
+
+  domainEvents.emit({
+    type: "team.roster_changed",
+    quizId,
     occurredAt: new Date(),
   });
 }

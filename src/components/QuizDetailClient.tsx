@@ -7,10 +7,13 @@ import { TeamLineup } from "@/components/TeamLineup";
 import { RsvpControl } from "@/components/RsvpControl";
 import { ActionToolbar } from "@/components/ActionToolbar";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
+import { AlertDialog } from "@/components/AlertDialog";
+import { AddGuestDialog } from "@/components/AddGuestDialog";
 import { joinQuizRsvpAction, declineQuizRsvpAction } from "@/actions/rsvpActions";
 import { adminOverrideDeclineAction, adminOverrideAttendAction } from "@/actions/adminActions";
 import { adminReorderRsvpAction } from "@/actions/reorderActions";
 import { setRegisteredAction, toggleFeePaidAction } from "@/actions/registrationActions";
+import { addGuestAction, removeGuestAction } from "@/actions/guestActions";
 import { formatEuropeanDateTime } from "@/lib/formatters";
 import {
   rsvpReducer,
@@ -20,7 +23,7 @@ import {
 } from "@/lib/rsvpReducer";
 import { isQuizConcluded, QuizRatingSummary } from "@/lib/ratingRules";
 import { QuizRatingWidget } from "@/components/QuizRatingWidget";
-import { ArrowLeft, MapPin, Calendar, Coins, Settings } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, Coins, Settings, UserPlus } from "lucide-react";
 
 interface QuizDetailClientProps {
   quiz: any;
@@ -39,8 +42,13 @@ export function QuizDetailClient({
 }: QuizDetailClientProps) {
   const team = quiz.team;
   const initialRsvps: ClientRsvp[] = (team?.rsvps || []).map((r: any) => ({
-    memberId: r.memberId,
-    name: r.member?.name || "Lid",
+    id: r.id,
+    memberId: r.memberId ?? null,
+    guestName: r.guestName ?? null,
+    invitedById: r.invitedById ?? null,
+    invitedByName: r.invitedBy?.name ?? null,
+    isGuest: Boolean(r.guestName || r.invitedById),
+    name: r.member?.name || r.guestName || "Lid",
     status: r.status as "ATTENDING" | "DECLINED",
     queuedSince: r.queuedSince
       ? new Date(r.queuedSince)
@@ -60,6 +68,9 @@ export function QuizDetailClient({
   const [ratingSummary, setRatingSummary] = useState<QuizRatingSummary | undefined>(
     initialRatingSummary
   );
+  const [isAddGuestOpen, setIsAddGuestOpen] = useState(false);
+  const [isAddingGuest, setIsAddingGuest] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleRsvpChange = async (status: "ATTENDING" | "DECLINED") => {
     dispatchRsvp({
@@ -78,6 +89,38 @@ export function QuizDetailClient({
       if (res.success && res.ratingSummary) {
         setRatingSummary(res.ratingSummary);
       }
+    }
+  };
+
+  const handleAddGuest = async (guestName: string) => {
+    setIsAddingGuest(true);
+    try {
+      const res = await addGuestAction(team.id, guestName);
+      if (!res.success) {
+        throw new Error(res.error);
+      }
+      dispatchRsvp({
+        type: "ADD_GUEST",
+        id: res.rsvp.id,
+        guestName: res.rsvp.guestName,
+        invitedById: res.rsvp.invitedById,
+        invitedByName: res.rsvp.invitedByName,
+      });
+    } finally {
+      setIsAddingGuest(false);
+    }
+  };
+
+  const handleRemoveGuest = async (rsvpId: string) => {
+    try {
+      const res = await removeGuestAction(rsvpId, team.id);
+      if (!res.success) {
+        setErrorMessage(res.error);
+        return;
+      }
+      dispatchRsvp({ type: "REMOVE_GUEST", id: rsvpId });
+    } catch (err: any) {
+      setErrorMessage(err.message || "Fout bij verwijderen van gast");
     }
   };
 
@@ -114,11 +157,12 @@ export function QuizDetailClient({
     await toggleFeePaidAction(team.id, currentMemberId);
   };
 
-  const currentUserIndex = attendees.findIndex((a) => a.id === currentMemberId);
+  const currentUserIndex = attendees.findIndex((a) => a.memberId === currentMemberId);
   const isReserve = currentUserIndex >= (team?.maxTeamSize || 4);
   const reservePosition = isReserve ? currentUserIndex - (team?.maxTeamSize || 4) + 1 : null;
   const isEligible = currentUserIndex !== -1 && !isReserve;
   const isConcluded = isQuizConcluded(quiz.startsAt, quiz.durationMinutes || 180);
+  const isLockedForUser = !isAdmin && new Date(quiz.startsAt).getTime() <= Date.now();
 
   const dateStr = formatEuropeanDateTime(quiz.startsAt);
 
@@ -214,14 +258,31 @@ export function QuizDetailClient({
         reservePosition={reservePosition}
       />
 
+      {/* Guest Player Addition */}
+      {!isLockedForUser && (
+        <div className="mb-4 flex items-center justify-between">
+          <button
+            type="button"
+            onClick={() => setIsAddGuestOpen(true)}
+            className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 hover:text-slate-900"
+          >
+            <UserPlus className="h-3.5 w-3.5 text-blue-600" />
+            <span>+ Gast toevoegen</span>
+          </button>
+        </div>
+      )}
+
       {/* Lineup & Reserve List */}
       <TeamLineup
         attendees={attendees}
         declinedMembers={declinedMembers}
         maxTeamSize={team?.maxTeamSize || 4}
         isAdmin={isAdmin}
+        isLocked={isLockedForUser}
+        currentMemberId={currentMemberId}
         onAdminOverrideDecline={handleAdminOverrideDecline}
         onAdminOverrideAttend={handleAdminOverrideAttend}
+        onRemoveGuest={handleRemoveGuest}
         onReorder={handleReorder}
       />
 
@@ -250,6 +311,22 @@ export function QuizDetailClient({
         isDestructive={true}
         onConfirm={confirmAdminOverrideDecline}
         onCancel={() => setSelectedMemberToDecline(null)}
+      />
+
+      <AddGuestDialog
+        isOpen={isAddGuestOpen}
+        onClose={() => setIsAddGuestOpen(false)}
+        onAddGuest={handleAddGuest}
+        isSubmitting={isAddingGuest}
+      />
+
+      <AlertDialog
+        isOpen={errorMessage !== null}
+        title="Fout"
+        message={errorMessage || ""}
+        variant="error"
+        actionLabel="Sluiten"
+        onClose={() => setErrorMessage(null)}
       />
     </div>
   );

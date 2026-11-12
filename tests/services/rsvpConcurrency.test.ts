@@ -30,7 +30,7 @@ describe("RSVP Concurrency & FIFO Waitlist", () => {
     expect(active.length).toBe(2);
     expect(reserves.length).toBe(1);
 
-    await setRsvp(quiz.team!.id, active[0].memberId, "DECLINED");
+    await setRsvp(quiz.team!.id, active[0].memberId!, "DECLINED");
     const updated = await getRsvpLineup(quiz.team!.id);
     expect(updated.active.length).toBe(2);
     expect(updated.reserves.length).toBe(0);
