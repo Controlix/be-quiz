@@ -1,6 +1,5 @@
 import { domainEvents as defaultBus } from "@/lib/events";
 import type { DomainEventBus } from "@/lib/events/types";
-import { pruneOrphanedUploads } from "@/lib/storagePruner";
 
 export interface StoragePrunerSubscriberOptions {
   bus?: DomainEventBus;
@@ -40,6 +39,7 @@ export function registerStoragePrunerSubscriber(
     globalForPruner.__beQuizLastPruneTimestamp = now;
 
     try {
+      const { pruneOrphanedUploads } = await import("@/lib/storagePruner");
       await pruneOrphanedUploads({ dryRun: false });
     } catch (err) {
       console.error("[StoragePrunerSubscriber] Opportunistic prune failed:", err);

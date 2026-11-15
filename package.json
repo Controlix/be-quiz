@@ -9,7 +9,7 @@
   "scripts": {
     "postinstall": "prisma generate",
     "dev": "next dev",
-    "build": "prisma db push && next build",
+    "build": "prisma db push && next build && tsx scripts/prune-nft-traces.ts",
     "start": "next start",
     "stop": "./scripts/stop-dev.sh",
     "dev:stop": "./scripts/stop-dev.sh",
@@ -24,6 +24,7 @@
     "check:all": "npm run typecheck && npm run test && npm run lint && npm run format:check && npm run audit:check && npm run scan:secrets",
     "prune-uploads": "tsx scripts/prune-uploads.ts",
     "stats:releases": "tsx scripts/release-stats.ts",
+    "audit:bundle": "tsx scripts/audit-bundle-trace.ts",
     "prepare": "husky"
   },
   "keywords": [],

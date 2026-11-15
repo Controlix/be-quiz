@@ -1,6 +1,4 @@
 import { domainEvents, DomainEvent } from "@/lib/events";
-import { prisma } from "@/lib/db";
-import { mappingRepository } from "./mappingRepository";
 import { GoogleCalendarClient, getGoogleCalendarClient } from "./googleCalendarClient";
 import { formatGoogleCalendarPayload, formatLineupSummary } from "./formatter";
 
@@ -35,6 +33,11 @@ export function registerSharedCalendarSubscriber(
 
   async function handleEvent(event: DomainEvent): Promise<void> {
     try {
+      const [{ prisma }, { mappingRepository }] = await Promise.all([
+        import("@/lib/db"),
+        import("./mappingRepository"),
+      ]);
+
       if (event.type === "team.registered") {
         const quiz = await prisma.quiz.findUnique({
           where: { id: event.quizId },
