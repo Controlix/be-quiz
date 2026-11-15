@@ -97,9 +97,35 @@ The purpose of this project is to drastically reduce the per-deployment Function
 2. Measure the reduction in traced files and overall function bundle size.
 3. Run `npm run check:all` to verify zero typecheck, lint, test, or formatting regressions.
 
+### 5.5 Instrumentation Boot Hook Decoupling (`instrumentation.ts`)
+
+1. **Root Cause of Instrumentation Bloat:** Next.js `outputFileTracingExcludes` is only applied to routes matching `app/**`, `pages/**`, and `middleware`. Root hooks like `instrumentation.js` are skipped by Next.js's exclusion filters. Furthermore, `instrumentation.ts` statically imported event subscribers that pulled in `@/lib/db`, tracing the entire Prisma compiler and binary tree (~95 MB) into `instrumentation.js.nft.json`. In Vercel, this manifest is ingested into `sharedNodeAssets` and merged across all Lambda functions.
+2. **Dynamic Boundary Decoupling:** Decouple event registration from database execution:
+   - Event listeners in `storagePrunerSubscriber.ts` and `features/calendar/shared/subscriber.ts` must lazy-load their database dependencies dynamically inside their event callbacks when domain events are dispatched, rather than at file import time:
+     - `storagePrunerSubscriber.ts`: Dynamically import `pruneOrphanedUploads` from `@/lib/storagePruner` inside the event callback.
+     - `subscriber.ts`: Dynamically import both `@/lib/db` and `./mappingRepository` inside `handleEvent`.
+   - This ensures the static dependency graph rooted at `instrumentation.ts` has zero AST edges pointing to `@prisma/client`, `@/lib/db`, or database-dependent repositories.
+   - `instrumentation.js.nft.json` drops from 95.29 MB down to ~1.5 MB, completely clearing dead WASM and musl binaries from `sharedNodeAssets`.
+
 ---
 
-## 6. What's Left to the Builder
+## 6. Strict Acceptance Criteria
+
+To declare the optimization complete:
+
+1. **Global Manifest Guard:** Across ALL `.nft.json` trace manifests under `.next/server/` (including `instrumentation.js.nft.json`):
+   - Zero `.wasm` files.
+   - Zero `*wasm-base64*` compiler files.
+   - Zero `libquery_engine-linux-musl*` binaries when building for Vercel (`VERCEL=1`), while preserving `linux-musl` for local Docker standalone builds when `VERCEL` is unset.
+2. **Function Footprint Ceiling:** No traced function or root hook (including `instrumentation`) may exceed **25 MB uncompressed** on the Vercel build target.
+3. **Decoupled Boot Hook:** Neither `src/instrumentation.ts` nor its statically imported subscriber modules may contain top-level static imports of `@prisma/client`, `@/lib/db`, or database-dependent repositories.
+4. **Automated Verification:**
+   - `tests/unit/bundleOptimization.test.ts` must statically verify import isolation for `instrumentation.ts` and subscribers, and assert `.nft.json` ceiling and exclusion invariants whenever `.next/server` is present.
+   - `scripts/audit-bundle-trace.ts` (`npm run audit:bundle`) must fail with exit code 1 if any `.nft.json` exceeds the 25 MB ceiling or contains prohibited artifacts on the Vercel target.
+
+---
+
+## 7. What's Left to the Builder
 
 - Exact regex/glob patterns in `outputFileTracingExcludes` based on empirical `.nft.json` inspection.
 - Determining whether `serverExternalPackages` needs specific additions (e.g. `@prisma/client`, `@vercel/blob`) or if Next.js handles them natively.

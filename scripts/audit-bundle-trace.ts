@@ -24,6 +24,7 @@ export function findNftFiles(dir: string): string[] {
 export function analyzeNftFile(nftPath: string): {
   totalBytes: number;
   topPackages: Record<string, number>;
+  rawFiles: string[];
 } {
   const dir = path.dirname(nftPath);
   const data = JSON.parse(fs.readFileSync(nftPath, "utf8")) as { files: string[] };
@@ -44,7 +45,51 @@ export function analyzeNftFile(nftPath: string): {
     } catch {}
   }
 
-  return { totalBytes, topPackages };
+  return { totalBytes, topPackages, rawFiles: data.files };
+}
+
+export function validateAcceptanceCriteria(
+  nftFiles: string[],
+  distServerDir: string
+): { passed: boolean; violations: { route: string; issues: string[] }[] } {
+  const isVercel = process.env.VERCEL === "1";
+  const maxBytes = 25 * 1024 * 1024; // 25 MB ceiling for Vercel functions
+  const violations: { route: string; issues: string[] }[] = [];
+
+  for (const nft of nftFiles) {
+    const rel = path
+      .relative(distServerDir, nft)
+      .replace(".js.nft.json", "")
+      .replace(".nft.json", "");
+    const { totalBytes, rawFiles } = analyzeNftFile(nft);
+    const issues: string[] = [];
+
+    // Zero WASM or base64 wasm compilers across all targets
+    const wasmFiles = rawFiles.filter((f) => f.includes(".wasm") || f.includes("wasm-base64"));
+    if (wasmFiles.length > 0) {
+      issues.push(`Contains ${wasmFiles.length} prohibited WASM/compiler files`);
+    }
+
+    // On Vercel target: no musl binaries and enforce 25 MB ceiling
+    if (isVercel) {
+      const muslFiles = rawFiles.filter((f) => f.includes("libquery_engine-linux-musl"));
+      if (muslFiles.length > 0) {
+        issues.push(`Contains ${muslFiles.length} prohibited Alpine linux-musl query engine files`);
+      }
+
+      if (totalBytes > maxBytes) {
+        issues.push(
+          `Exceeds 25 MB ceiling (${(totalBytes / (1024 * 1024)).toFixed(2)} MB uncompressed)`
+        );
+      }
+    }
+
+    if (issues.length > 0) {
+      violations.push({ route: rel, issues });
+    }
+  }
+
+  return { passed: violations.length === 0, violations };
 }
 
 function main() {
@@ -90,6 +135,20 @@ function main() {
   console.log(
     `Grand Total Uncompressed Footprint: ${(grandTotal / (1024 * 1024)).toFixed(2)} MB (~${(grandTotal / (1024 * 1024 * 1024)).toFixed(2)} GB)\n`
   );
+
+  const { passed, violations } = validateAcceptanceCriteria(nftFiles, distServerDir);
+  if (!passed) {
+    console.error("❌ Bundle Optimization Acceptance Criteria FAILED:");
+    for (const v of violations) {
+      console.error(`  - ${v.route}:`);
+      for (const issue of v.issues) {
+        console.error(`      • ${issue}`);
+      }
+    }
+    process.exit(1);
+  }
+
+  console.log("✔ All bundle optimization acceptance criteria PASSED.");
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {

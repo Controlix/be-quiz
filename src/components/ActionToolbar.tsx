@@ -7,7 +7,7 @@ import {
   getRegistrationEmailPlainText,
   generateWhatsAppShareUrl,
 } from "@/features/sharing";
-import { generateGoogleCalendarUrl } from "@/features/calendar";
+import { generateGoogleCalendarUrl } from "@/lib/ical";
 import { useCapabilities } from "@/features/capabilities";
 
 interface ActionToolbarProps {

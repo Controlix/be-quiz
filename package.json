@@ -9,7 +9,7 @@
   "scripts": {
     "postinstall": "prisma generate",
     "dev": "next dev",
-    "build": "prisma db push && next build",
+    "build": "prisma db push && next build && tsx scripts/prune-nft-traces.ts",
     "start": "next start",
     "stop": "./scripts/stop-dev.sh",
     "dev:stop": "./scripts/stop-dev.sh",

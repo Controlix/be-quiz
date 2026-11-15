@@ -27,6 +27,9 @@
 4. **Middleware import leakage:** If a future commit imports `@/lib/db` or `auth.ts` into `proxy.ts`, middleware inflates back to 42 MB.
 5. **Glob pattern mismatch in Next.js tracing:** If globs use unsupported syntax or wrong relative root, Next.js ignores them silently.
 6. **Turbo build compatibility:** Ensure exclusions work seamlessly with Turbopack production builds (`next build`).
+7. **Next.js 16 root hook exclusion bypass:** `outputFileTracingExcludes` in Next.js 16 skips root hooks like `instrumentation.js`. Root hooks and their statically imported dependencies must avoid static AST imports of `@/lib/db`, `@prisma/client`, or database-bound repositories.
+8. **Vercel sharedNodeAssets leakage:** Vercel merges `instrumentation.js.nft.json` into `sharedNodeAssets` across every Lambda function. Heavy dependencies in `instrumentation` leak into every Lambda bundle.
+9. **Test runner lifecycle safety:** Unit tests in Vitest (`npm run test`) must not depend on `.next/server/` existing unconditionally, as `check:all` runs tests before `build`. Use static AST import isolation checks, with conditional manifest assertions when `.next` is present.
 
 ---
 
@@ -352,4 +355,79 @@ Update roadmap status:
 git add docs/roadmap.md
 # Prompt user for explicit consent before running git commit:
 git commit -m "docs: link bundle optimization implementation plan in roadmap"
+```
+
+---
+
+### Task 5: Decouple Instrumentation Hook from Prisma Static Tracing
+
+**Files:**
+
+- Modify: `src/lib/storagePrunerSubscriber.ts`
+- Modify: `src/features/calendar/shared/subscriber.ts`
+- Modify: `scripts/audit-bundle-trace.ts`
+- Modify: `tests/unit/bundleOptimization.test.ts`
+- Test: `VERCEL=1 npx next build && npm run audit:bundle`
+
+**Interfaces:**
+
+- Consumes: `src/instrumentation.ts`, `src/lib/storagePrunerSubscriber.ts`, `src/features/calendar/shared/subscriber.ts`, `.next/server/instrumentation.js.nft.json`
+- Produces: Decoupled boot hook, passing unit tests asserting static AST isolation on boot hooks (and manifest invariants when `.next` exists), and `audit:bundle` verification asserting $\le 25\text{ MB}$ uncompressed ceiling and zero prohibited artifacts.
+
+- [x] **Step 1: Add failing test in `tests/unit/bundleOptimization.test.ts` for boot hook isolation**
+
+Assert that:
+
+- Neither `src/instrumentation.ts`, `src/lib/storagePrunerSubscriber.ts`, nor `src/features/calendar/shared/subscriber.ts` contain static top-level imports of `@prisma/client`, `@/lib/db`, or `mappingRepository`.
+- When `.next/server` exists, `instrumentation.js.nft.json` contains 0 `.wasm` files, 0 `*wasm-base64*` files, and total uncompressed size is $\le 25\text{ MB}$.
+
+- [x] **Step 2: Run test to verify it fails**
+
+Run: `npx vitest run tests/unit/bundleOptimization.test.ts`  
+Expected: FAIL on static import checks (currently `storagePrunerSubscriber.ts` imports `pruneOrphanedUploads` and `subscriber.ts` imports `prisma` and `mappingRepository`).
+
+- [x] **Step 3: Decouple event subscribers from static Prisma and repository imports**
+
+- In `src/lib/storagePrunerSubscriber.ts`:
+  - Remove top-level `import { pruneOrphanedUploads } from "@/lib/storagePruner";`.
+  - Lazy-load `const { pruneOrphanedUploads } = await import("@/lib/storagePruner");` inside the `bus.subscribe("asset.uploaded", ...)` callback.
+- In `src/features/calendar/shared/subscriber.ts`:
+  - Remove top-level `import { prisma } from "@/lib/db";` and `import { mappingRepository } from "./mappingRepository";`.
+  - Lazy-load `const [{ prisma }, { mappingRepository }] = await Promise.all([import("@/lib/db"), import("./mappingRepository")]);` inside `handleEvent(...)`.
+- Verify cold-start registration in `instrumentation.ts` has zero static AST references to `@prisma/client` or `@/lib/db`.
+
+- [x] **Step 4: Update `scripts/audit-bundle-trace.ts` to enforce acceptance criteria hard gate**
+
+Enhance `scripts/audit-bundle-trace.ts` to validate:
+
+- Every `.nft.json` manifest meets the uncompressed ceiling $\le 25\text{ MB}$.
+- Zero `.wasm` and zero `*wasm-base64*` files exist across all manifests.
+- If `process.env.VERCEL === "1"`, zero `libquery_engine-linux-musl*` binaries exist.
+- Exit with code 1 if any constraint is violated, printing offending files.
+
+- [x] **Step 5: Rebuild Next.js and verify unit tests pass**
+
+Run: `VERCEL=1 npx next build && npx vitest run tests/unit/bundleOptimization.test.ts`  
+Expected: PASS (all static import and manifest tests green).
+
+- [x] **Step 6: Run bundle audit to verify acceptance criteria gate passes**
+
+Run: `VERCEL=1 npm run audit:bundle`  
+Expected:
+
+- `instrumentation` drops from 95.29 MB down to ~1.5 MB.
+- Grand total uncompressed footprint drops to $\sim 355\text{ MB}$.
+- All acceptance criteria pass with exit code 0.
+
+- [x] **Step 7: Run full repository quality gates**
+
+Run: `npm run check:all`  
+Expected: All 6 gates pass cleanly (0 typecheck errors, all unit tests pass, 0 lint errors, clean format, 0 security vulnerabilities, 0 secrets).
+
+- [x] **Step 8: Checkpoint Task 5 changes (Ask user before committing)**
+
+```bash
+git status
+# Prompt user for explicit consent before running git commit:
+git commit -m "perf: decouple instrumentation hook from static prisma tracing"
 ```
