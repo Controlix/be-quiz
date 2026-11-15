@@ -128,6 +128,37 @@ export function generateReleaseStats(): ReleaseRow[] {
   return rows;
 }
 
+export function renderAsciiBarChart(stats: ReleaseRow[]): string {
+  if (stats.length === 0) return "";
+  const maxVal = Math.max(...stats.map((s) => Math.max(s.prodLines, s.testLines)), 1000);
+  const barWidth = 45;
+
+  const lines: string[] = [];
+  lines.push("\n### Lines of Code Growth Chart (Paired Bars)");
+  lines.push("```text");
+  lines.push("Version   Type  Lines of Code & Scale (1 char ≈ 200 LOC)           Count / Ratio");
+  lines.push("─────────────────────────────────────────────────────────────────────────────────");
+
+  for (let i = 0; i < stats.length; i++) {
+    const s = stats[i];
+    const pChars = Math.round((s.prodLines / maxVal) * barWidth);
+    const tChars = Math.round((s.testLines / maxVal) * barWidth);
+    const pBar = "█".repeat(pChars).padEnd(barWidth, " ");
+    const tBar = "▒".repeat(tChars).padEnd(barWidth, " ");
+
+    lines.push(`${s.tag.padEnd(9)} Prod  ${pBar} ${s.prodLines.toLocaleString().padStart(5)} LOC`);
+    lines.push(
+      `          Test  ${tBar} ${s.testLines.toLocaleString().padStart(5)} LOC (${s.ratio})`
+    );
+    if (i < stats.length - 1) {
+      lines.push("          │");
+    }
+  }
+  lines.push("```");
+
+  return lines.join("\n");
+}
+
 function main() {
   const isJson = process.argv.includes("--json");
   const stats = generateReleaseStats();
@@ -146,6 +177,8 @@ function main() {
       `| **${r.tag}** | ${r.date} | ${r.subject} | ${r.prodLines.toLocaleString()} | ${r.testLines.toLocaleString()} | **${r.ratio}** | ${r.testFileCount} | \`${r.deltaProd} / ${r.deltaTest}\` |`
     );
   }
+
+  console.log(renderAsciiBarChart(stats));
 }
 
 if (import.meta.url === `file://${process.argv[1]}`) {
