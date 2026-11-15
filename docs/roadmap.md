@@ -164,7 +164,7 @@ To maximize development impact and protect service stability, backlog items acro
 
 ### 12. Vercel Functions Storage & Serverless Bundle Optimization
 
-- **Status:** `[ ] Active Priority: [docs/superpowers/feedback/inbox/2026-11-15-vercel-functions-storage-analysis-optimization-plan.md](superpowers/feedback/inbox/2026-11-15-vercel-functions-storage-analysis-optimization-plan.md)`
+- **Status:** `[ ] Plan Ready: [docs/superpowers/plans/2026-11-15-vercel-storage-optimization.md](superpowers/plans/2026-11-15-vercel-storage-optimization.md)`
 - **Problem / Evidence:**
   - Vercel Functions Storage usage has reached **7.42 GB / 10 GB (74%)** across `be-quiz` and `be-quiz-2`, approaching the Hobby plan ceiling.
   - Each deployment packages **17 serverless function bundles** (11 pages, 5 API routes, 1 middleware), each weighing **~42.4 MB to 43.0 MB compressed (~101 MB uncompressed)**.

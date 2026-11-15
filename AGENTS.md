@@ -52,12 +52,12 @@ Before planning, modifying, or implementing any features, database models, or st
        ```
     5. **Zero Assumptions on Git State:** NEVER assume an existing checked-out branch is intended. When in doubt, ALWAYS ask before doing any work.
 
-- **Mandatory Instant Feedback (WHAT and WHY):**
+- **Mandatory Instant Feedback (Functional WHAT and WHY):**
   - Before taking ANY action or executing ANY tool call (reading files, executing commands, searching, editing code, running tests, or dispatching subagents), you MUST provide instant message feedback to the user.
-  - For every single step or action, explicitly state:
-    - **WHAT** you are doing (the exact file, tool, command, or check).
-    - **WHY** you are doing it (the rationale, objective, and purpose).
-  - Never execute silent tool calls or chain multiple actions without prior explanation. The user must have continuous, real-time visibility into what you are doing and why.
+  - Focus on the **functional intent and practical objective**, NOT mechanical tool names or raw shell syntax:
+    - Explain **WHAT** you are aiming to discover or achieve in functional terms (e.g., _"I am inspecting the Prisma client directory to see which query engine binaries are bundled"_ rather than _"I am running ls -lh node_modules/.prisma/client"_).
+    - Explain **WHY** that action is necessary for the current task (e.g., _"so we can confirm whether the Alpine musl engine is present and needs exclusion on Vercel"_).
+  - Avoid robotic recitation of command flags, tool signatures, or file system commands. Give the user clear, real-time insight into your functional thinking, strategy, and direction.
 
 - **Remarks Are for Discussion, Not Code:**
   - When the user shares a remark, observation, or critique (e.g., "this feels cheap", "I noticed X"), treat it as an invitation to discuss and explore options. **Never** treat remarks as a wildcard or automatic trigger to write/edit code. Always discuss and confirm intent first.
@@ -82,3 +82,10 @@ Before planning, modifying, or implementing any features, database models, or st
 - **Mandatory Pre-Implementation Spec & Plan Review:**
   - ALWAYS perform an explicit, rigorous self-review of the design spec and implementation plan against real repository configurations before claiming the plan is complete or beginning implementation.
   - Check: (1) environment and dependencies (e.g. `package.json`, `vitest.config.ts`), (2) single-source-of-truth domain invariants, (3) unambiguous test steps, (4) type consistency across tasks, and (5) edge case coverage. Explicitly confirm this review to the user before starting implementation.
+
+- **Strict Measure Baseline → Implement → Compare Delta Lifecycle (Optimization & Performance Tasks):**
+  - Whenever planning or executing performance, bundle size, storage, query, or runtime optimization work:
+    1. **Measure First (Task 1):** The audit/measurement tooling MUST be created and executed in Task 1—BEFORE modifying any application or build configuration—to record the empirical "Before" baseline snapshot on the active branch. Deferring measurement tooling to later tasks is strictly prohibited.
+    2. **Implement (Task 2):** Apply targeted optimization changes and verify unit tests pass.
+    3. **Compare Delta (Task 3):** Re-run the measurement tooling on the optimized build and generate a direct side-by-side comparative table showing the exact quantitative delta ($\text{Before} - \text{After}$, absolute reduction, and percentage saved per route/component and in total).
+    4. **Verify & Document (Task 4):** Complete quality gates and sync roadmap/docs with verified empirical evidence.
