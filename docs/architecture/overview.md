@@ -152,7 +152,7 @@ The application cleanly partitions responsibilities between code executing in th
   - **Intent & Real-World Logistics:** In practice, teammates often communicate cancellations, late arrivals, or last-minute substitutes via WhatsApp, phone calls, or verbally at the venue rather than opening the app themselves.
   - **Override Capabilities:** To prevent team rosters from stalling, administrators have explicit authority to act on behalf of any teammate directly from the lineup interface:
     - _Override Decline:_ Mark an attending player as declined, which automatically promotes the next reserve player in FIFO queue order.
-    - _Override Attend:_ Re-enroll a previously declined or reserve player into attendance.
+    - _Override Attend:_ Enroll an unresponded registered teammate (via `+ Teamlid toevoegen`) or re-enroll a previously declined or reserve player into attendance.
     - _Roster Reordering:_ Drag-and-drop or re-index active attendees when specific lineup composition or table agreements require custom priority.
   - **Self-Override Invariant:** Because admins are also players, an admin can override their own status via admin controls. The client state architecture guarantees that personal RSVP buttons and roster entries stay 100% synchronized in the same render cycle (see [Client RSVP State: Single Source of Truth](./rsvp-state.md)).
 - **Concurrency & Reordering:** Strict transactional updates via Prisma ensure that concurrent RSVPs, admin declines, and manual roster reordering maintain roster consistency without race conditions.

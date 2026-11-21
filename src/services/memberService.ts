@@ -1,6 +1,18 @@
 import { prisma } from "@/lib/db";
 import type { Member } from "@prisma/client";
 
+export async function getAllMembers(): Promise<Array<{ id: string; name: string }>> {
+  return prisma.member.findMany({
+    select: {
+      id: true,
+      name: true,
+    },
+    orderBy: {
+      name: "asc",
+    },
+  });
+}
+
 export async function updateMemberRole(
   targetMemberId: string,
   newRole: "USER" | "ADMIN",

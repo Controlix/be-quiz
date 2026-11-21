@@ -2,6 +2,7 @@ import { notFound, redirect } from "next/navigation";
 import { getQuizById } from "@/services/quizService";
 import { getSessionMember } from "@/lib/auth";
 import { getQuizRatingSummary } from "@/services/ratingService";
+import { getAllMembers } from "@/services/memberService";
 import { QuizDetailClient } from "@/components/QuizDetailClient";
 
 export const dynamic = "force-dynamic";
@@ -24,6 +25,7 @@ export default async function QuizDetailPage({ params }: QuizPageProps) {
   }
 
   const ratingSummary = await getQuizRatingSummary(quiz.id, currentMember.id);
+  const allMembers = currentMember.role === "ADMIN" ? await getAllMembers() : [];
 
   return (
     <QuizDetailClient
@@ -32,6 +34,7 @@ export default async function QuizDetailPage({ params }: QuizPageProps) {
       currentMemberName={currentMember.name}
       isAdmin={currentMember.role === "ADMIN"}
       initialRatingSummary={ratingSummary}
+      allMembers={allMembers}
     />
   );
 }

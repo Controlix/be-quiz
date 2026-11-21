@@ -148,44 +148,64 @@ export async function adminOverrideAttend(
   teamId: string,
   memberId: string,
   adminId: string
-): Promise<void> {
-  const team = await prisma.$transaction(async (tx) => {
+): Promise<{ quizId: string }> {
+  const { quizId, changed } = await prisma.$transaction(async (tx) => {
     await tx.$executeRaw`SELECT id FROM "Team" WHERE id = ${teamId} FOR UPDATE`;
 
-    await tx.rsvp.upsert({
+    const existing = await tx.rsvp.findUnique({
       where: {
         teamId_memberId: {
           teamId,
           memberId,
         },
       },
-      update: {
-        status: "ATTENDING",
-        queuedSince: new Date(),
-        overriddenById: adminId,
-        overriddenAt: new Date(),
-      },
-      create: {
-        teamId,
-        memberId,
-        status: "ATTENDING",
-        queuedSince: new Date(),
-        overriddenById: adminId,
-        overriddenAt: new Date(),
-      },
+      select: { status: true },
     });
 
-    return tx.team.findUniqueOrThrow({
+    const alreadyAttending = existing?.status === "ATTENDING";
+
+    if (!alreadyAttending) {
+      await tx.rsvp.upsert({
+        where: {
+          teamId_memberId: {
+            teamId,
+            memberId,
+          },
+        },
+        update: {
+          status: "ATTENDING",
+          queuedSince: new Date(),
+          overriddenById: adminId,
+          overriddenAt: new Date(),
+        },
+        create: {
+          teamId,
+          memberId,
+          status: "ATTENDING",
+          queuedSince: new Date(),
+          overriddenById: adminId,
+          overriddenAt: new Date(),
+        },
+      });
+    }
+
+    const team = await tx.team.findUniqueOrThrow({
       where: { id: teamId },
       select: { quizId: true },
     });
+
+    return { quizId: team.quizId, changed: !alreadyAttending };
   });
 
-  domainEvents.emit({
-    type: "team.roster_changed",
-    quizId: team.quizId,
-    occurredAt: new Date(),
-  });
+  if (changed) {
+    domainEvents.emit({
+      type: "team.roster_changed",
+      quizId,
+      occurredAt: new Date(),
+    });
+  }
+
+  return { quizId };
 }
 
 export async function updateTeamCapacity(teamId: string, newMaxTeamSize: number): Promise<void> {

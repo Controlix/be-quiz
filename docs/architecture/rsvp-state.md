@@ -79,12 +79,12 @@ The reducer explicitly separates a player's personal RSVP intention (`USER_RSVP`
 
 Every change goes through `dispatchRsvp`:
 
-| Action                   | When it happens                               | What it does                                                                                    |
-| ------------------------ | --------------------------------------------- | ----------------------------------------------------------------------------------------------- |
-| `USER_RSVP`              | Player taps _"Ik doe mee"_ or _"Ik pas"_      | Updates or adds the member's status; sets `queuedSince = now` if attending.                     |
-| `ADMIN_OVERRIDE_DECLINE` | Admin clicks _"Afzeggen"_ for any player      | Sets status to `"DECLINED"` and zeroes `queuedSince = null`.                                    |
-| `ADMIN_OVERRIDE_ATTEND`  | Admin clicks `+ Aanmelden` on a declined chip | Sets status to `"ATTENDING"` and assigns new `queuedSince = now`.                               |
-| `ADMIN_REORDER`          | Admin drag-and-drops active lineup members    | Re-indexes `queuedSince` timestamps among attending players. Leaves declined players untouched. |
+| Action                   | When it happens                                                                                          | What it does                                                                                                                                                         |
+| ------------------------ | -------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `USER_RSVP`              | Player taps _"Ik doe mee"_ or _"Ik pas"_                                                                 | Updates or adds the member's status; sets `queuedSince = now` if attending.                                                                                          |
+| `ADMIN_OVERRIDE_DECLINE` | Admin clicks _"Afzeggen"_ for any player                                                                 | Sets status to `"DECLINED"` and zeroes `queuedSince = null`.                                                                                                         |
+| `ADMIN_OVERRIDE_ATTEND`  | Admin clicks `+ Aanmelden` on a declined chip or enrolls an unresponded member via `+ Teamlid toevoegen` | Sets status to `"ATTENDING"` (or appends a new entry with optional `name`) and assigns `queuedSince = now`. No-op preserving `queuedSince` if already `"ATTENDING"`. |
+| `ADMIN_REORDER`          | Admin drag-and-drops active lineup members                                                               | Re-indexes `queuedSince` timestamps among attending players. Leaves declined players untouched.                                                                      |
 
 ---
 
@@ -121,6 +121,19 @@ Instead of updating child arrays manually, components receive purely derived dat
        .map(...);
 
      return { attendees, declined };
+   }
+   ```
+3. **Unresponded Registered Members:**
+   ```typescript
+   export function deriveUnrespondedMembers(
+     allMembers: Array<{ id: string; name: string }>,
+     rsvps: ClientRsvp[],
+     excludeMemberId?: string
+   ): Array<{ id: string; name: string }> {
+     const respondedIds = new Set(rsvps.filter((r) => Boolean(r.memberId)).map((r) => r.memberId!));
+     return allMembers.filter(
+       (m) => (!excludeMemberId || m.id !== excludeMemberId) && !respondedIds.has(m.id)
+     );
    }
    ```
 

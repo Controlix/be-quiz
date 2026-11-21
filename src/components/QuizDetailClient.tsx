@@ -9,6 +9,7 @@ import { ActionToolbar } from "@/components/ActionToolbar";
 import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { AlertDialog } from "@/components/AlertDialog";
 import { AddGuestDialog } from "@/components/AddGuestDialog";
+import { EnrollMemberDialog } from "@/components/EnrollMemberDialog";
 import { joinQuizRsvpAction, declineQuizRsvpAction } from "@/actions/rsvpActions";
 import { adminOverrideDeclineAction, adminOverrideAttendAction } from "@/actions/adminActions";
 import { adminReorderRsvpAction } from "@/actions/reorderActions";
@@ -19,6 +20,7 @@ import {
   rsvpReducer,
   deriveCurrentUserStatus,
   deriveLineupRosters,
+  deriveUnrespondedMembers,
   ClientRsvp,
 } from "@/lib/rsvpReducer";
 import { isQuizConcluded, QuizRatingSummary } from "@/lib/ratingRules";
@@ -31,6 +33,7 @@ interface QuizDetailClientProps {
   currentMemberName?: string;
   isAdmin?: boolean;
   initialRatingSummary?: QuizRatingSummary;
+  allMembers?: Array<{ id: string; name: string }>;
 }
 
 export function QuizDetailClient({
@@ -39,6 +42,7 @@ export function QuizDetailClient({
   currentMemberName = "Lid",
   isAdmin = false,
   initialRatingSummary,
+  allMembers = [],
 }: QuizDetailClientProps) {
   const team = quiz.team;
   const initialRsvps: ClientRsvp[] = (team?.rsvps || []).map((r: any) => ({
@@ -61,6 +65,7 @@ export function QuizDetailClient({
 
   const currentUserRsvp = deriveCurrentUserStatus(rsvps, currentMemberId);
   const { attendees, declined: declinedMembers } = deriveLineupRosters(rsvps, currentMemberId);
+  const enrollableMembers = deriveUnrespondedMembers(allMembers, rsvps, currentMemberId);
 
   const [isRegistered, setIsRegistered] = useState(team?.registeredAt !== null);
   const [isPaid, setIsPaid] = useState(team?.paidAt !== null);
@@ -70,6 +75,8 @@ export function QuizDetailClient({
   );
   const [isAddGuestOpen, setIsAddGuestOpen] = useState(false);
   const [isAddingGuest, setIsAddingGuest] = useState(false);
+  const [isEnrollMemberOpen, setIsEnrollMemberOpen] = useState(false);
+  const [isEnrollingMember, setIsEnrollingMember] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleRsvpChange = async (status: "ATTENDING" | "DECLINED") => {
@@ -138,8 +145,29 @@ export function QuizDetailClient({
   };
 
   const handleAdminOverrideAttend = async (memberId: string) => {
-    dispatchRsvp({ type: "ADMIN_OVERRIDE_ATTEND", memberId });
-    await adminOverrideAttendAction(team.id, memberId, currentMemberId);
+    try {
+      const res = await adminOverrideAttendAction(team.id, memberId, currentMemberId);
+      if (!res.success) {
+        setErrorMessage(res.error || "Fout bij aanmelden van speler");
+        return;
+      }
+      dispatchRsvp({ type: "ADMIN_OVERRIDE_ATTEND", memberId });
+    } catch (err: any) {
+      setErrorMessage(err?.message || "Fout bij aanmelden van speler");
+    }
+  };
+
+  const handleEnrollMember = async (memberId: string, memberName: string) => {
+    setIsEnrollingMember(true);
+    try {
+      const res = await adminOverrideAttendAction(team.id, memberId, currentMemberId);
+      if (!res.success) {
+        throw new Error(res.error || "Fout bij aanmelden van teamlid");
+      }
+      dispatchRsvp({ type: "ADMIN_OVERRIDE_ATTEND", memberId, name: memberName });
+    } finally {
+      setIsEnrollingMember(false);
+    }
   };
 
   const handleReorder = async (sourceIndex: number, destinationIndex: number) => {
@@ -258,9 +286,9 @@ export function QuizDetailClient({
         reservePosition={reservePosition}
       />
 
-      {/* Guest Player Addition */}
+      {/* Guest & Admin Member Addition */}
       {!isLockedForUser && (
-        <div className="mb-4 flex items-center justify-between">
+        <div className="mb-4 flex flex-wrap items-center gap-2">
           <button
             type="button"
             onClick={() => setIsAddGuestOpen(true)}
@@ -269,6 +297,16 @@ export function QuizDetailClient({
             <UserPlus className="h-3.5 w-3.5 text-blue-600" />
             <span>+ Gast toevoegen</span>
           </button>
+          {isAdmin && (
+            <button
+              type="button"
+              onClick={() => setIsEnrollMemberOpen(true)}
+              className="inline-flex items-center gap-1.5 rounded-xl border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 shadow-2xs hover:bg-slate-50 hover:text-slate-900"
+            >
+              <UserPlus className="h-3.5 w-3.5 text-blue-600" />
+              <span>+ Teamlid toevoegen</span>
+            </button>
+          )}
         </div>
       )}
 
@@ -318,6 +356,14 @@ export function QuizDetailClient({
         onClose={() => setIsAddGuestOpen(false)}
         onAddGuest={handleAddGuest}
         isSubmitting={isAddingGuest}
+      />
+
+      <EnrollMemberDialog
+        isOpen={isEnrollMemberOpen}
+        onClose={() => setIsEnrollMemberOpen(false)}
+        availableMembers={enrollableMembers}
+        onEnroll={handleEnrollMember}
+        isSubmitting={isEnrollingMember}
       />
 
       <AlertDialog

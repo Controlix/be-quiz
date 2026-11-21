@@ -3,6 +3,7 @@ import {
   rsvpReducer,
   deriveCurrentUserStatus,
   deriveLineupRosters,
+  deriveUnrespondedMembers,
   ClientRsvp,
 } from "../../src/lib/rsvpReducer";
 
@@ -234,5 +235,69 @@ describe("rsvpReducer & State Derivations", () => {
     expect(attendees[1].isGuest).toBe(true);
     expect(attendees[1].guestName).toBe("Bob");
     expect(attendees[1].invitedByName).toBe("Alice");
+  });
+
+  it("enrolls an unresponded member via ADMIN_OVERRIDE_ATTEND with provided name", () => {
+    const nextState = rsvpReducer(initial, {
+      type: "ADMIN_OVERRIDE_ATTEND",
+      memberId: "member-3",
+      name: "Charlie",
+    });
+
+    expect(deriveCurrentUserStatus(nextState, "member-3")).toBe("ATTENDING");
+    const { attendees } = deriveLineupRosters(nextState, "admin-1");
+    expect(attendees.some((a) => a.memberId === "member-3" && a.name === "Charlie")).toBe(true);
+  });
+
+  it("keeps existing queuedSince unchanged if ADMIN_OVERRIDE_ATTEND targets an already ATTENDING member", () => {
+    const originalTime = initial[0].queuedSince;
+    const nextState = rsvpReducer(initial, {
+      type: "ADMIN_OVERRIDE_ATTEND",
+      memberId: "admin-1",
+      name: "Admin Alex",
+    });
+
+    expect(nextState).toBe(initial);
+    expect(nextState[0].queuedSince).toBe(originalTime);
+  });
+
+  it("derives only unresponded members (excluding both ATTENDING, DECLINED, and ignoring guest rows)", () => {
+    const stateWithGuest: ClientRsvp[] = [
+      ...initial,
+      {
+        id: "guest-1",
+        memberId: null,
+        guestName: "Sarah",
+        name: "Sarah",
+        isGuest: true,
+        status: "ATTENDING",
+        queuedSince: new Date(3000),
+      },
+    ];
+    const allMembers = [
+      { id: "admin-1", name: "Admin Alex" },
+      { id: "user-2", name: "User Bob" },
+      { id: "user-3", name: "Charlie" },
+      { id: "user-4", name: "Dana" },
+    ];
+
+    expect(deriveUnrespondedMembers(allMembers, stateWithGuest)).toEqual([
+      { id: "user-3", name: "Charlie" },
+      { id: "user-4", name: "Dana" },
+    ]);
+  });
+
+  it("excludes current active member from unresponded members when excludeMemberId is specified", () => {
+    const allMembers = [
+      { id: "admin-1", name: "Admin Alex" },
+      { id: "user-3", name: "Charlie" },
+      { id: "user-4", name: "Dana" },
+    ];
+    // No one has RSVPed in empty array
+    const unresponded = deriveUnrespondedMembers(allMembers, [], "admin-1");
+    expect(unresponded).toEqual([
+      { id: "user-3", name: "Charlie" },
+      { id: "user-4", name: "Dana" },
+    ]);
   });
 });

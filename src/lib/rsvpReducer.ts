@@ -15,7 +15,7 @@ export type RsvpAction =
   | { type: "ADD_GUEST"; id: string; guestName: string; invitedById: string; invitedByName: string }
   | { type: "REMOVE_GUEST"; id: string }
   | { type: "ADMIN_OVERRIDE_DECLINE"; memberId: string }
-  | { type: "ADMIN_OVERRIDE_ATTEND"; memberId: string }
+  | { type: "ADMIN_OVERRIDE_ATTEND"; memberId: string; name?: string }
   | { type: "ADMIN_REORDER"; sourceIndex: number; destinationIndex: number };
 
 export function rsvpReducer(state: ClientRsvp[], action: RsvpAction): ClientRsvp[] {
@@ -74,9 +74,28 @@ export function rsvpReducer(state: ClientRsvp[], action: RsvpAction): ClientRsvp
     }
 
     case "ADMIN_OVERRIDE_ATTEND": {
-      return state.map((r) =>
-        r.memberId === action.memberId ? { ...r, status: "ATTENDING", queuedSince: new Date() } : r
-      );
+      const existing = state.find((r) => r.memberId === action.memberId);
+      if (existing) {
+        if (existing.status === "ATTENDING") {
+          return state;
+        }
+        return state.map((r) =>
+          r.memberId === action.memberId
+            ? { ...r, status: "ATTENDING", queuedSince: new Date() }
+            : r
+        );
+      }
+      return [
+        ...state,
+        {
+          id: action.memberId,
+          memberId: action.memberId,
+          name: action.name || "Teamlid",
+          isGuest: false,
+          status: "ATTENDING",
+          queuedSince: new Date(),
+        },
+      ];
     }
 
     case "ADMIN_REORDER": {
@@ -179,4 +198,15 @@ export function deriveLineupRosters(
     }));
 
   return { attendees, declined };
+}
+
+export function deriveUnrespondedMembers(
+  allMembers: Array<{ id: string; name: string }>,
+  rsvps: ClientRsvp[],
+  excludeMemberId?: string
+): Array<{ id: string; name: string }> {
+  const respondedIds = new Set(rsvps.filter((r) => Boolean(r.memberId)).map((r) => r.memberId!));
+  return allMembers.filter(
+    (m) => (!excludeMemberId || m.id !== excludeMemberId) && !respondedIds.has(m.id)
+  );
 }

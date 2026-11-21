@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from "vitest";
+import { revalidatePath } from "next/cache";
 import { adminOverrideAttendAction } from "../../src/actions/adminActions";
 import * as auth from "../../src/lib/auth";
 import * as rsvpService from "../../src/services/rsvpService";
@@ -32,10 +33,29 @@ describe("adminOverrideAttendAction", () => {
       role: "ADMIN",
       name: "Admin",
     } as any);
-    vi.spyOn(rsvpService, "adminOverrideAttend").mockResolvedValue(undefined as any);
+    vi.spyOn(rsvpService, "adminOverrideAttend").mockResolvedValue({ quizId: "quiz-1" });
 
     const result = await adminOverrideAttendAction("team-1", "member-1", "admin-1");
     expect(result.success).toBe(true);
     expect(rsvpService.adminOverrideAttend).toHaveBeenCalledWith("team-1", "member-1", "admin-1");
+  });
+
+  it("uses session currentMember.id rather than client adminId and revalidates quiz detail path", async () => {
+    vi.spyOn(auth, "getSessionMember").mockResolvedValue({
+      id: "real-admin",
+      role: "ADMIN",
+      name: "Real Admin",
+    } as any);
+    vi.spyOn(rsvpService, "adminOverrideAttend").mockResolvedValue({ quizId: "quiz-42" });
+
+    const result = await adminOverrideAttendAction("team-1", "member-1", "spoofed-admin");
+    expect(result.success).toBe(true);
+    expect(rsvpService.adminOverrideAttend).toHaveBeenCalledWith(
+      "team-1",
+      "member-1",
+      "real-admin"
+    );
+    expect(revalidatePath).toHaveBeenCalledWith("/quizzes");
+    expect(revalidatePath).toHaveBeenCalledWith("/quizzes/quiz-42");
   });
 });
