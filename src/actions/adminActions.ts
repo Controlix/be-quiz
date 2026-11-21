@@ -152,7 +152,7 @@ export async function adminUpdateDefaultTeamNameAction(newName: string) {
 export async function adminOverrideAttendAction(
   teamId: string,
   memberId: string,
-  adminId: string
+  _adminId?: string
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const currentMember = await getSessionMember();
@@ -160,9 +160,12 @@ export async function adminOverrideAttendAction(
       return { success: false, error: "Niet geautoriseerd." };
     }
 
-    await adminOverrideAttend(teamId, memberId, adminId);
+    const result = await adminOverrideAttend(teamId, memberId, currentMember.id);
     try {
       revalidatePath("/quizzes");
+      if (result?.quizId) {
+        revalidatePath(`/quizzes/${result.quizId}`);
+      }
     } catch {}
     return { success: true };
   } catch (err: any) {

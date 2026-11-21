@@ -5,6 +5,22 @@ All notable changes to the **Pub Quiz App (BE-Quiz)** project will be documented
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.6.0] - 2026-11-21
+
+### Added
+
+- **Admin Direct Member Lineup Enrollment (`src/components/EnrollMemberDialog.tsx`, `src/components/QuizDetailClient.tsx`, `src/app/quizzes/[id]/page.tsx`):** Added an admin-only `+ Teamlid toevoegen` button beside `+ Gast toevoegen` on quiz detail pages, opening a 1-tap selection dialog listing registered teammates who have not yet responded for the quiz.
+- **Unresponded Member Query (`src/services/memberService.ts`):** Added `getAllMembers()` returning alphabetically sorted `{ id, name }` member summaries, fetched server-side exclusively for authenticated `ADMIN` sessions.
+- **Pure Unresponded Derivation (`src/lib/rsvpReducer.ts`):** Added `deriveUnrespondedMembers()` to compute eligible unresponded teammates directly from the single authoritative `rsvpReducer` state while safely ignoring external guest entries (`memberId: null`).
+
+### Changed & Hardened
+
+- **Session Audit Authority & Cache Revalidation (`src/actions/adminActions.ts`):** Hardened `adminOverrideAttendAction` to source `overriddenById` strictly from the verified session (`currentMember.id`) rather than client parameters, and to revalidate both `/quizzes` and `/quizzes/[id]`.
+- **Concurrent Queue Preservation (`src/services/rsvpService.ts`, `src/lib/rsvpReducer.ts`):** Guarded `adminOverrideAttend` (both inside PostgreSQL `SELECT ... FOR UPDATE` transactions and in `rsvpReducer`) so enrolling a member who is already `ATTENDING` preserves their existing `queuedSince` timestamp instead of bumping them to the back of the queue.
+- **Error-Safe Admin Override Handler (`src/components/QuizDetailClient.tsx`):** Updated `handleAdminOverrideAttend` to await `{ success: true }` from `adminOverrideAttendAction` before updating client state, surfacing server errors via `AlertDialog`.
+
+---
+
 ## [v2.5.0] - 2026-11-12
 
 ### Added

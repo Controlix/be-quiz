@@ -68,4 +68,59 @@ describe("adminOverrideAttend Service", () => {
     expect(reserves.length).toBe(1);
     expect(reserves[0].memberId).toBe(m2.id);
   });
+
+  it("enrolls a never-responded member into reserves when team is full and returns quizId", async () => {
+    const admin = await prisma.member.create({
+      data: { name: `AdminNever-${Date.now()}`, role: "ADMIN" },
+    });
+    const quiz = await createQuiz(
+      {
+        title: "Never Responded Quiz",
+        startsAt: new Date(Date.now() + 86400000),
+        location: "Gent",
+        maxTeamSize: 1,
+      },
+      admin.id
+    );
+    const activePlayer = await prisma.member.create({ data: { name: `First-${Date.now()}` } });
+    const unresponded = await prisma.member.create({ data: { name: `Silent-${Date.now()}` } });
+
+    await setRsvp(quiz.team!.id, activePlayer.id, "ATTENDING");
+    const result = await adminOverrideAttend(quiz.team!.id, unresponded.id, admin.id);
+
+    expect(result).toEqual({ quizId: quiz.id });
+    const { active, reserves } = await getRsvpLineup(quiz.team!.id);
+    expect(active.map((a) => a.memberId)).toEqual([activePlayer.id]);
+    expect(reserves.map((r) => r.memberId)).toEqual([unresponded.id]);
+    expect(reserves[0].overriddenById).toBe(admin.id);
+  });
+
+  it("preserves existing queuedSince when member is already ATTENDING", async () => {
+    const admin = await prisma.member.create({
+      data: { name: `AdminPres-${Date.now()}`, role: "ADMIN" },
+    });
+    const quiz = await createQuiz(
+      {
+        title: "Preserve Queue Quiz",
+        startsAt: new Date(Date.now() + 86400000),
+        location: "Gent",
+        maxTeamSize: 4,
+      },
+      admin.id
+    );
+    const member = await prisma.member.create({ data: { name: `AlreadyIn-${Date.now()}` } });
+
+    await setRsvp(quiz.team!.id, member.id, "ATTENDING");
+    const before = await prisma.rsvp.findUniqueOrThrow({
+      where: { teamId_memberId: { teamId: quiz.team!.id, memberId: member.id } },
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 20));
+    await adminOverrideAttend(quiz.team!.id, member.id, admin.id);
+
+    const after = await prisma.rsvp.findUniqueOrThrow({
+      where: { teamId_memberId: { teamId: quiz.team!.id, memberId: member.id } },
+    });
+    expect(after.queuedSince?.getTime()).toBe(before.queuedSince?.getTime());
+  });
 });

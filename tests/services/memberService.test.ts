@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from "vitest";
 import { prisma } from "../../src/lib/db";
-import { updateMemberRole } from "../../src/services/memberService";
+import { updateMemberRole, getAllMembers } from "../../src/services/memberService";
 
 describe("memberService.updateMemberRole", () => {
   it("rejects self-demotion when actorId equals targetMemberId and newRole is USER", async () => {
@@ -101,5 +101,21 @@ describe("memberService.updateMemberRole", () => {
 
     const reloaded = await prisma.member.findUnique({ where: { id: admin2.id } });
     expect(reloaded?.role).toBe("USER");
+  });
+});
+
+describe("memberService.getAllMembers", () => {
+  it("returns member id and name sorted alphabetically", async () => {
+    const suffix = Date.now();
+    await prisma.member.create({ data: { name: `Zara-${suffix}` } });
+    await prisma.member.create({ data: { name: `Anna-${suffix}` } });
+
+    const members = await getAllMembers();
+    const zaraIndex = members.findIndex((m) => m.name === `Zara-${suffix}`);
+    const annaIndex = members.findIndex((m) => m.name === `Anna-${suffix}`);
+
+    expect(annaIndex).toBeGreaterThanOrEqual(0);
+    expect(zaraIndex).toBeGreaterThan(annaIndex);
+    expect(Object.keys(members[annaIndex]).sort()).toEqual(["id", "name"]);
   });
 });

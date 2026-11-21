@@ -1,6 +1,6 @@
 # Pub Quiz App (BE-Quiz) — Roadmap & Feature Backlog
 
-**Current App Version:** `v2.5.0` (Guest Players)  
+**Current App Version:** `v2.6.0` (Admin Member Lineup Enrollment)  
 This document is the **single source of truth for active and planned roadmap items**. For past releases and completed milestone notes, see [CHANGELOG.md](../CHANGELOG.md) and [Feedback Archives](superpowers/feedback/).
 
 ---
@@ -29,37 +29,36 @@ To maximize development impact and protect service stability, backlog items acro
 | :----- | :-------------------------------------------------------------------------------------------------------------------------- | :---------------- | :-------------------------------------------------------- |
 | **1**  | **[#12 Vercel Storage Optimization](#12-vercel-functions-storage--serverless-bundle-optimization)**                         | Infrastructure    | Prevents deployment failure at 74% storage limit          |
 | **2**  | **[#1 Admin Edit Quiz Details](#1-admin-edit-quiz-details-error-correction)**                                               | Core Admin        | Eliminates manual database surgery for typos              |
-| **3**  | **[#10 Admin Direct Member Enrollment](#10-admin-direct-member-lineup-enrollment-non-responding-members)**                  | Team Operations   | Captain can add players confirming via WhatsApp           |
-| **4**  | **[#4 Direct Registration Toggle](#4-direct-registration-toggle-without-email)**                                            | Team Operations   | Accurate registration tracking without email clients      |
-| **5**  | **[#3 Venue Maps Integration](#3-venue-maps-integration--navigation)**                                                      | Player Experience | 1-tap route navigation on quiz night                      |
-| **6**  | **[#8 Quiz Start Lockdown](#8-quiz-start-lockdown--historical-immutability)**                                               | Data Integrity    | Freezes lineups & RSVPs once quiz starts (Spec ready)     |
-| **7**  | **[#7 Duplicate Quiz Detection](#7-duplicate-quiz-detection-on-entry)**                                                     | Data Hygiene      | Prevents split RSVPs and duplicate events                 |
-| **8**  | **[#B.4 Multiple Teams per Quiz](#b-teams--headcount)**                                                                     | Team Operations   | Allows fielding 2 teams when 8 people sign up             |
-| **9**  | **[#6 Date & Time Input Picker](#6-date--time-input-flexibility-calendar-picker--time-selector)**                           | Admin Ergonomics  | Eliminates manual typing of dates/times on mobile         |
-| **10** | **[#13 Responsive Tablet & Rotation Layout](#13-responsive-tablet--smartphone-rotation-layout-optimization-pwa-landscape)** | UX / Responsive   | Optimizes screen usage on tablets and rotated smartphones |
-| **11** | **[#C.6 Secure PIN Storage Upgrade](#c-member-management--security)**                                                       | Security          | Replaces unsalted SHA-256 with salted/bcrypt hash         |
-| **12** | **[#C.7 / C.8 Member Soft-Delete & Details](#c-member-management--security)**                                               | Admin Management  | Clean roster management without breaking history          |
-| **13** | **[#A.2 Public Share Preview](#a-integrations--logistics)**                                                                 | Growth / Subbing  | Shareable preview link for WhatsApp group chats           |
-| **14** | **[#5 WhatsApp Share for Invites](#5-whatsapp-share-for-member-invites)**                                                   | Admin Ergonomics  | 1-tap invite link sharing via WhatsApp                    |
-| **15** | **[#E.13 Dependabot Grouping Config](#e-cicd--dependency-automation-infrastructure)**                                       | CI / CD           | Stops failing Prisma 7 / TS 7 Dependabot PRs              |
-| **16** | **[#C.9 Hard Delete with Confirmation](#c-member-management--security)**                                                    | Admin Utility     | Permanent removal of test/erroneous entries               |
-| **17** | **[#9 Dynamic Browser Tab Title](#9-dynamic-browser-tab-title-team-name-synchronization)**                                  | Bugfix / Cosmetic | Injects custom team name into page `<title>`              |
-| **18** | **[#11 Fractional Star Rating](#11-read-only-fractional-star-rating-component)**                                            | Visual Polish     | Clipped SVG decimal stars (Spec ready)                    |
-| **19** | **[#2 Dynamic Capacity Icon](#2-dynamic-capacity-icon-for-player-count)**                                                   | Visual Polish     | Dynamic icon alongside player ratio                       |
-| **20** | **[#A.1 Carpooling & Ride-Sharing](#a-integrations--logistics)**                                                            | Feature           | Complex; already handled organically in WhatsApp          |
-| **21** | **[#D.12 Smart Historical Suggestion](#d-post-quiz-evaluation--historical-insights)**                                       | Insights          | Suggests past ratings on entry (Deferred)                 |
+| **3**  | **[#4 Direct Registration Toggle](#4-direct-registration-toggle-without-email)**                                            | Team Operations   | Accurate registration tracking without email clients      |
+| **4**  | **[#3 Venue Maps Integration](#3-venue-maps-integration--navigation)**                                                      | Player Experience | 1-tap route navigation on quiz night                      |
+| **5**  | **[#8 Quiz Start Lockdown](#8-quiz-start-lockdown--historical-immutability)**                                               | Data Integrity    | Freezes lineups & RSVPs once quiz starts (Spec ready)     |
+| **6**  | **[#7 Duplicate Quiz Detection](#7-duplicate-quiz-detection-on-entry)**                                                     | Data Hygiene      | Prevents split RSVPs and duplicate events                 |
+| **7**  | **[#B.4 Multiple Teams per Quiz](#b-teams--headcount)**                                                                     | Team Operations   | Allows fielding 2 teams when 8 people sign up             |
+| **8**  | **[#6 Date & Time Input Picker](#6-date--time-input-flexibility-calendar-picker--time-selector)**                           | Admin Ergonomics  | Eliminates manual typing of dates/times on mobile         |
+| **9**  | **[#13 Responsive Tablet & Rotation Layout](#13-responsive-tablet--smartphone-rotation-layout-optimization-pwa-landscape)** | UX / Responsive   | Optimizes screen usage on tablets and rotated smartphones |
+| **10** | **[#C.6 Secure PIN Storage Upgrade](#c-member-management--security)**                                                       | Security          | Replaces unsalted SHA-256 with salted/bcrypt hash         |
+| **11** | **[#C.7 / C.8 Member Soft-Delete & Details](#c-member-management--security)**                                               | Admin Management  | Clean roster management without breaking history          |
+| **12** | **[#A.2 Public Share Preview](#a-integrations--logistics)**                                                                 | Growth / Subbing  | Shareable preview link for WhatsApp group chats           |
+| **13** | **[#5 WhatsApp Share for Invites](#5-whatsapp-share-for-member-invites)**                                                   | Admin Ergonomics  | 1-tap invite link sharing via WhatsApp                    |
+| **14** | **[#E.13 Dependabot Grouping Config](#e-cicd--dependency-automation-infrastructure)**                                       | CI / CD           | Stops failing Prisma 7 / TS 7 Dependabot PRs              |
+| **15** | **[#C.9 Hard Delete with Confirmation](#c-member-management--security)**                                                    | Admin Utility     | Permanent removal of test/erroneous entries               |
+| **16** | **[#9 Dynamic Browser Tab Title](#9-dynamic-browser-tab-title-team-name-synchronization)**                                  | Bugfix / Cosmetic | Injects custom team name into page `<title>`              |
+| **17** | **[#11 Fractional Star Rating](#11-read-only-fractional-star-rating-component)**                                            | Visual Polish     | Clipped SVG decimal stars (Spec ready)                    |
+| **18** | **[#2 Dynamic Capacity Icon](#2-dynamic-capacity-icon-for-player-count)**                                                   | Visual Polish     | Dynamic icon alongside player ratio                       |
+| **19** | **[#A.1 Carpooling & Ride-Sharing](#a-integrations--logistics)**                                                            | Feature           | Complex; already handled organically in WhatsApp          |
+| **20** | **[#D.12 Smart Historical Suggestion](#d-post-quiz-evaluation--historical-insights)**                                       | Insights          | Suggests past ratings on entry (Deferred)                 |
 
 ### Tier Breakdown
 
-- **Tier 1: Critical Operational & Infrastructure Blockers (Ranks 1–3)**
+- **Tier 1: Critical Operational & Infrastructure Blockers (Ranks 1–2)**
   - Urgent technical debts or missing core administrative controls that risk platform stability or require direct database intervention.
-- **Tier 2: Real-World Workflow & Team Operations (Ranks 4–7)**
+- **Tier 2: Real-World Workflow & Team Operations (Ranks 3–6)**
   - High-frequency friction reducers that reflect how pub quiz teams actually register, travel, and finalize lineups.
-- **Tier 3: Core Mobile & Admin Quality of Life (Ranks 8–13)**
+- **Tier 3: Core Mobile & Admin Quality of Life (Ranks 7–12)**
   - Major ergonomic, responsive layout, security, and team capacity upgrades that simplify season-long management.
-- **Tier 4: Quick Wins & Dependency Hygiene (Ranks 14–17)**
+- **Tier 4: Quick Wins & Dependency Hygiene (Ranks 13–16)**
   - Minor functional bugfixes and configuration tuning with straightforward implementation paths.
-- **Tier 5: Visual Polish & Deferred Features (Ranks 18–21)**
+- **Tier 5: Visual Polish & Deferred Features (Ranks 17–20)**
   - Aesthetic enhancements or speculative features where existing habits (e.g. WhatsApp chats) already suffice.
 
 ---
@@ -141,16 +140,6 @@ To maximize development impact and protect service stability, backlog items acro
   - Dynamically inject the configured team name into the browser document title / Next.js metadata (`src/app/layout.tsx`).
   - Fall back cleanly to the default team name if not configured.
 - **Scope:** `src/app/layout.tsx` and team settings resolver.
-
-### 10. Admin Direct Member Lineup Enrollment (Non-Responding Members)
-
-- **Status:** `[ ] Open`
-- **Source:** In-App Suggestion (`cmwewq4mh0001l508oh0j4180`)
-- **Feedback:** Admins can only override RSVPs for members who have already responded or add external guests, but cannot directly enroll registered team members who haven't responded in the app yet (e.g. when confirmed via WhatsApp or in person).
-- **Requirement:**
-  - On the quiz detail view (`/quizzes/[id]`), provide an admin control (e.g. "+ Speler toevoegen" picker) listing team members who have not yet responded for this quiz.
-  - Adding a member creates an `ATTENDING` RSVP on their behalf and immediately places them into the lineup or reserve bench adhering to standard capacity and timestamp ordering.
-- **Scope:** `QuizDetailClient.tsx`, `TeamLineup.tsx`, `rsvpService.ts`, and server action `adminEnrollMemberAction`.
 
 ### 11. Read-Only Fractional Star Rating Component
 
