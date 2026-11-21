@@ -5,6 +5,15 @@ All notable changes to the **Pub Quiz App (BE-Quiz)** project will be documented
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [v2.6.1] - 2026-11-21
+
+### Added
+
+- **Dynamic Browser Tab & Web App Title (`src/app/layout.tsx`, `src/services/quizService.ts`):** Dynamically formatted the document title and `appleWebApp.title` metadata as `Be-Quiz - <teamname>` when a team name is configured in `TeamSetting`, falling back to `Be-Quiz` when unconfigured or empty (resolving in-app bug report `cmw6kdgcw0001l2086ji24qle`).
+- **Configured Team Name Resolver (`src/services/quizService.ts`):** Added `getConfiguredTeamName()` returning the raw configured team name string or `null` if unspecified or whitespace, keeping `getDefaultTeamName()` delegating to it with fallback to `"KwisVrienden"` for the main dashboard header.
+
+---
+
 ## [v2.6.0] - 2026-11-21
 
 ### Added

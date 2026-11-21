@@ -1,6 +1,6 @@
 # Pub Quiz App (BE-Quiz) — Roadmap & Feature Backlog
 
-**Current App Version:** `v2.6.0` (Admin Member Lineup Enrollment)  
+**Current App Version:** `v2.6.1` (Dynamic Browser Tab Title)  
 This document is the **single source of truth for active and planned roadmap items**. For past releases and completed milestone notes, see [CHANGELOG.md](../CHANGELOG.md) and [Feedback Archives](superpowers/feedback/).
 
 ---
@@ -25,40 +25,42 @@ To maximize development impact and protect service stability, backlog items acro
 
 ### Value Ranking Summary
 
-| Rank   | Item                                                                                                                        | Category          | Key Benefit                                               |
-| :----- | :-------------------------------------------------------------------------------------------------------------------------- | :---------------- | :-------------------------------------------------------- |
-| **1**  | **[#12 Vercel Storage Optimization](#12-vercel-functions-storage--serverless-bundle-optimization)**                         | Infrastructure    | Prevents deployment failure at 74% storage limit          |
-| **2**  | **[#1 Admin Edit Quiz Details](#1-admin-edit-quiz-details-error-correction)**                                               | Core Admin        | Eliminates manual database surgery for typos              |
-| **3**  | **[#4 Direct Registration Toggle](#4-direct-registration-toggle-without-email)**                                            | Team Operations   | Accurate registration tracking without email clients      |
-| **4**  | **[#3 Venue Maps Integration](#3-venue-maps-integration--navigation)**                                                      | Player Experience | 1-tap route navigation on quiz night                      |
-| **5**  | **[#8 Quiz Start Lockdown](#8-quiz-start-lockdown--historical-immutability)**                                               | Data Integrity    | Freezes lineups & RSVPs once quiz starts (Spec ready)     |
-| **6**  | **[#7 Duplicate Quiz Detection](#7-duplicate-quiz-detection-on-entry)**                                                     | Data Hygiene      | Prevents split RSVPs and duplicate events                 |
-| **7**  | **[#B.4 Multiple Teams per Quiz](#b-teams--headcount)**                                                                     | Team Operations   | Allows fielding 2 teams when 8 people sign up             |
-| **8**  | **[#6 Date & Time Input Picker](#6-date--time-input-flexibility-calendar-picker--time-selector)**                           | Admin Ergonomics  | Eliminates manual typing of dates/times on mobile         |
-| **9**  | **[#13 Responsive Tablet & Rotation Layout](#13-responsive-tablet--smartphone-rotation-layout-optimization-pwa-landscape)** | UX / Responsive   | Optimizes screen usage on tablets and rotated smartphones |
-| **10** | **[#C.6 Secure PIN Storage Upgrade](#c-member-management--security)**                                                       | Security          | Replaces unsalted SHA-256 with salted/bcrypt hash         |
-| **11** | **[#C.7 / C.8 Member Soft-Delete & Details](#c-member-management--security)**                                               | Admin Management  | Clean roster management without breaking history          |
-| **12** | **[#A.2 Public Share Preview](#a-integrations--logistics)**                                                                 | Growth / Subbing  | Shareable preview link for WhatsApp group chats           |
-| **13** | **[#5 WhatsApp Share for Invites](#5-whatsapp-share-for-member-invites)**                                                   | Admin Ergonomics  | 1-tap invite link sharing via WhatsApp                    |
-| **14** | **[#E.13 Dependabot Grouping Config](#e-cicd--dependency-automation-infrastructure)**                                       | CI / CD           | Stops failing Prisma 7 / TS 7 Dependabot PRs              |
-| **15** | **[#C.9 Hard Delete with Confirmation](#c-member-management--security)**                                                    | Admin Utility     | Permanent removal of test/erroneous entries               |
-| **16** | **[#9 Dynamic Browser Tab Title](#9-dynamic-browser-tab-title-team-name-synchronization)**                                  | Bugfix / Cosmetic | Injects custom team name into page `<title>`              |
-| **17** | **[#11 Fractional Star Rating](#11-read-only-fractional-star-rating-component)**                                            | Visual Polish     | Clipped SVG decimal stars (Spec ready)                    |
-| **18** | **[#2 Dynamic Capacity Icon](#2-dynamic-capacity-icon-for-player-count)**                                                   | Visual Polish     | Dynamic icon alongside player ratio                       |
-| **19** | **[#A.1 Carpooling & Ride-Sharing](#a-integrations--logistics)**                                                            | Feature           | Complex; already handled organically in WhatsApp          |
-| **20** | **[#D.12 Smart Historical Suggestion](#d-post-quiz-evaluation--historical-insights)**                                       | Insights          | Suggests past ratings on entry (Deferred)                 |
+| Rank   | Item                                                                                                                        | Category           | Key Benefit                                                    |
+| :----- | :-------------------------------------------------------------------------------------------------------------------------- | :----------------- | :------------------------------------------------------------- |
+| **1**  | **[#12 Vercel Storage Optimization](#12-vercel-functions-storage--serverless-bundle-optimization)**                         | Infrastructure     | Prevents deployment failure at 74% storage limit               |
+| **2**  | **[#1 Admin Edit Quiz Details](#1-admin-edit-quiz-details-error-correction)**                                               | Core Admin         | Eliminates manual database surgery for typos                   |
+| **3**  | **[#3 Venue Maps Integration](#3-venue-maps-integration--navigation)**                                                      | Player Experience  | 1-tap route navigation on quiz night                           |
+| **4**  | **[#8 Quiz Start Lockdown](#8-quiz-start-lockdown--historical-immutability)**                                               | Data Integrity     | Freezes lineups & RSVPs once quiz starts (Spec ready)          |
+| **5**  | **[#6 Duplicate Quiz Detection](#6-duplicate-quiz-detection-on-entry)**                                                     | Data Hygiene       | Prevents split RSVPs and duplicate events                      |
+| **6**  | **[#7 Quiz Schedule Conflict Indicator](#7-quiz-schedule--date-conflict-indicator)**                                        | Event Coordination | Ambient warning for overlapping events on the calendar         |
+| **7**  | **[#B.2 Same-Day Member Conflict Warning](#b-teams--headcount)**                                                            | Team Operations    | Visual warning for double-booked players on registered quizzes |
+| **8**  | **[#B.1 Multiple Teams per Quiz](#b-teams--headcount)**                                                                     | Team Operations    | Allows fielding 2 teams when 8 people sign up                  |
+| **9**  | **[#9 Admin Unread Feedback Indicator](#9-admin-unread-feedback-indicator-badge--alert)**                                   | Core Admin         | Ambient badge ensures member bugs & feedback aren't missed     |
+| **10** | **[#5 Date & Time Input Picker](#5-date--time-input-flexibility-calendar-picker--time-selector)**                           | Admin Ergonomics   | Eliminates manual typing of dates/times on mobile              |
+| **11** | **[#13 Responsive Tablet & Rotation Layout](#13-responsive-tablet--smartphone-rotation-layout-optimization-pwa-landscape)** | UX / Responsive    | Optimizes screen usage on tablets and rotated smartphones      |
+| **12** | **[#C.1 Secure PIN Storage Upgrade](#c-member-management--security)**                                                       | Security           | Replaces unsalted SHA-256 with salted/bcrypt hash              |
+| **13** | **[#C.2 / C.3 Member Soft-Delete & Details](#c-member-management--security)**                                               | Admin Management   | Clean roster management without breaking history               |
+| **14** | **[#A.2 Public Share Preview](#a-integrations--logistics)**                                                                 | Growth / Subbing   | Shareable preview link for WhatsApp group chats                |
+| **15** | **[#4 WhatsApp Share for Invites](#4-whatsapp-share-for-member-invites)**                                                   | Admin Ergonomics   | 1-tap invite link sharing via WhatsApp                         |
+| **16** | **[#E.1 Dependabot Grouping Config](#e-cicd--dependency-automation-infrastructure)**                                        | CI / CD            | Stops failing Prisma 7 / TS 7 Dependabot PRs                   |
+| **17** | **[#C.4 Hard Delete with Confirmation](#c-member-management--security)**                                                    | Admin Utility      | Permanent removal of test/erroneous entries                    |
+| **18** | **[#11 Custom Team Logo & Branding](#11-custom-team-logo-upload--header-branding)**                                         | Visual Polish      | Custom logo upload in settings & header                        |
+| **19** | **[#10 Fractional Star Rating](#10-read-only-fractional-star-rating-component)**                                            | Visual Polish      | Clipped SVG decimal stars (Spec ready)                         |
+| **20** | **[#2 Dynamic Capacity Icon](#2-dynamic-capacity-icon-for-player-count)**                                                   | Visual Polish      | Dynamic icon alongside player ratio                            |
+| **21** | **[#A.1 Carpooling & Ride-Sharing](#a-integrations--logistics)**                                                            | Feature            | Complex; already handled organically in WhatsApp               |
+| **22** | **[#D.1 Smart Historical Suggestion](#d-post-quiz-evaluation--historical-insights)**                                        | Insights           | Suggests past ratings on entry (Deferred)                      |
 
 ### Tier Breakdown
 
 - **Tier 1: Critical Operational & Infrastructure Blockers (Ranks 1–2)**
   - Urgent technical debts or missing core administrative controls that risk platform stability or require direct database intervention.
-- **Tier 2: Real-World Workflow & Team Operations (Ranks 3–6)**
-  - High-frequency friction reducers that reflect how pub quiz teams actually register, travel, and finalize lineups.
-- **Tier 3: Core Mobile & Admin Quality of Life (Ranks 7–12)**
+- **Tier 2: Real-World Workflow & Team Operations (Ranks 3–9)**
+  - High-frequency friction reducers that reflect how pub quiz teams actually register, travel, finalize lineups, and monitor issues.
+- **Tier 3: Core Mobile & Admin Quality of Life (Ranks 10–14)**
   - Major ergonomic, responsive layout, security, and team capacity upgrades that simplify season-long management.
-- **Tier 4: Quick Wins & Dependency Hygiene (Ranks 13–16)**
+- **Tier 4: Quick Wins & Dependency Hygiene (Ranks 15–17)**
   - Minor functional bugfixes and configuration tuning with straightforward implementation paths.
-- **Tier 5: Visual Polish & Deferred Features (Ranks 17–20)**
+- **Tier 5: Visual Polish & Deferred Features (Ranks 18–22)**
   - Aesthetic enhancements or speculative features where existing habits (e.g. WhatsApp chats) already suffice.
 
 ---
@@ -85,26 +87,22 @@ To maximize development impact and protect service stability, backlog items acro
 
 ### 3. Venue Maps Integration & Navigation
 
-- **Status:** `[ ] Open`
+- **Status:** `[ ] Open (Postponed / Needs Address vs. Nickname Spec)`
 - **Feedback:** Users have to manually copy-paste the venue address into their navigation app.
-- **Requirement:** Tapping the venue/address on quiz cards or detail views opens Google Maps / Apple Maps / Waze with direct route navigation.
-- **Scope:** `QuizCard.tsx` and `QuizDetailClient.tsx`.
+- **Requirement:**
+  - Tapping the venue/address on quiz cards or detail views opens Google Maps / Apple Maps / Waze with direct route navigation.
+  - **Edge Case & Real-World Nuance:** Locations frequently use informal nicknames or private homes (e.g. _"Bij Peter thuis"_) rather than official street addresses or registered venues, which fail on blind Google Maps queries.
+  - Requires a clear design decision on whether to support an optional dedicated address/maps URL field or detect addresses before rendering clickable navigation links.
+- **Scope:** `QuizCard.tsx`, `QuizDetailClient.tsx`, quiz form / schema.
 
-### 4. Direct Registration Toggle (Without Email)
-
-- **Status:** `[ ] Open`
-- **Feedback:** Not all pub quizzes require or offer email registration; some are registered on Facebook, by phone, or in person.
-- **Requirement:** Provide a direct _"Markeer als ingeschreven"_ button alongside the mailto flow so an admin or player can mark the team as officially registered without opening an email client.
-- **Scope:** `ActionToolbar.tsx` and registration server actions.
-
-### 5. WhatsApp Share for Member Invites
+### 4. WhatsApp Share for Member Invites
 
 - **Status:** `[ ] Open`
 - **Feedback:** Copying invite links manually is tedious when onboarding friends via WhatsApp.
 - **Requirement:** In `/admin/members` (when adding a member or viewing an active invite link), provide a direct 1-tap "Deel via WhatsApp" button that pre-fills a friendly greeting and their join link.
 - **Scope:** `/admin/members` management screen.
 
-### 6. Date & Time Input Flexibility (Calendar Picker & Time Selector)
+### 5. Date & Time Input Flexibility (Calendar Picker & Time Selector)
 
 - **Status:** `[ ] Open`
 - **Feedback:** Typing dates manually in `DD/MM/YYYY` format can be slow on mobile.
@@ -113,12 +111,22 @@ To maximize development impact and protect service stability, backlog items acro
   - Provide an easy time selection mechanism alongside text entry (e.g. native time picker dropdown or quick preset buttons like `19:30`, `20:00`, `20:30`, `14:00`).
 - **Scope:** `QuizEntryForm.tsx` and `EditQuizClient.tsx`.
 
-### 7. Duplicate Quiz Detection on Entry
+### 6. Duplicate Quiz Detection on Entry
 
 - **Status:** `[ ] Open`
 - **Feedback:** Accidental duplicate quizzes can split RSVPs and cause confusion.
 - **Requirement:** Warn the user when creating a quiz if another quiz already exists on the same date or at the same venue.
 - **Scope:** `QuizEntryForm.tsx` and `quizService.ts`.
+
+### 7. Quiz Schedule & Date Conflict Indicator
+
+- **Status:** `[ ] Open`
+- **Feedback:** Multiple quizzes can be entered on the same date (or overlapping times). Coordinators need immediate ambient awareness on the dashboard when scheduling collisions exist.
+- **Requirement:**
+  - Detect when two or more active quizzes share the same date.
+  - Display a visible indicator or warning badge on affected quiz cards and detail views (e.g., _"⚠️ Datumconflict: 2 quizzen gepland op deze datum"_).
+  - Provide a 1-tap view or link to inspect the conflicting quiz(zes).
+- **Scope:** `QuizCard.tsx`, `QuizDetailClient.tsx`, `quizService.ts`.
 
 ### 8. Quiz Start Lockdown & Historical Immutability
 
@@ -131,17 +139,16 @@ To maximize development impact and protect service stability, backlog items acro
   - Display clear read-only status indicators in the lineup and detail view for non-admins.
 - **Scope:** `src/lib/quizLock.ts`, `rsvpService.ts`, `QuizDetailClient.tsx`, `TeamLineup.tsx`, and `ActionToolbar.tsx`.
 
-### 9. Dynamic Browser Tab Title (Team Name Synchronization)
+### 9. Admin Unread Feedback Indicator (Badge & Alert)
 
 - **Status:** `[ ] Open`
-- **Source:** In-App Bug Report (`cmw6kdgcw0001l2086ji24qle`)
-- **Feedback:** The browser tab title still displays the hardcoded default `"KwisVrienden"` instead of the custom team name configured in `/admin/settings` (`TeamSetting.defaultTeamName`).
+- **Feedback:** When teammates submit bug reports, glitches, or suggestions via the floating in-app feedback widget, administrators have no ambient notification and must manually navigate to `/admin/feedback` to discover them.
 - **Requirement:**
-  - Dynamically inject the configured team name into the browser document title / Next.js metadata (`src/app/layout.tsx`).
-  - Fall back cleanly to the default team name if not configured.
-- **Scope:** `src/app/layout.tsx` and team settings resolver.
+  - Display an ambient unread count badge (e.g. amber or red counter pill) beside the "Beheer" navigation trigger and on `/admin` menu links whenever unreviewed feedback submissions exist.
+  - Clear or update the badge count as feedback items are inspected or dismissed in `/admin/feedback`.
+- **Scope:** `src/components/QuizzesDashboard.tsx`, `AdminFeedbackClient.tsx`, feedback domain queries.
 
-### 11. Read-Only Fractional Star Rating Component
+### 10. Read-Only Fractional Star Rating Component
 
 - **Status:** `[ ] Spec Ready: [docs/superpowers/specs/2026-11-15-fractional-star-rating-design.md](superpowers/specs/2026-11-15-fractional-star-rating-design.md)`
 - **Feedback:** Aggregate post-quiz ratings calculate decimal scores (e.g. `4.35` / 5), but read-only star displays currently lack continuous decimal precision.
@@ -150,6 +157,16 @@ To maximize development impact and protect service stability, backlog items acro
   - Pure SVG + Tailwind implementation avoiding dynamic JIT class compilation issues and SVG squishing.
   - Integrate into `QuizRatingWidget.tsx` (team score footer & visitor view) and `QuizCard.tsx`.
 - **Scope:** `src/components/ReadOnlyStarRating.tsx`, `QuizRatingWidget.tsx`, `QuizCard.tsx`.
+
+### 11. Custom Team Logo Upload & Header Branding
+
+- **Status:** `[ ] Open`
+- **Feedback:** Teams want custom visual branding beyond the team name string configured in `/admin/settings`.
+- **Requirement:**
+  - Allow administrators to upload a team crest/logo image in `/admin/settings` (persisted to storage via local volume or Vercel Blob).
+  - Display the team logo in the main navigation header beside the dynamic team name, on unauthenticated share preview cards, and in PWA manifest metadata.
+  - Fall back gracefully to a default quiz icon if no custom logo is uploaded.
+- **Scope:** `/admin/settings`, `QuizzesDashboard.tsx`, `TeamSetting` schema & storage service.
 
 ### 12. Vercel Functions Storage & Serverless Bundle Optimization
 
@@ -191,40 +208,48 @@ To maximize development impact and protect service stability, backlog items acro
 
 ### B. Teams & Headcount
 
-4. **Multiple Teams per Quiz (e.g. Team A / Team B):** When more friends want to join than the maximum team limit (e.g. 8 people for a 4-person quiz), allow fielding a second team instead of putting everyone on reserve. _(The schema already decouples `Team` from `Quiz` to make this seamless)._
+1. **Multiple Teams per Quiz (e.g. Team A / Team B):** When more friends want to join than the maximum team limit (e.g. 8 people for a 4-person quiz), allow fielding a second team instead of putting everyone on reserve. _(The schema already decouples `Team` from `Quiz` to make this seamless)._
+2. **Same-Day Member Enrollment Conflict Warning:**
+   - **Status:** `[ ] Open`
+   - **Feedback:** Members frequently mark _"Ik doe mee"_ across multiple quizzes on the same calendar date to signal availability during planning. However, once a team is officially registered (`isRegistered`), placing the same player in active lineups on conflicting quizzes creates game-night attendance failures.
+   - **Requirement:**
+     - Purely visual non-blocking warning (players may still RSVP freely while quizzes are open/unregistered).
+     - When a quiz is officially marked as registered (`isRegistered: true`), check whether seated lineup members are also enrolled in another registered quiz on that same calendar day.
+     - Render an informational warning chip in the lineup (e.g., _"⚠️ Let op: [Naam] staat ook opgesteld bij [Quiz Naam]"_) so admins and coordinators avoid double-booking players on game night.
+   - **Scope:** `TeamLineup.tsx`, `rsvpService.ts`, `QuizDetailClient.tsx`.
 
 ### C. Member Management & Security
 
-6. **Secure PIN Storage Upgrade & Seamless Migration (Bcrypt / Salted Hash):**
+1. **Secure PIN Storage Upgrade & Seamless Migration (Bcrypt / Salted Hash):**
    - Upgrade PIN hashing from unsalted SHA-256 to a secure, brute-force-resistant mechanism (e.g. `bcrypt` or per-user salted hashing) so that 4-digit PINs cannot be precomputed or looked up via rainbow tables if database access is ever compromised.
    - Provide a seamless migration (precomputing existing hashes or migrating on login) so no PINs are invalidated and zero users are disrupted.
-7. **Member Deactivation / Soft-Delete:** Ability for an admin to deactivate or archive departed members without corrupting historical quiz records.
-8. **Member Contact Details & Editing:** Ability to add email addresses, phone numbers, and edit member names post-creation.
-9. **Hard Delete with Confirmation:** A permanent deletion action for quizzes created entirely by mistake (as opposed to cancelling/archiving).
+2. **Member Deactivation / Soft-Delete:** Ability for an admin to deactivate or archive departed members without corrupting historical quiz records.
+3. **Member Contact Details & Editing:** Ability to add email addresses, phone numbers, and edit member names post-creation.
+4. **Hard Delete with Confirmation:** A permanent deletion action for quizzes created entirely by mistake (as opposed to cancelling/archiving).
 
 ### D. Post-Quiz Evaluation & Historical Insights
 
-12. **Smart Historical Suggestion When Entering a New Quiz:**
-    - **Status:** `[ ] Open (Deferred / Future Backlog)`
-    - When an admin scans a flyer or types in a quiz title and location (e.g. _"Den Dries Kwies 4"_), the system automatically checks whether the team has participated in prior editions in past years.
-    - **Immediate Context on the Entry Screen:**
-      - _"💡 You previously participated in this quiz! Previous rating: ⭐⭐⭐⭐☆ (4/5)"_
-    - Provides immediate decision support when deciding whether to add and register for a recurring annual pub quiz.
+1. **Smart Historical Suggestion When Entering a New Quiz:**
+   - **Status:** `[ ] Open (Deferred / Future Backlog)`
+   - When an admin scans a flyer or types in a quiz title and location (e.g. _"Den Dries Kwies 4"_), the system automatically checks whether the team has participated in prior editions in past years.
+   - **Immediate Context on the Entry Screen:**
+     - _"💡 You previously participated in this quiz! Previous rating: ⭐⭐⭐⭐☆ (4/5)"_
+   - Provides immediate decision support when deciding whether to add and register for a recurring annual pub quiz.
 
 ### E. CI/CD & Dependency Automation Infrastructure
 
-13. **Dependency Automation & Major Upgrade Strategy (Prisma 7 & TypeScript 7):**
-    - **Status:** `[ ] Open`
-    - **Problem / Observed Evidence:** Automated Dependabot PRs for major dependency bumps fail deployment and build checks:
-      - **Prisma 7 (`PR #13`, `PR #7`):** Fails Vercel deployment with `Error code: P1012: The datasource property 'url' is no longer supported in schema files`. Dependabot decoupled `prisma` from `@prisma/client`, causing engine version mismatches and failing on Prisma 7's breaking schema architecture.
-      - **TypeScript 7 (`PR #11`):** Fails `npm install` due to a strict peer dependency conflict with `typescript-eslint@8.x` (`peer typescript@">=4.8.4 <6.1.0"`).
-    - **Root Cause:** `.github/dependabot.yml` currently runs unconstrained weekly updates without grouping related packages together or ignoring major breaking version jumps that require deliberate codebase refactoring.
-    - **Requirement:**
-      1. **Dependabot Configuration Polish:** Update `.github/dependabot.yml` to:
-         - Group `prisma` and `@prisma/client` together so they are never bumped out of sync.
-         - Configure `ignore` rules for major upgrades of ecosystem-sensitive packages (like `prisma` and `typescript`) until they are intentionally scheduled for migration.
-      2. **Planned Prisma 7 Migration (When Scheduled):** When ready to adopt Prisma 7, perform a coordinated migration:
-         - Upgrade both `prisma` and `@prisma/client` together.
-         - Migrate database connection URLs out of `schema.prisma` into `prisma.config.ts`.
-         - Configure driver adapters (e.g. `@prisma/adapter-pg`) in `src/lib/prisma.ts`.
-      3. **TypeScript 7 Ecosystem Alignment:** Defer upgrading to TypeScript 7 until `@typescript-eslint` and Next.js release official peer support.
+1. **Dependency Automation & Major Upgrade Strategy (Prisma 7 & TypeScript 7):**
+   - **Status:** `[ ] Open`
+   - **Problem / Observed Evidence:** Automated Dependabot PRs for major dependency bumps fail deployment and build checks:
+     - **Prisma 7 (`PR #13`, `PR #7`):** Fails Vercel deployment with `Error code: P1012: The datasource property 'url' is no longer supported in schema files`. Dependabot decoupled `prisma` from `@prisma/client`, causing engine version mismatches and failing on Prisma 7's breaking schema architecture.
+     - **TypeScript 7 (`PR #11`):** Fails `npm install` due to a strict peer dependency conflict with `typescript-eslint@8.x` (`peer typescript@">=4.8.4 <6.1.0"`).
+   - **Root Cause:** `.github/dependabot.yml` currently runs unconstrained weekly updates without grouping related packages together or ignoring major breaking version jumps that require deliberate codebase refactoring.
+   - **Requirement:**
+     1. **Dependabot Configuration Polish:** Update `.github/dependabot.yml` to:
+        - Group `prisma` and `@prisma/client` together so they are never bumped out of sync.
+        - Configure `ignore` rules for major upgrades of ecosystem-sensitive packages (like `prisma` and `typescript`) until they are intentionally scheduled for migration.
+     2. **Planned Prisma 7 Migration (When Scheduled):** When ready to adopt Prisma 7, perform a coordinated migration:
+        - Upgrade both `prisma` and `@prisma/client` together.
+        - Migrate database connection URLs out of `schema.prisma` into `prisma.config.ts`.
+        - Configure driver adapters (e.g. `@prisma/adapter-pg`) in `src/lib/prisma.ts`.
+     3. **TypeScript 7 Ecosystem Alignment:** Defer upgrading to TypeScript 7 until `@typescript-eslint` and Next.js release official peer support.

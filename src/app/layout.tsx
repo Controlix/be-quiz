@@ -2,17 +2,23 @@ import type { Metadata, Viewport } from "next";
 import "./globals.css";
 import { FeedbackWidget } from "@/components/FeedbackWidget";
 import { getCapabilities, CapabilitiesProvider } from "@/features/capabilities";
+import { getConfiguredTeamName } from "@/services/quizService";
 
-export const metadata: Metadata = {
-  title: "KwisVrienden",
-  description: "Quiz coördinatie app voor vrienden",
-  manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "KwisVrienden",
-  },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const teamName = await getConfiguredTeamName();
+  const title = teamName ? `Be-Quiz - ${teamName}` : "Be-Quiz";
+
+  return {
+    title,
+    description: "Quiz coördinatie app voor vrienden",
+    manifest: "/manifest.json",
+    appleWebApp: {
+      capable: true,
+      statusBarStyle: "default",
+      title,
+    },
+  };
+}
 
 export const viewport: Viewport = {
   width: "device-width",
