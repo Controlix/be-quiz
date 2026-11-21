@@ -1,5 +1,49 @@
-import { describe, it, expect } from "vitest";
+import { describe, it, expect, vi } from "vitest";
 import { generateReleaseStats, renderAsciiBarChart } from "../../scripts/release-stats";
+
+vi.mock("child_process", () => ({
+  execSync: vi.fn((cmd: string) => {
+    if (cmd.includes('git tag -l "v*"')) {
+      return [
+        "v1.0.0",
+        "v1.1.0",
+        "v1.2.0",
+        "v1.3.0",
+        "v1.4.0",
+        "v2.0.0",
+        "v2.1.0",
+        "v2.2.0",
+        "v2.3.0",
+        "v2.6.0",
+      ].join("\n");
+    }
+    if (cmd.includes('git log -1 --format="%as"')) {
+      return "2026-10-25\n";
+    }
+    if (cmd.includes('git tag -l --format="%(contents:subject)"')) {
+      return "Release: Initial tag\n";
+    }
+    if (cmd.includes('git log -1 --format="%s"')) {
+      return "Initial commit\n";
+    }
+    if (cmd.includes("git ls-tree -r --name-only")) {
+      return "src/index.ts\ntests/index.test.ts\n";
+    }
+    if (cmd.includes('git show "v2.6.0":"src/index.ts"')) {
+      return "const x = 1;\n".repeat(7500);
+    }
+    if (cmd.includes('git show "v2.6.0":"tests/index.test.ts"')) {
+      return "const t = 1;\n".repeat(4500);
+    }
+    if (cmd.includes("git show") && cmd.includes("src/index.ts")) {
+      return "const x = 1;\n".repeat(1000);
+    }
+    if (cmd.includes("git show") && cmd.includes("tests/index.test.ts")) {
+      return "const t = 1;\n".repeat(500);
+    }
+    return "";
+  }),
+}));
 
 describe("generateReleaseStats", () => {
   it("returns release metrics across all git tags", () => {
@@ -16,7 +60,7 @@ describe("generateReleaseStats", () => {
     expect(latest.tag).toMatch(/^v\d+\.\d+\.\d+/);
     expect(latest.prodLines).toBeGreaterThan(7000);
     expect(latest.testLines).toBeGreaterThan(4000);
-  }, 30000);
+  });
 });
 
 describe("renderAsciiBarChart", () => {
