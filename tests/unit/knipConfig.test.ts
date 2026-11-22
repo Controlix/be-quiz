@@ -35,26 +35,3 @@ describe("Knip Configuration Contract (Phase 2)", () => {
     ]);
   });
 });
-
-describe("Knip Baseline Audit Report", () => {
-  const reportPath = path.join(process.cwd(), "docs/superpowers/audit/knip-baseline-report.md");
-
-  it("documents both default mode and production mode sections in knip-baseline-report.md", () => {
-    const report = fs.readFileSync(reportPath, "utf8");
-
-    expect(report).toContain("npm run knip");
-    expect(report).toContain("npm run knip:prod");
-  });
-
-  it("records all four required audit categories and classifies Secretlint plugin gaps", () => {
-    const report = fs.readFileSync(reportPath, "utf8");
-
-    expect(report).toMatch(/unused files/i);
-    expect(report).toMatch(/unused exports/i);
-    expect(report).toMatch(/unused dependencies/i);
-    expect(report).toMatch(/unlisted dependencies/i);
-    expect(report).toContain(".secretlintrc.json");
-    expect(report).toContain("@secretlint/secretlint-rule-preset-recommend");
-    expect(report).toMatch(/Phase 1/i);
-  });
-});

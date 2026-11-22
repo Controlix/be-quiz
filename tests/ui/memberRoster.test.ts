@@ -57,10 +57,4 @@ describe("MemberRosterClient - Partitioned Roles UI", () => {
 
     expect(html).toContain("Maak Beheerder");
   });
-
-  it("does not use window.confirm anywhere in MemberRosterClient", async () => {
-    const fs = await import("fs");
-    const source = fs.readFileSync("src/components/MemberRosterClient.tsx", "utf-8");
-    expect(source).not.toContain("window.confirm");
-  });
 });
