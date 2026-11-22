@@ -5,6 +5,16 @@ All notable changes to the **Pub Quiz App (BE-Quiz)** project will be documented
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed & Removed
+
+- **Test Suite Modernization (Path A — Real Render & Guard Coverage):**
+  - Replaced 6 brittle `fs.readFileSync` source-scraping UI tests (`tests/ui/adminNav`, `dashboardHeader`, `emptyDashboard`, `formDateInputs`, `actionToolbarRegistration`, `adminFeedbackView`) with real React `renderToStaticMarkup` tests (`.test.tsx`) under Vitest `environment: "node"`.
+  - Fixed `tests/ui/adminLayout.test.ts` to mock lower-level boundaries (`next/headers` `cookies` and `@/lib/db` `prisma.session`) instead of `@/lib/auth`, executing `AdminLayout` → `requireAdminSession` → `getSessionMember` → `validateSession` end-to-end across missing cookie, unknown token, expired session, `USER` role, and `ADMIN` role cases.
+  - Deleted obsolete Day-1 seed smoke test `tests/db/schema.test.ts`.
+- **Fresh-Context Subagent Review Policy (`AGENTS.md`):** Replaced same-session self-review with mandatory fresh-context `general` subagent reviews for specs, plans, and implementations.
+
 ## [v2.6.2] - 2026-11-22
 
 ### Added
