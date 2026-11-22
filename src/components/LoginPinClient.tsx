@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { loginWithPinAction, setupInitialPinAction } from "@/actions/authActions";
 import { User, Lock, AlertCircle, ArrowRight } from "lucide-react";
 
-export interface LoginMember {
+interface LoginMember {
   id: string;
   name: string;
   role: string;

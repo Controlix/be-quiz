@@ -15,7 +15,7 @@ export interface LineupMember {
   queuedSince: Date;
 }
 
-export interface DeclinedMember {
+interface DeclinedMember {
   id: string;
   memberId?: string;
   name: string;

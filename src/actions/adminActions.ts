@@ -8,7 +8,7 @@ import {
   adminOverrideAttend,
   updateTeamCapacity,
 } from "@/services/rsvpService";
-import { adminResetRegistration } from "@/services/registrationService";
+import { unregisterTeam } from "@/services/registrationService";
 import { cancelQuiz } from "@/services/quizService";
 import { updateMemberRole } from "@/services/memberService";
 import { revalidatePath } from "next/cache";
@@ -41,7 +41,7 @@ export async function adminResetRegistrationAction(teamId: string) {
       return { success: false, error: "Niet geautoriseerd." };
     }
 
-    await adminResetRegistration(teamId);
+    await unregisterTeam(teamId);
     try {
       revalidatePath("/quizzes");
     } catch {}

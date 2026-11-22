@@ -21,46 +21,54 @@ This document is the **single source of truth for active and planned roadmap ite
 
 ## Prioritized Backlog by Business & Operational Value
 
-To maximize development impact and protect service stability, backlog items across Part 1 and Part 2 are ranked from highest to lowest value based on operational risk, real-world team workflow, game-night utility, ergonomics, and visual polish.
+To maximize development impact, enforce uncompromising architectural quality, and protect service stability, backlog items across Part 1 and Part 2 are ranked from highest to lowest value based on the following explicit criteria hierarchy:
+
+1. **Operational Risk, Infrastructure & Storage Limits:** Preventing deployment failures, service outages, and platform quota exhaustion (e.g., Vercel serverless functions storage).
+2. **Code Quality, Security & Architectural Integrity:** Establishing automated guardrails, dead code elimination, whole-project static analysis (Knip), zero unauthenticated Server Action RPC endpoints, and preventing bundle bloat _before_ building new features.
+3. **Core Admin & Real-World Team Workflow:** Eliminating high-friction administrative surgery (e.g., manual database edits for typos) and supporting game-night team logistics (venue navigation, registration reset).
+4. **Data Integrity & Concurrency Safeguards:** Freezing lineups upon quiz start, avoiding duplicate event entries, and preventing double-booked player conflicts.
+5. **Mobile Ergonomics & Admin Quality of Life:** Reducing recurring input friction (date/time pickers), responsive rotation/tablet layouts, and member soft-deletes.
+6. **Dependency Hygiene & Tooling Automation:** Dependabot grouping configurations, confirmation dialogs, and automated housekeeping.
+7. **Visual Polish & Speculative Features:** Aesthetic enhancements (branding, fractional stars, capacity icons) and features already handled naturally (WhatsApp carpooling).
 
 ### Value Ranking Summary
 
 | Rank   | Item                                                                                                                        | Category           | Key Benefit                                                    |
 | :----- | :-------------------------------------------------------------------------------------------------------------------------- | :----------------- | :------------------------------------------------------------- |
 | **1**  | **[#12 Vercel Storage Optimization](#12-vercel-functions-storage--serverless-bundle-optimization)**                         | Infrastructure     | Prevents deployment failure at 74% storage limit               |
-| **2**  | **[#1 Admin Edit Quiz Details](#1-admin-edit-quiz-details-error-correction)**                                               | Core Admin         | Eliminates manual database surgery for typos                   |
-| **3**  | **[#3 Venue Maps Integration](#3-venue-maps-integration--navigation)**                                                      | Player Experience  | 1-tap route navigation on quiz night                           |
-| **4**  | **[#8 Quiz Start Lockdown](#8-quiz-start-lockdown--historical-immutability)**                                               | Data Integrity     | Freezes lineups & RSVPs once quiz starts (Spec ready)          |
-| **5**  | **[#6 Duplicate Quiz Detection](#6-duplicate-quiz-detection-on-entry)**                                                     | Data Hygiene       | Prevents split RSVPs and duplicate events                      |
-| **6**  | **[#7 Quiz Schedule Conflict Indicator](#7-quiz-schedule--date-conflict-indicator)**                                        | Event Coordination | Ambient warning for overlapping events on the calendar         |
-| **7**  | **[#B.2 Same-Day Member Conflict Warning](#b-teams--headcount)**                                                            | Team Operations    | Visual warning for double-booked players on registered quizzes |
-| **8**  | **[#B.1 Multiple Teams per Quiz](#b-teams--headcount)**                                                                     | Team Operations    | Allows fielding 2 teams when 8 people sign up                  |
-| **9**  | **[#9 Admin Unread Feedback Indicator](#9-admin-unread-feedback-indicator-badge--alert)**                                   | Core Admin         | Ambient badge ensures member bugs & feedback aren't missed     |
-| **10** | **[#5 Date & Time Input Picker](#5-date--time-input-flexibility-calendar-picker--time-selector)**                           | Admin Ergonomics   | Eliminates manual typing of dates/times on mobile              |
-| **11** | **[#13 Responsive Tablet & Rotation Layout](#13-responsive-tablet--smartphone-rotation-layout-optimization-pwa-landscape)** | UX / Responsive    | Optimizes screen usage on tablets and rotated smartphones      |
-| **12** | **[#C.1 Secure PIN Storage Upgrade](#c-member-management--security)**                                                       | Security           | Replaces unsalted SHA-256 with salted/bcrypt hash              |
-| **13** | **[#C.2 / C.3 Member Soft-Delete & Details](#c-member-management--security)**                                               | Admin Management   | Clean roster management without breaking history               |
-| **14** | **[#A.2 Public Share Preview](#a-integrations--logistics)**                                                                 | Growth / Subbing   | Shareable preview link for WhatsApp group chats                |
-| **15** | **[#4 WhatsApp Share for Invites](#4-whatsapp-share-for-member-invites)**                                                   | Admin Ergonomics   | 1-tap invite link sharing via WhatsApp                         |
-| **16** | **[#E.1 Dependabot Grouping Config](#e-cicd--dependency-automation-infrastructure)**                                        | CI / CD            | Stops failing Prisma 7 / TS 7 Dependabot PRs                   |
-| **17** | **[#C.4 Hard Delete with Confirmation](#c-member-management--security)**                                                    | Admin Utility      | Permanent removal of test/erroneous entries                    |
-| **18** | **[#11 Custom Team Logo & Branding](#11-custom-team-logo-upload--header-branding)**                                         | Visual Polish      | Custom logo upload in settings & header                        |
-| **19** | **[#10 Fractional Star Rating](#10-read-only-fractional-star-rating-component)**                                            | Visual Polish      | Clipped SVG decimal stars (Spec ready)                         |
-| **20** | **[#2 Dynamic Capacity Icon](#2-dynamic-capacity-icon-for-player-count)**                                                   | Visual Polish      | Dynamic icon alongside player ratio                            |
-| **21** | **[#A.1 Carpooling & Ride-Sharing](#a-integrations--logistics)**                                                            | Feature            | Complex; already handled organically in WhatsApp               |
-| **22** | **[#D.1 Smart Historical Suggestion](#d-post-quiz-evaluation--historical-insights)**                                        | Insights           | Suggests past ratings on entry (Deferred)                      |
+| **3**  | **[#1 Admin Edit Quiz Details](#1-admin-edit-quiz-details-error-correction)**                                               | Core Admin         | Eliminates manual database surgery for typos                   |
+| **4**  | **[#3 Venue Maps Integration](#3-venue-maps-integration--navigation)**                                                      | Player Experience  | 1-tap route navigation on quiz night                           |
+| **5**  | **[#8 Quiz Start Lockdown](#8-quiz-start-lockdown--historical-immutability)**                                               | Data Integrity     | Freezes lineups & RSVPs once quiz starts (Spec ready)          |
+| **6**  | **[#6 Duplicate Quiz Detection](#6-duplicate-quiz-detection-on-entry)**                                                     | Data Hygiene       | Prevents split RSVPs and duplicate events                      |
+| **7**  | **[#7 Quiz Schedule Conflict Indicator](#7-quiz-schedule--date-conflict-indicator)**                                        | Event Coordination | Ambient warning for overlapping events on the calendar         |
+| **8**  | **[#B.2 Same-Day Member Conflict Warning](#b-teams--headcount)**                                                            | Team Operations    | Visual warning for double-booked players on registered quizzes |
+| **9**  | **[#B.1 Multiple Teams per Quiz](#b-teams--headcount)**                                                                     | Team Operations    | Allows fielding 2 teams when 8 people sign up                  |
+| **10** | **[#9 Admin Unread Feedback Indicator](#9-admin-unread-feedback-indicator-badge--alert)**                                   | Core Admin         | Ambient badge ensures member bugs & feedback aren't missed     |
+| **11** | **[#5 Date & Time Input Picker](#5-date--time-input-flexibility-calendar-picker--time-selector)**                           | Admin Ergonomics   | Eliminates manual typing of dates/times on mobile              |
+| **12** | **[#13 Responsive Tablet & Rotation Layout](#13-responsive-tablet--smartphone-rotation-layout-optimization-pwa-landscape)** | UX / Responsive    | Optimizes screen usage on tablets and rotated smartphones      |
+| **13** | **[#C.1 Secure PIN Storage Upgrade](#c-member-management--security)**                                                       | Security           | Replaces unsalted SHA-256 with salted/bcrypt hash              |
+| **14** | **[#C.2 / C.3 Member Soft-Delete & Details](#c-member-management--security)**                                               | Admin Management   | Clean roster management without breaking history               |
+| **15** | **[#A.2 Public Share Preview](#a-integrations--logistics)**                                                                 | Growth / Subbing   | Shareable preview link for WhatsApp group chats                |
+| **16** | **[#4 WhatsApp Share for Invites](#4-whatsapp-share-for-member-invites)**                                                   | Admin Ergonomics   | 1-tap invite link sharing via WhatsApp                         |
+| **17** | **[#E.1 Dependabot Grouping Config](#e-cicd--dependency-automation-infrastructure)**                                        | CI / CD            | Stops failing Prisma 7 / TS 7 Dependabot PRs                   |
+| **18** | **[#C.4 Hard Delete with Confirmation](#c-member-management--security)**                                                    | Admin Utility      | Permanent removal of test/erroneous entries                    |
+| **19** | **[#11 Custom Team Logo & Branding](#11-custom-team-logo-upload--header-branding)**                                         | Visual Polish      | Custom logo upload in settings & header                        |
+| **20** | **[#10 Fractional Star Rating](#10-read-only-fractional-star-rating-component)**                                            | Visual Polish      | Clipped SVG decimal stars (Spec ready)                         |
+| **21** | **[#2 Dynamic Capacity Icon](#2-dynamic-capacity-icon-for-player-count)**                                                   | Visual Polish      | Dynamic icon alongside player ratio                            |
+| **22** | **[#A.1 Carpooling & Ride-Sharing](#a-integrations--logistics)**                                                            | Feature            | Complex; already handled organically in WhatsApp               |
+| **23** | **[#D.1 Smart Historical Suggestion](#d-post-quiz-evaluation--historical-insights)**                                        | Insights           | Suggests past ratings on entry (Deferred)                      |
 
 ### Tier Breakdown
 
-- **Tier 1: Critical Operational & Infrastructure Blockers (Ranks 1–2)**
-  - Urgent technical debts or missing core administrative controls that risk platform stability or require direct database intervention.
-- **Tier 2: Real-World Workflow & Team Operations (Ranks 3–9)**
+- **Tier 1: Critical Operational, Infrastructure & Code Quality Blockers (Ranks 1–3)**
+  - Urgent technical debts, storage/quota limits, and static quality guardrails (Knip) that prevent shipping dead Server Actions, exposed RPC endpoints, or bundle bloat before writing new features.
+- **Tier 2: Real-World Workflow & Team Operations (Ranks 4–10)**
   - High-frequency friction reducers that reflect how pub quiz teams actually register, travel, finalize lineups, and monitor issues.
-- **Tier 3: Core Mobile & Admin Quality of Life (Ranks 10–14)**
+- **Tier 3: Core Mobile & Admin Quality of Life (Ranks 11–15)**
   - Major ergonomic, responsive layout, security, and team capacity upgrades that simplify season-long management.
-- **Tier 4: Quick Wins & Dependency Hygiene (Ranks 15–17)**
-  - Minor functional bugfixes and configuration tuning with straightforward implementation paths.
-- **Tier 5: Visual Polish & Deferred Features (Ranks 18–22)**
+- **Tier 4: Quick Wins & Dependency Hygiene (Ranks 16–18)**
+  - Minor functional bugfixes, tooling additions, and configuration tuning with straightforward implementation paths.
+- **Tier 5: Visual Polish & Deferred Features (Ranks 19–23)**
   - Aesthetic enhancements or speculative features where existing habits (e.g. WhatsApp chats) already suffice.
 
 ---

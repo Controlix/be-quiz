@@ -166,6 +166,7 @@ export async function getQuizById(id: string) {
   });
 }
 
+/** @internal */
 export interface UpdateQuizDetailsInput {
   title?: string;
   startsAt?: Date;
@@ -180,6 +181,7 @@ export interface UpdateQuizDetailsInput {
   maxTeamSize?: number;
 }
 
+/** @internal */
 export async function updateQuizDetails(
   quizId: string,
   data: UpdateQuizDetailsInput

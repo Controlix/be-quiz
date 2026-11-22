@@ -1,12 +1,14 @@
 import { format, parse, isValid } from "date-fns";
 import { nlBE } from "date-fns/locale";
 
+/** @internal */
 export function formatEuropeanDate(date: Date | string): string {
   const d = typeof date === "string" ? new Date(date) : date;
   if (!isValid(d)) return "";
   return format(d, "dd/MM/yyyy");
 }
 
+/** @internal */
 export function formatEuropeanTime(date: Date | string): string {
   const d = typeof date === "string" ? new Date(date) : date;
   if (!isValid(d)) return "";

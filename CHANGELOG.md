@@ -5,6 +5,22 @@ All notable changes to the **Pub Quiz App (BE-Quiz)** project will be documented
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Knip Whole-Project Dead Code & Unused Export Gate (`knip.json`, `package.json`, `tests/unit/knipConfig.test.ts`):** Integrated Knip v6 (`npm run knip` and `npm run knip:prod`) with Next.js, Vitest, Prisma, ESLint, PostCSS, Prettier, Tailwind, husky, and lint-staged plugins, and promoted both checks into `npm run check:all` as blocking CI/local quality gates.
+- **Test-Only Lineup Helper Isolation (`tests/helpers/rsvpLineup.ts`):** Relocated `getRsvpLineup` and `RsvpWithDetails` out of `src/services/rsvpService.ts` into `tests/helpers/rsvpLineup.ts` and updated all 6 consuming test suites.
+
+### Changed & Removed
+
+- **Orphaned Server Action & Legacy Fixture Removal (`src/actions/registrationActions.ts`, `src/components/QuizCard.tsx`):** Deleted the unauthenticated dead Server Action `resetRegisteredAction`, inlined `QuizCardQuiz` into `QuizCard.tsx`, and removed legacy `src/lib/mockData.ts`.
+- **Canonical Registration Service Naming (`src/services/registrationService.ts`, `src/actions/registrationActions.ts`, `src/actions/adminActions.ts`):** Standardized on `registerTeam` and `unregisterTeam`, removing `setTeamRegistered`, `adminResetRegistration`, and duplicate export aliases.
+- **Internal Type & Planned Helper Annotations:** Un-exported single-file interfaces (`LoginMember`, `DeclinedMember`, `UpdateEventResult`, `CalendarEventMappingRecord`), removed redundant `RsvpWithMember`, and tagged preserved `#1`/`#5` helpers (`updateQuizDetails`, `UpdateQuizDetailsInput`, `formatEuropeanDate`, `formatEuropeanTime`) with `/** @internal */`.
+- **Dependency Hygiene (`package.json`):** Removed unused `clsx`, `tailwind-merge`, `eslint-config-next`, `@secretlint/quick-start`, and stale `"main": "index.js"`, and declared `@next/eslint-plugin-next@^16.4.6` explicitly in `devDependencies`.
+
+---
+
 ## [v2.6.1] - 2026-11-21
 
 ### Added

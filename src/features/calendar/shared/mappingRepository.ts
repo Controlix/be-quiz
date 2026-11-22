@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/db";
 
-export interface CalendarEventMappingRecord {
+interface CalendarEventMappingRecord {
   id: string;
   quizId: string;
   externalEventId: string;

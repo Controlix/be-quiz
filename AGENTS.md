@@ -10,7 +10,8 @@ This block is written and re-added by `next dev` — verify at `node_modules/nex
 
 ## Project Documentation & Architecture Guidelines
 
-Before planning, modifying, or implementing any features, database models, or structural changes, always consult the documentation in `docs/`:
+**<HARD-GATE> Mandatory Docs-First Rule (Always Consult Docs Before Code):**
+Before answering questions, exploring the codebase, planning, modifying, or implementing any features, database models, or structural changes, the agent MUST ALWAYS consult the documentation in `docs/` first before searching or reading source code:
 
 - **Roadmap & Feature Backlog (`docs/roadmap.md`):** The single source of truth for **active priorities and future backlog ONLY**. Completed milestones and release notes live in `CHANGELOG.md` and `docs/superpowers/feedback/archive-*.md`—never keep completed release summaries in `roadmap.md`. When picking up or finishing features, keep this document updated with their status. **Immediately track specs and plans:** As soon as a design spec or implementation plan is drafted or approved, update `docs/roadmap.md` to link directly to the spec/plan file and reflect its active state (e.g. `[ ] Spec Ready: docs/superpowers/specs/...`). **Archive Completed Items Immediately:** As soon as a roadmap item or feature is completed and shipped, remove it from `docs/roadmap.md` and archive its details into `docs/superpowers/feedback/archive-<milestone>-completed.md` (e.g. `archive-v1.1-completed.md`), keeping `docs/roadmap.md` strictly clean and free of completed historical clutter.
 - **Changelog (`CHANGELOG.md`):** The single source of truth for released versions and historical release notes following the [Keep a Changelog](https://keepachangelog.com/) standard. When a milestone or release is tagged and shipped, summarize its notable user-facing and architectural changes here.
@@ -33,8 +34,9 @@ Before planning, modifying, or implementing any features, database models, or st
   - NEVER run `git commit` or create git commits unless the user has explicitly requested or consented to a commit.
   - Doing work, editing files, or running scripts does not imply permission to commit. Always ask first.
 
-- **<HARD-GATE> Mandatory Git Pre-Flight & Branch Verification Protocol:**
-  - Before invoking any skills, modifying files, drafting plans, or beginning brainstorming in ANY session, the agent MUST execute the Git Pre-Flight check:
+- **<HARD-GATE> Mandatory Git Pre-Flight & Branch Verification Protocol (Write & Change Tasks Only):**
+  - **Scoped Strictly to Making Changes:** Only execute this check when preparing to modify files, write code, create branches, or execute an implementation plan. **NEVER** run git checks or branch verification for read-only inquiries, file reading, documentation reviews, answering questions, or conceptual exploration.
+  - When a task requires writing or modifying code:
     1. Run `git status`, `git branch --show-current`, and `git fetch origin`.
     2. Check tracking status against `origin/main`.
     3. **The Branch Mismatch Stop Rule:** If the current branch is NOT `main` and its name does not literally match the user's requested task (or if it was already merged into `origin/main`), the agent is **STRICTLY FORBIDDEN** from proceeding with code or plans.
@@ -62,9 +64,9 @@ Before planning, modifying, or implementing any features, database models, or st
 - **Remarks Are for Discussion, Not Code:**
   - When the user shares a remark, observation, or critique (e.g., "this feels cheap", "I noticed X"), treat it as an invitation to discuss and explore options. **Never** treat remarks as a wildcard or automatic trigger to write/edit code. Always discuss and confirm intent first.
 
-- **Look Before You Ask — Scoped to Docs Only:**
-  - When gathering context before asking questions or preparing for brainstorming ("Look Before You Ask"), restrict inspection ONLY to the relevant documentation files in `docs/` (specifically `docs/roadmap.md`, `docs/architecture/overview.md`, and relevant architecture docs).
-  - NEVER scour the entire codebase, grep across source files, or inspect raw implementation components/schemas during conceptual or brainstorming phases. The documentation exists as the authoritative single source of truth for high-level requirements and architecture.
+- **<HARD-GATE> Always Docs Before Code Invariant:**
+  - Before inspecting source code, searching the codebase, or reviewing implementation files for ANY inquiry, task, or bugfix, the agent MUST ALWAYS consult the authoritative documentation under `docs/` first (specifically `docs/roadmap.md`, `docs/architecture/overview.md`, `docs/database/schema.md`, `docs/api/openapi.yaml`, `docs/adr/`, etc.).
+  - NEVER scour the entire codebase, grep across source files, or inspect raw implementation components/schemas before reviewing the relevant documentation. The documentation is the authoritative single source of truth for high-level requirements and architecture. Code files should only be inspected after consulting docs, when specific low-level implementation details or contracts are not covered in `docs/`.
 
 - **Strict Step-by-Step Plan Checklist Discipline:**
   - Whenever executing an implementation plan with tasks and checkboxes (`- [ ]`), you MUST update the plan markdown file (`docs/superpowers/plans/...`) to mark each step as complete (`- [x]`) **immediately after finishing it**, before proceeding to the next step or task. Never defer marking checkboxes to the end.
@@ -75,6 +77,7 @@ Before planning, modifying, or implementing any features, database models, or st
   - **Pure State Derivations:** Any filtered sub-lists, member counts, status badges, or button states must be purely derived functions of the primary state, never stored in separate sync variables.
   - **Root Cause Solutions Only:** Never propose or write superficial quick patches, symptom workarounds, or band-aids that paper over architectural flaws. If a domain or state model is fragmented, refactor it to a clean, unified architecture first.
   - **Zero External/DOM Test Dependencies:** Keep reducers and domain transformations 100% pure TypeScript, tested with high speed and determinism under Node.js in Vitest without relying on browser DOM emulation or mock-heavy harnesses.
+  - **High-Value Tests Only (No Filler or Source-Scraping Tests):** Only write tests that verify real observable behavior, domain invariants, edge cases, failure modes, or critical config/gate contracts. NEVER write tautological tests, mock-everything tests, or brittle `fs.readFileSync`/regex assertions that merely check source code text or duplicate checks already enforced by `tsc`, `eslint`, `knip`, or `prettier`.
   - **Cross-Chunk In-Process Singletons:** In Next.js server runtimes, never use naive file-level singletons (`export const bus = new Bus()`) for shared in-memory infrastructure (such as event brokers or connection pools). Always anchor process-level brokers to `globalThis` to prevent silent instance divergence across Next.js Webpack chunk closures.
   - **Environment-Accurate Execution:** Never assume or hallucinate test libraries, runners, or dependencies; always inspect the actual repository configuration (`package.json`, test configs, and established codebase patterns) before drafting plans or writing code.
   - **Error-Safe Optimistic Updates:** Never dispatch an optimistic client state/reducer update before a Server Action resolves unless the failure path (`!res.success` or thrown error) explicitly rolls back the state. For low-frequency admin or dialog mutations, prefer awaiting `{ success: true }` before dispatching.
@@ -84,4 +87,4 @@ Before planning, modifying, or implementing any features, database models, or st
 
 - **Mandatory Pre-Implementation Spec & Plan Review:**
   - ALWAYS perform an explicit, rigorous self-review of the design spec and implementation plan against real repository configurations before claiming the plan is complete or beginning implementation.
-  - Check: (1) environment and dependencies (e.g. `package.json`, `vitest.config.ts`), (2) single-source-of-truth domain invariants, (3) unambiguous test steps, (4) type consistency across tasks, (5) edge case coverage, and (6) 1:1 traceability from every item in `Review Focus` and `Testing Strategy` to an explicit named `it(...)` test case in the plan's test steps. Explicitly confirm this review to the user before starting implementation.
+  - Check: (1) environment and dependencies (e.g. `package.json`, `vitest.config.ts`), (2) single-source-of-truth domain invariants, (3) unambiguous test steps, (4) type consistency across tasks, (5) edge case coverage, and (6) 1:1 traceability from every item in `Review Focus` and `Testing Strategy` to an explicit verification step (a behavioral or config-gate `it(...)` test where applicable, or the authoritative static gate such as `typecheck`, `lint`, or `knip`—never synthetic source-text regex tests). Explicitly confirm this review to the user before starting implementation.

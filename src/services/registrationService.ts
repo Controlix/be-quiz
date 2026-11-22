@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/db";
 import { domainEvents } from "@/lib/events";
 
-export async function setTeamRegistered(teamId: string, memberId: string): Promise<void> {
+export async function registerTeam(teamId: string, memberId: string): Promise<void> {
   const team = await prisma.team.update({
     where: { id: teamId },
     data: {
@@ -18,7 +18,7 @@ export async function setTeamRegistered(teamId: string, memberId: string): Promi
   });
 }
 
-export async function adminResetRegistration(teamId: string): Promise<void> {
+export async function unregisterTeam(teamId: string): Promise<void> {
   const team = await prisma.team.update({
     where: { id: teamId },
     data: {
@@ -34,6 +34,3 @@ export async function adminResetRegistration(teamId: string): Promise<void> {
     occurredAt: new Date(),
   });
 }
-
-export const registerTeam = setTeamRegistered;
-export const unregisterTeam = adminResetRegistration;

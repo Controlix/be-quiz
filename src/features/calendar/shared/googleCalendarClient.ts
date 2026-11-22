@@ -1,7 +1,7 @@
 import crypto from "node:crypto";
 import { GoogleCalendarEventPayload } from "./formatter";
 
-export interface UpdateEventResult {
+interface UpdateEventResult {
   updated: boolean;
   notFound?: boolean;
 }
