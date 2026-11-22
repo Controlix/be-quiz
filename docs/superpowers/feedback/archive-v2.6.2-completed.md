@@ -1,6 +1,6 @@
 # Archive: v2.6.2 Completed Features & Implementation Notes
 
-- **Release Version:** `v2.6.2` (Unreleased)
+- **Release Version:** `v2.6.2`
 - **Release Date:** 2026-11-22
 - **Focus:** Automated Dead Code & Unused Export Detection + Blocking Quality Gate (Knip Phase 1 & Phase 2)
 
@@ -11,7 +11,7 @@
 ### #E.2 Automated Dead Code & Unused Export Detection (Knip Integration)
 
 - **Original Backlog Item:** Part 2, Section E, Item 2 (Code Quality / CI & Tooling)
-- **Status:** Completed (Pending release tag)
+- **Status:** Shipped (`v2.6.2`)
 - **Specs & Plans:**
   - Phase 1 Design & Plan: `docs/superpowers/specs/2026-11-22-knip-dead-code-detection-design.md`, `docs/superpowers/plans/2026-11-22-knip-dead-code-detection-phase-1.md`
   - Baseline Audit Report: `docs/superpowers/audit/knip-baseline-report.md`
