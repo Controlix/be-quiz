@@ -217,4 +217,6 @@ To maintain high architectural standards without relying on remote CI, code qual
   - `npm run format:write`: Formats all repository files and sorts Tailwind classes.
   - `npm run scan:secrets`: Runs Secretlint across all tracked files.
   - `npm run audit:check`: Verifies that no unallowlisted moderate, high, or critical CVEs exist.
+  - `npm run knip`: Runs Knip whole-project static dead-code, unused-export, and dependency analysis (default full-repo mode; Phase 1 audit-only, standalone from `check:all`).
+  - `npm run knip:prod`: Runs `knip --production` to surface production-only dead exports and dependencies masked by tests or scripts.
   - `npm run check:all`: Runs typecheck, unit tests, linter, formatting checks, security audit, and secret scanning in a unified pipeline.
