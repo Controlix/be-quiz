@@ -141,7 +141,7 @@ The application cleanly partitions responsibilities between code executing in th
 - **Session & PIN Auth:** Passwordless/PIN-based authentication for team members, using cryptographically secure session tokens stored in the database (`Session` model) and encrypted HTTP cookies (`auth.ts`, `crypto.ts`).
 - **Invite-based Onboarding:** Unique invitation links (`Invite` model) to onboard team members directly with pre-assigned roles (`USER` or `ADMIN`).
 - **Player Dual-Identity:** In **be-quiz**, there is no detached or abstract "super-admin" persona. Administrators are active teammates who participate in quizzes, RSVP for lineups, and sit at the table alongside everyone else. An admin's personal interaction with an event (RSVPing, viewing lineups, rating) is identical to a regular member, but their session carries elevated permissions to manage team logistics and correct records.
-- **Role Enforcement:** Server Actions and Admin routes check the active session's role before executing privileged operations (e.g. member management, overrides, settings).
+- **Role Enforcement & Permissions:** Server Actions and Admin routes check the active session's role before executing privileged operations (e.g. member management, overrides, settings). For the complete matrix of user versus admin capabilities, start-time lockdowns, and safeguards, see [Roles & Permissions Architecture](./roles-and-permissions.md).
 
 ### 4.2 Quiz Lifecycle, Roster Concurrency & Administrative Overrides
 

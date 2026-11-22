@@ -67,13 +67,12 @@ To maximize development impact and protect service stability, backlog items acro
 
 ## Part 1: Active Priorities & v1.1 Polish
 
-### 1. Admin Edit Quiz Details (Error Correction)
+### 1. Edit Quiz Details (Error Correction)
 
-- **Status:** `[ ] Open`
-- **Feedback:** If a user makes a mistake during manual entry or flyer scan (e.g. incorrect venue, wrong start time, typo in title), admins cannot fix it without direct database intervention.
-- **Requirement:** Extend `/quizzes/[id]/edit` (restricted to admins) to allow updating all quiz metadata:
-  - Title, date, start time, location/venue, entry fee, organizer email, registration URL, and notes.
-- **Scope:** `EditQuizClient.tsx`, `quizService.ts`, and a new server action `adminUpdateQuizDetailsAction`.
+- **Status:** `[ ] Draft Spec: docs/superpowers/specs/2026-11-22-edit-quiz-details-draft-spec.md`
+- **Feedback:** If a user makes a mistake during manual entry or flyer scan (e.g. incorrect venue, wrong start time, typo in title), it currently cannot be fixed without direct database intervention.
+- **Requirement:** Allow editing of all quiz metadata (title, date, start time, location/venue, entry fee, organizer email, registration URL, notes, flyer) via a pencil icon on the quiz detail page, accessible to all authenticated teammates for collaborative error correction in v1 (with administrative actions like capacity and cancellation remaining admin-only).
+- **Scope:** `QuizDetailClient.tsx` (or `EditQuizClient.tsx`), shared form fields from `QuizEntryForm.tsx`, `quizService.ts`, and a new server action `updateQuizDetailsAction`.
 
 ### 2. Dynamic Capacity Icon for Player Count
 
