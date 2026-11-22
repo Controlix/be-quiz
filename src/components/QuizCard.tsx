@@ -1,10 +1,26 @@
 import Link from "next/link";
-import { MockQuiz } from "@/lib/mockData";
 import { formatEuropeanDateTime } from "@/lib/formatters";
 import { Calendar, MapPin, Users, CheckCircle, Clock, AlertTriangle } from "lucide-react";
 
+interface QuizCardQuiz {
+  id: string;
+  title: string;
+  startsAt: Date;
+  location: string;
+  entryFee?: string;
+  status: "OPEN" | "CANCELLED" | "ARCHIVED";
+  team: {
+    name: string;
+    maxTeamSize: number;
+    registeredAt: Date | null;
+    paidAt: Date | null;
+    paidByName?: string;
+    rsvps: Array<{ id: string; memberName: string; status: "ATTENDING" | "DECLINED" }>;
+  };
+}
+
 interface QuizCardProps {
-  quiz: MockQuiz;
+  quiz: QuizCardQuiz;
   rating?: { average: number; count: number } | null;
 }
 

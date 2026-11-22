@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { prisma } from "../../src/lib/db";
 import { createQuiz } from "../../src/services/quizService";
-import { setRsvp, getRsvpLineup, reorderRsvps } from "../../src/services/rsvpService";
+import { setRsvp, reorderRsvps } from "../../src/services/rsvpService";
+import { getRsvpLineup } from "../helpers/rsvpLineup";
 
 describe("Admin Roster Reordering", () => {
   it("reorders attendees and updates active lineup and reserve boundary", async () => {

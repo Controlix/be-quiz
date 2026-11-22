@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach } from "vitest";
 import { prisma } from "../../src/lib/db";
-import { addGuestRsvp, removeGuestRsvp, getRsvpLineup } from "../../src/services/rsvpService";
+import { addGuestRsvp, removeGuestRsvp } from "../../src/services/rsvpService";
+import { getRsvpLineup } from "../helpers/rsvpLineup";
 import { getQuizRatingSummary } from "../../src/services/ratingService";
 import { formatLineupSummary } from "../../src/features/calendar/shared/formatter";
 

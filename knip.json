@@ -1,7 +1,13 @@
 {
   "$schema": "https://unpkg.com/knip@6/schema.json",
   "entry": ["scripts/**/*.ts"],
-  "project": ["src/**/*.{ts,tsx,css}!", "scripts/**/*.ts", "prisma/**/*.ts", "tests/**/*.{ts,tsx}"],
+  "project": [
+    "src/**/*.{ts,tsx,css}!",
+    "scripts/**/*.ts",
+    "prisma/**/*.{ts,prisma}",
+    "tests/**/*.{ts,tsx}"
+  ],
+  "ignoreExportsUsedInFile": true,
   "ignore": [],
-  "ignoreDependencies": []
+  "ignoreDependencies": ["@secretlint/secretlint-rule-preset-recommend"]
 }

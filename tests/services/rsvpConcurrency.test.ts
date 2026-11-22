@@ -1,7 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { prisma } from "../../src/lib/db";
 import { createQuiz } from "../../src/services/quizService";
-import { setRsvp, getRsvpLineup } from "../../src/services/rsvpService";
+import { setRsvp } from "../../src/services/rsvpService";
+import { getRsvpLineup } from "../helpers/rsvpLineup";
 
 describe("RSVP Concurrency & FIFO Waitlist", () => {
   it("enforces FIFO queue and handles concurrent RSVPs at capacity limit", async () => {

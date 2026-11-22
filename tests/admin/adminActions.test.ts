@@ -1,12 +1,8 @@
 import { describe, it, expect } from "vitest";
 import { prisma } from "../../src/lib/db";
 import { createQuiz } from "../../src/services/quizService";
-import {
-  setRsvp,
-  getRsvpLineup,
-  adminOverrideDecline,
-  updateTeamCapacity,
-} from "../../src/services/rsvpService";
+import { setRsvp, adminOverrideDecline, updateTeamCapacity } from "../../src/services/rsvpService";
+import { getRsvpLineup } from "../helpers/rsvpLineup";
 
 describe("Admin Override & Capacity Demotion Logic", () => {
   // Review Focus #2: Admin RSVP Override Audit & Promotion
