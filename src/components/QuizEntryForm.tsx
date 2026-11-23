@@ -4,9 +4,10 @@ import { useState } from "react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { FlyerUploader } from "@/components/FlyerUploader";
+import { QuizMetadataFields } from "@/components/QuizMetadataFields";
 import { Stepper } from "@/components/ui/Stepper";
 import { createQuizAction } from "@/actions/quizActions";
-import { formatStructuredEntryFee } from "@/services/quizService";
+import { formatStructuredEntryFee, parseStructuredEntryFee } from "@/services/quizService";
 import { VisionExtractionResult } from "@/services/visionService";
 import { useCapabilities } from "@/features/capabilities";
 import {
@@ -57,10 +58,9 @@ export function QuizEntryForm({ currentMemberId }: QuizEntryFormProps) {
     if (result.data.organizerEmail) setOrganizerEmail(result.data.organizerEmail);
     if (result.data.registrationUrl) setRegistrationUrl(result.data.registrationUrl);
     if (result.data.entryFee) {
-      const isPerson = /persoon|pp|p\.p\./i.test(result.data.entryFee);
-      const match = result.data.entryFee.match(/[0-9]+([.,][0-9]+)?/);
-      setEntryFeeAmount(match ? match[0] : "");
-      setEntryFeeUnit(isPerson ? "PERSON" : "TEAM");
+      const parsedFee = parseStructuredEntryFee(result.data.entryFee);
+      setEntryFeeAmount(parsedFee.amount);
+      setEntryFeeUnit(parsedFee.unit);
     }
 
     setMissingFields(result.missingFields || []);
@@ -205,158 +205,50 @@ export function QuizEntryForm({ currentMemberId }: QuizEntryFormProps) {
       >
         <h3 className="mb-2 text-sm font-bold text-slate-900">Quiz Gegevens Controleren</h3>
 
-        {/* Title */}
-        <div>
-          <label className="mb-1 block text-xs font-bold text-slate-700">Kwis Titel *</label>
-          <input
-            type="text"
-            maxLength={100}
-            value={title}
-            onChange={(e) => {
-              setTitle(e.target.value);
-              setMissingFields((prev) => prev.filter((f) => f !== "title"));
-            }}
-            placeholder="bv. Grote Herfstquiz"
-            className={`w-full rounded-xl border p-2.5 text-sm ${
-              missingFields.includes("title") ? "border-red-500 bg-red-50/30" : "border-slate-200"
-            }`}
-          />
-        </div>
-
-        {/* Date & Time */}
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <label className="mb-1 block text-xs font-bold text-slate-700">
-              Datum (DD/MM/JJJJ) *
-            </label>
-            <input
-              type="text"
-              inputMode="numeric"
-              maxLength={10}
-              value={date}
-              onChange={(e) => {
-                setDate(formatEuropeanDateString(e.target.value));
-                setMissingFields((prev) => prev.filter((f) => f !== "date"));
-              }}
-              placeholder="DD/MM/JJJJ"
-              className={`w-full rounded-xl border p-2 text-sm font-medium ${
-                missingFields.includes("date") ? "border-red-500 bg-red-50/30" : "border-slate-200"
-              }`}
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-bold text-slate-700">
-              Aanvangsuur (24u) *
-            </label>
-            <input
-              type="text"
-              inputMode="numeric"
-              maxLength={5}
-              value={time}
-              onChange={(e) => {
-                setTime(formatEuropeanTimeString(e.target.value));
-                setMissingFields((prev) => prev.filter((f) => f !== "time"));
-              }}
-              placeholder="20:00"
-              className={`w-full rounded-xl border p-2 text-sm font-medium ${
-                missingFields.includes("time") ? "border-red-500 bg-red-50/30" : "border-slate-200"
-              }`}
-            />
-          </div>
-        </div>
-
-        {/* Location & Team Size */}
-        <div className="flex flex-col gap-3 sm:flex-row">
-          <div className="flex-1">
-            <label className="mb-1 block text-xs font-bold text-slate-700">Locatie / Zaal *</label>
-            <input
-              type="text"
-              maxLength={120}
-              value={location}
-              onChange={(e) => {
-                setLocation(e.target.value);
-                setMissingFields((prev) => prev.filter((f) => f !== "location"));
-              }}
-              placeholder="bv. Zaal Centrum, Gent"
-              className={`w-full rounded-xl border p-2 text-sm ${
-                missingFields.includes("location")
-                  ? "border-red-500 bg-red-50/30"
-                  : "border-slate-200"
-              }`}
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-bold text-slate-700">Max Spelers *</label>
-            <Stepper
-              value={Number(maxTeamSize) || 4}
-              min={1}
-              max={10}
-              onChange={(val) => {
-                setMaxTeamSize(String(val));
-                setMissingFields((prev) => prev.filter((f) => f !== "maxTeamSize"));
-              }}
-            />
-          </div>
-        </div>
-
-        {/* Contact Email & Fee */}
-        <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-600">Inschrijf Email</label>
-            <input
-              type="email"
-              value={organizerEmail}
-              onChange={(e) => setOrganizerEmail(e.target.value)}
-              placeholder="organisatie@quiz.be"
-              className="w-full rounded-xl border border-slate-200 p-2.5 text-xs"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-xs font-medium text-slate-600">
-              Inschrijvingsgeld
-            </label>
-            <div className="flex items-center gap-1.5">
-              <div className="relative flex-1">
-                <span className="absolute top-1/2 left-2.5 -translate-y-1/2 text-xs font-bold text-slate-400">
-                  €
-                </span>
-                <input
-                  type="text"
-                  inputMode="decimal"
-                  maxLength={10}
-                  value={entryFeeAmount}
-                  onChange={(e) => setEntryFeeAmount(e.target.value)}
-                  placeholder="20"
-                  className="w-full rounded-xl border border-slate-200 py-2.5 pr-2.5 pl-6 text-xs font-medium"
-                />
-              </div>
-              <div className="flex shrink-0 rounded-xl bg-slate-100 p-0.5 text-xs font-semibold">
-                <button
-                  type="button"
-                  onClick={() => setEntryFeeUnit("TEAM")}
-                  className={`rounded-lg px-2.5 py-1.5 text-[11px] transition-all ${
-                    entryFeeUnit === "TEAM"
-                      ? "bg-white text-blue-600 shadow-xs"
-                      : "text-slate-500 hover:text-slate-800"
-                  }`}
-                >
-                  / ploeg
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setEntryFeeUnit("PERSON")}
-                  className={`rounded-lg px-2.5 py-1.5 text-[11px] transition-all ${
-                    entryFeeUnit === "PERSON"
-                      ? "bg-white text-blue-600 shadow-xs"
-                      : "text-slate-500 hover:text-slate-800"
-                  }`}
-                >
-                  / persoon
-                </button>
-              </div>
+        <QuizMetadataFields
+          title={title}
+          onTitleChange={(value) => {
+            setTitle(value);
+            setMissingFields((prev) => prev.filter((f) => f !== "title"));
+          }}
+          date={date}
+          onDateChange={(value) => {
+            setDate(value);
+            setMissingFields((prev) => prev.filter((f) => f !== "date"));
+          }}
+          time={time}
+          onTimeChange={(value) => {
+            setTime(value);
+            setMissingFields((prev) => prev.filter((f) => f !== "time"));
+          }}
+          location={location}
+          onLocationChange={(value) => {
+            setLocation(value);
+            setMissingFields((prev) => prev.filter((f) => f !== "location"));
+          }}
+          organizerEmail={organizerEmail}
+          onOrganizerEmailChange={setOrganizerEmail}
+          entryFeeAmount={entryFeeAmount}
+          onEntryFeeAmountChange={setEntryFeeAmount}
+          entryFeeUnit={entryFeeUnit}
+          onEntryFeeUnitChange={setEntryFeeUnit}
+          missingFields={missingFields}
+          disabled={loading}
+          teamSizeControl={
+            <div>
+              <label className="mb-1 block text-xs font-bold text-slate-700">Max Spelers *</label>
+              <Stepper
+                value={Number(maxTeamSize) || 4}
+                min={1}
+                max={10}
+                onChange={(val) => {
+                  setMaxTeamSize(String(val));
+                  setMissingFields((prev) => prev.filter((f) => f !== "maxTeamSize"));
+                }}
+              />
             </div>
-          </div>
-        </div>
+          }
+        />
 
         {/* Submit button */}
         <button

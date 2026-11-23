@@ -1,6 +1,6 @@
 # Pub Quiz App (BE-Quiz) — Roadmap & Feature Backlog
 
-**Current App Version:** `v2.6.2` (Knip Dead Code Remediation & Blocking Gate)  
+**Current App Version:** `v2.7.0` (Collaborative Edit Quiz Details & Start Lockdown)  
 This document is the **single source of truth for active and planned roadmap items**. For past releases and completed milestone notes, see [CHANGELOG.md](../CHANGELOG.md) and [Feedback Archives](superpowers/feedback/).
 
 ---
@@ -35,51 +35,43 @@ To maximize development impact, enforce uncompromising architectural quality, an
 
 | Rank   | Item                                                                                                                        | Category           | Key Benefit                                                    |
 | :----- | :-------------------------------------------------------------------------------------------------------------------------- | :----------------- | :------------------------------------------------------------- |
-| **1**  | **[#1 Admin Edit Quiz Details](#1-admin-edit-quiz-details-error-correction)**                                               | Core Admin         | Eliminates manual database surgery for typos                   |
-| **2**  | **[#3 Venue Maps Integration](#3-venue-maps-integration--navigation)**                                                      | Player Experience  | 1-tap route navigation on quiz night                           |
-| **3**  | **[#6 Duplicate Quiz Detection](#6-duplicate-quiz-detection-on-entry)**                                                     | Data Hygiene       | Prevents split RSVPs and duplicate events                      |
-| **4**  | **[#7 Quiz Schedule Conflict Indicator](#7-quiz-schedule--date-conflict-indicator)**                                        | Event Coordination | Ambient warning for overlapping events on the calendar         |
-| **5**  | **[#B.2 Same-Day Member Conflict Warning](#b-teams--headcount)**                                                            | Team Operations    | Visual warning for double-booked players on registered quizzes |
-| **6**  | **[#B.1 Multiple Teams per Quiz](#b-teams--headcount)**                                                                     | Team Operations    | Allows fielding 2 teams when 8 people sign up                  |
-| **7**  | **[#9 Admin Unread Feedback Indicator](#9-admin-unread-feedback-indicator-badge--alert)**                                   | Core Admin         | Ambient badge ensures member bugs & feedback aren't missed     |
-| **8**  | **[#5 Date & Time Input Picker](#5-date--time-input-flexibility-calendar-picker--time-selector)**                           | Admin Ergonomics   | Eliminates manual typing of dates/times on mobile              |
-| **9**  | **[#13 Responsive Tablet & Rotation Layout](#13-responsive-tablet--smartphone-rotation-layout-optimization-pwa-landscape)** | UX / Responsive    | Optimizes screen usage on tablets and rotated smartphones      |
-| **10** | **[#C.1 Secure PIN Storage Upgrade](#c-member-management--security)**                                                       | Security           | Replaces unsalted SHA-256 with salted/bcrypt hash              |
-| **11** | **[#C.2 / C.3 Member Soft-Delete & Details](#c-member-management--security)**                                               | Admin Management   | Clean roster management without breaking history               |
-| **12** | **[#A.2 Public Share Preview](#a-integrations--logistics)**                                                                 | Growth / Subbing   | Shareable preview link for WhatsApp group chats                |
-| **13** | **[#4 WhatsApp Share for Invites](#4-whatsapp-share-for-member-invites)**                                                   | Admin Ergonomics   | 1-tap invite link sharing via WhatsApp                         |
-| **14** | **[#E.1 Dependabot Grouping Config](#e-cicd--dependency-automation-infrastructure)**                                        | CI / CD            | Stops failing Prisma 7 / TS 7 Dependabot PRs                   |
-| **15** | **[#C.4 Hard Delete with Confirmation](#c-member-management--security)**                                                    | Admin Utility      | Permanent removal of test/erroneous entries                    |
-| **16** | **[#11 Custom Team Logo & Branding](#11-custom-team-logo-upload--header-branding)**                                         | Visual Polish      | Custom logo upload in settings & header                        |
-| **17** | **[#10 Fractional Star Rating](#10-read-only-fractional-star-rating-component)**                                            | Visual Polish      | Clipped SVG decimal stars (Spec ready)                         |
-| **18** | **[#2 Dynamic Capacity Icon](#2-dynamic-capacity-icon-for-player-count)**                                                   | Visual Polish      | Dynamic icon alongside player ratio                            |
-| **19** | **[#12 Vercel Storage Optimization](#12-vercel-functions-storage--serverless-bundle-optimization)**                         | Infrastructure     | Serverless bundle & output tracing optimization (deferred)     |
-| **20** | **[#A.1 Carpooling & Ride-Sharing](#a-integrations--logistics)**                                                            | Feature            | Complex; already handled organically in WhatsApp               |
-| **21** | **[#D.1 Smart Historical Suggestion](#d-post-quiz-evaluation--historical-insights)**                                        | Insights           | Suggests past ratings on entry (Deferred)                      |
+| **1**  | **[#3 Venue Maps Integration](#3-venue-maps-integration--navigation)**                                                      | Player Experience  | 1-tap route navigation on quiz night                           |
+| **2**  | **[#6 Duplicate Quiz Detection](#6-duplicate-quiz-detection-on-entry)**                                                     | Data Hygiene       | Prevents split RSVPs and duplicate events                      |
+| **3**  | **[#7 Quiz Schedule Conflict Indicator](#7-quiz-schedule--date-conflict-indicator)**                                        | Event Coordination | Ambient warning for overlapping events on the calendar         |
+| **4**  | **[#B.2 Same-Day Member Conflict Warning](#b-teams--headcount)**                                                            | Team Operations    | Visual warning for double-booked players on registered quizzes |
+| **5**  | **[#B.1 Multiple Teams per Quiz](#b-teams--headcount)**                                                                     | Team Operations    | Allows fielding 2 teams when 8 people sign up                  |
+| **6**  | **[#9 Admin Unread Feedback Indicator](#9-admin-unread-feedback-indicator-badge--alert)**                                   | Core Admin         | Ambient badge ensures member bugs & feedback aren't missed     |
+| **7**  | **[#5 Date & Time Input Picker](#5-date--time-input-flexibility-calendar-picker--time-selector)**                           | Admin Ergonomics   | Eliminates manual typing of dates/times on mobile              |
+| **8**  | **[#13 Responsive Tablet & Rotation Layout](#13-responsive-tablet--smartphone-rotation-layout-optimization-pwa-landscape)** | UX / Responsive    | Optimizes screen usage on tablets and rotated smartphones      |
+| **9**  | **[#C.1 Secure PIN Storage Upgrade](#c-member-management--security)**                                                       | Security           | Replaces unsalted SHA-256 with salted/bcrypt hash              |
+| **10** | **[#C.2 / C.3 Member Soft-Delete & Details](#c-member-management--security)**                                               | Admin Management   | Clean roster management without breaking history               |
+| **11** | **[#A.2 Public Share Preview](#a-integrations--logistics)**                                                                 | Growth / Subbing   | Shareable preview link for WhatsApp group chats                |
+| **12** | **[#4 WhatsApp Share for Invites](#4-whatsapp-share-for-member-invites)**                                                   | Admin Ergonomics   | 1-tap invite link sharing via WhatsApp                         |
+| **13** | **[#E.1 Dependabot Grouping Config](#e-cicd--dependency-automation-infrastructure)**                                        | CI / CD            | Stops failing Prisma 7 / TS 7 Dependabot PRs                   |
+| **14** | **[#C.4 Hard Delete with Confirmation](#c-member-management--security)**                                                    | Admin Utility      | Permanent removal of test/erroneous entries                    |
+| **15** | **[#11 Custom Team Logo & Branding](#11-custom-team-logo-upload--header-branding)**                                         | Visual Polish      | Custom logo upload in settings & header                        |
+| **16** | **[#10 Fractional Star Rating](#10-read-only-fractional-star-rating-component)**                                            | Visual Polish      | Clipped SVG decimal stars (Spec ready)                         |
+| **17** | **[#2 Dynamic Capacity Icon](#2-dynamic-capacity-icon-for-player-count)**                                                   | Visual Polish      | Dynamic icon alongside player ratio                            |
+| **18** | **[#12 Vercel Storage Optimization](#12-vercel-functions-storage--serverless-bundle-optimization)**                         | Infrastructure     | Serverless bundle & output tracing optimization (deferred)     |
+| **19** | **[#A.1 Carpooling & Ride-Sharing](#a-integrations--logistics)**                                                            | Feature            | Complex; already handled organically in WhatsApp               |
+| **20** | **[#D.1 Smart Historical Suggestion](#d-post-quiz-evaluation--historical-insights)**                                        | Insights           | Suggests past ratings on entry (Deferred)                      |
 
 ### Tier Breakdown
 
-- **Tier 1: Core Admin & Real-World Team Workflow (Ranks 1–4)**
-  - High-frequency friction reducers, error correction (edit quiz details), and navigation.
-- **Tier 2: Team Operations & Data Integrity (Ranks 5–8)**
+- **Tier 1: Core Admin & Real-World Team Workflow (Ranks 1–3)**
+  - High-frequency friction reducers and game-night navigation.
+- **Tier 2: Team Operations & Data Integrity (Ranks 4–7)**
   - Safeguards for lineups, multiple team signups, scheduling collisions, and admin feedback visibility.
-- **Tier 3: Core Mobile & Admin Quality of Life (Ranks 9–13)**
+- **Tier 3: Core Mobile & Admin Quality of Life (Ranks 8–12)**
   - Major ergonomic, responsive layout, security, and team capacity upgrades that simplify season-long management.
-- **Tier 4: Quick Wins & Tooling Hygiene (Ranks 14–15)**
+- **Tier 4: Quick Wins & Tooling Hygiene (Ranks 13–14)**
   - Minor functional additions and dependency automation with straightforward implementation paths.
-- **Tier 5: Visual Polish, Deferred Infrastructure & Speculative Features (Ranks 16–21)**
+- **Tier 5: Visual Polish, Deferred Infrastructure & Speculative Features (Ranks 15–20)**
   - Aesthetic enhancements, non-urgent build optimizations (Vercel functions storage), or speculative features where existing habits already suffice.
 
 ---
 
 ## Part 1: Active Priorities & v1.1 Polish
-
-### 1. Edit Quiz Details (Error Correction)
-
-- **Status:** `[ ] Draft Spec: docs/superpowers/specs/2026-11-22-edit-quiz-details-draft-spec.md`
-- **Feedback:** If a user makes a mistake during manual entry or flyer scan (e.g. incorrect venue, wrong start time, typo in title), it currently cannot be fixed without direct database intervention.
-- **Requirement:** Allow editing of all quiz metadata (title, date, start time, location/venue, entry fee, organizer email, registration URL, notes, flyer) via a pencil icon on the quiz detail page, accessible to all authenticated teammates for collaborative error correction in v1 (with administrative actions like capacity and cancellation remaining admin-only).
-- **Scope:** `QuizDetailClient.tsx` (or `EditQuizClient.tsx`), shared form fields from `QuizEntryForm.tsx`, `quizService.ts`, and a new server action `updateQuizDetailsAction`.
 
 ### 2. Dynamic Capacity Icon for Player Count
 

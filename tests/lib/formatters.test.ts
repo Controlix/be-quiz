@@ -45,4 +45,10 @@ describe("European Date & Time Formatters", () => {
     expect(date?.getHours()).toBe(20);
     expect(date?.getMinutes()).toBe(0);
   });
+
+  it("rejects two-digit years and partial time strings instead of parsing year 0026 AD", () => {
+    expect(parseEuropeanDateTime("20/11/26", "20:00")).toBeNull();
+    expect(parseEuropeanDateTime("20/11/2026", "20:0")).toBeNull();
+    expect(parseEuropeanDateTime("20/11/2026", "25:00")).toBeNull();
+  });
 });

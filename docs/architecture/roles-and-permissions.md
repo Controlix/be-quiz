@@ -64,7 +64,8 @@ An administrator's personal interactions with a quiz (submitting their personal 
 | **Team Logistics**       | Mark team registered             |    ❌     | ✅ _(pre-start)_ |         ✅         | Server Action & Service | `setRegisteredAction`, `registrationService.registerTeam`            |
 |                          | Reset team registration          |    ❌     |        ❌        |         ✅         | Server Action           | `adminResetRegistrationAction` (`role === "ADMIN"`)                  |
 |                          | Toggle entry fee payment         |    ❌     | ✅ _(pre-start)_ |         ✅         | Server Action & Service | `toggleFeePaidAction`, `paymentService.toggleFeePayment`             |
-| **Quiz Administration**  | Access quiz admin edit page      |    ❌     |        ❌        |         ✅         | RSC Page Guard          | `src/app/quizzes/[id]/edit/page.tsx` (`role === "ADMIN"`)            |
+| **Quiz Administration**  | Edit quiz metadata               |    ❌     | ✅ _(pre-start)_ |         ✅         | Server Action & Service | `updateQuizDetailsAction`, `quizService.updateQuizDetails`           |
+|                          | Access quiz admin edit page      |    ❌     |        ❌        |         ✅         | RSC Page Guard          | `src/app/quizzes/[id]/edit/page.tsx` (`role === "ADMIN"`)            |
 |                          | Adjust maximum team size (1–10)  |    ❌     |        ❌        |         ✅         | Server Action           | `adminUpdateTeamCapacityAction` (`role === "ADMIN"`)                 |
 |                          | Cancel quiz (move to archive)    |    ❌     |        ❌        |         ✅         | Server Action           | `adminCancelQuizAction` (`role === "ADMIN"`)                         |
 | **Post-Quiz Evaluation** | Submit / update star rating      |    ❌     | ✅ _(eligible)_  |  ✅ _(eligible)_   | Server Action           | `rateQuizAction` (Must be concluded & starting lineup)               |

@@ -10,11 +10,13 @@ import { ConfirmDialog } from "@/components/ConfirmDialog";
 import { AlertDialog } from "@/components/AlertDialog";
 import { AddGuestDialog } from "@/components/AddGuestDialog";
 import { EnrollMemberDialog } from "@/components/EnrollMemberDialog";
+import { EditQuizDialog } from "@/components/EditQuizDialog";
 import { joinQuizRsvpAction, declineQuizRsvpAction } from "@/actions/rsvpActions";
 import { adminOverrideDeclineAction, adminOverrideAttendAction } from "@/actions/adminActions";
 import { adminReorderRsvpAction } from "@/actions/reorderActions";
 import { setRegisteredAction, toggleFeePaidAction } from "@/actions/registrationActions";
 import { addGuestAction, removeGuestAction } from "@/actions/guestActions";
+import { updateQuizDetailsAction, UpdateQuizMetadataInput } from "@/actions/quizActions";
 import { formatEuropeanDateTime } from "@/lib/formatters";
 import {
   rsvpReducer,
@@ -26,7 +28,7 @@ import {
 import { isQuizConcluded, QuizRatingSummary } from "@/lib/ratingRules";
 import { isPersonalRsvpLocked, isQuizLockedForUser } from "@/lib/quizLock";
 import { QuizRatingWidget } from "@/components/QuizRatingWidget";
-import { ArrowLeft, MapPin, Calendar, Coins, Settings, UserPlus } from "lucide-react";
+import { ArrowLeft, MapPin, Calendar, Coins, Settings, UserPlus, Pencil } from "lucide-react";
 
 interface QuizDetailClientProps {
   quiz: any;
@@ -68,6 +70,19 @@ export function QuizDetailClient({
   const { attendees, declined: declinedMembers } = deriveLineupRosters(rsvps, currentMemberId);
   const enrollableMembers = deriveUnrespondedMembers(allMembers, rsvps, currentMemberId);
 
+  const [quizDetails, setQuizDetails] = useState({
+    id: quiz.id as string,
+    title: quiz.title as string,
+    startsAt: quiz.startsAt as Date | string,
+    location: quiz.location as string,
+    organizerEmail: (quiz.organizerEmail ?? null) as string | null,
+    entryFee: (quiz.entryFee ?? null) as string | null,
+    flyerImageUrl: (quiz.flyerImageUrl ?? null) as string | null,
+    status: (quiz.status ?? "OPEN") as "OPEN" | "CANCELLED" | "ARCHIVED",
+    durationMinutes: (quiz.durationMinutes ?? 180) as number,
+  });
+  const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+
   const [isRegistered, setIsRegistered] = useState(team?.registeredAt !== null);
   const [isPaid, setIsPaid] = useState(team?.paidAt !== null);
   const [selectedMemberToDecline, setSelectedMemberToDecline] = useState<string | null>(null);
@@ -79,6 +94,17 @@ export function QuizDetailClient({
   const [isEnrollMemberOpen, setIsEnrollMemberOpen] = useState(false);
   const [isEnrollingMember, setIsEnrollingMember] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  const handleSaveQuizDetails = async (payload: UpdateQuizMetadataInput) => {
+    const res = await updateQuizDetailsAction(quizDetails.id, payload);
+    if (!res.success) {
+      throw new Error(res.error);
+    }
+    setQuizDetails((prev) => ({
+      ...prev,
+      ...res.quiz,
+    }));
+  };
 
   const handleRsvpChange = async (status: "ATTENDING" | "DECLINED") => {
     try {
@@ -229,11 +255,11 @@ export function QuizDetailClient({
   const isReserve = currentUserIndex >= (team?.maxTeamSize || 4);
   const reservePosition = isReserve ? currentUserIndex - (team?.maxTeamSize || 4) + 1 : null;
   const isEligible = currentUserIndex !== -1 && !isReserve;
-  const isConcluded = isQuizConcluded(quiz.startsAt, quiz.durationMinutes || 180);
-  const isPersonalLocked = isPersonalRsvpLocked(quiz);
-  const isLockedForUser = isQuizLockedForUser(quiz, isAdmin ? "ADMIN" : "USER");
+  const isConcluded = isQuizConcluded(new Date(quizDetails.startsAt), quizDetails.durationMinutes);
+  const isPersonalLocked = isPersonalRsvpLocked(quizDetails);
+  const isLockedForUser = isQuizLockedForUser(quizDetails, isAdmin ? "ADMIN" : "USER");
 
-  const dateStr = formatEuropeanDateTime(quiz.startsAt);
+  const dateStr = formatEuropeanDateTime(quizDetails.startsAt);
 
   return (
     <div className="flex flex-1 flex-col p-4 pb-20">
@@ -247,9 +273,19 @@ export function QuizDetailClient({
           <span>Overzicht</span>
         </Link>
         <div className="flex items-center gap-2">
+          {!isLockedForUser && (
+            <button
+              type="button"
+              onClick={() => setIsEditDialogOpen(true)}
+              className="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-2 py-1 text-xs font-medium text-slate-700 hover:bg-slate-200 hover:text-slate-900"
+            >
+              <Pencil className="h-3.5 w-3.5" />
+              <span>Bewerken</span>
+            </button>
+          )}
           {isAdmin && (
             <Link
-              href={`/quizzes/${quiz.id}/edit`}
+              href={`/quizzes/${quizDetails.id}/edit`}
               className="inline-flex items-center gap-1 rounded-lg bg-slate-100 px-2 py-1 text-xs font-medium text-slate-600 hover:bg-slate-200 hover:text-slate-900"
             >
               <Settings className="h-3.5 w-3.5" />
@@ -261,18 +297,18 @@ export function QuizDetailClient({
       </div>
 
       {/* Flyer Banner / Poster */}
-      {quiz.flyerImageUrl ? (
+      {quizDetails.flyerImageUrl ? (
         <div className="relative mb-4 w-full overflow-hidden rounded-2xl border border-slate-200 bg-slate-900 shadow-sm">
           <Image
-            src={quiz.flyerImageUrl}
-            alt={`Flyer voor ${quiz.title}`}
+            src={quizDetails.flyerImageUrl}
+            alt={`Flyer voor ${quizDetails.title}`}
             width={800}
             height={400}
             unoptimized
             className="max-h-64 w-full object-cover object-top"
           />
           <div className="absolute right-0 bottom-0 left-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent p-3 text-white">
-            <h2 className="text-base font-bold drop-shadow-sm">{quiz.title}</h2>
+            <h2 className="text-base font-bold drop-shadow-sm">{quizDetails.title}</h2>
             <span className="mt-0.5 inline-block rounded-full bg-white/20 px-2 py-0.5 text-[11px] backdrop-blur-xs">
               {team?.name || "De Quizvrienden"}
             </span>
@@ -281,7 +317,7 @@ export function QuizDetailClient({
       ) : (
         <div className="relative mb-4 flex h-32 w-full flex-col items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 p-4 text-white shadow-sm">
           <span className="mb-1 text-3xl">🏆</span>
-          <h2 className="text-center text-lg font-bold drop-shadow-sm">{quiz.title}</h2>
+          <h2 className="text-center text-lg font-bold drop-shadow-sm">{quizDetails.title}</h2>
           <span className="mt-1 rounded-full bg-white/20 px-2.5 py-0.5 text-xs backdrop-blur-xs">
             {team?.name || "De Quizvrienden"}
           </span>
@@ -298,12 +334,12 @@ export function QuizDetailClient({
         </div>
         <div className="flex items-center gap-2">
           <MapPin className="h-4 w-4 shrink-0 text-blue-600" />
-          <span>{quiz.location}</span>
+          <span>{quizDetails.location}</span>
         </div>
-        {quiz.entryFee && (
+        {quizDetails.entryFee && (
           <div className="flex items-center gap-2">
             <Coins className="h-4 w-4 shrink-0 text-amber-600" />
-            <span>Inschrijvingsgeld: {quiz.entryFee}</span>
+            <span>Inschrijvingsgeld: {quizDetails.entryFee}</span>
           </div>
         )}
       </div>
@@ -311,11 +347,11 @@ export function QuizDetailClient({
       {/* Quiz Rating Widget (Concluded Quizzes) */}
       {ratingSummary && (
         <QuizRatingWidget
-          quizId={quiz.id}
+          quizId={quizDetails.id}
           summary={ratingSummary}
           isConcluded={isConcluded}
           isEligible={isEligible}
-          isCancelled={quiz.status === "CANCELLED"}
+          isCancelled={quizDetails.status === "CANCELLED"}
           onRatingChange={setRatingSummary}
         />
       )}
@@ -369,12 +405,12 @@ export function QuizDetailClient({
 
       {/* Actions (Email, Payment, WhatsApp) */}
       <ActionToolbar
-        quizId={quiz.id}
-        quizTitle={quiz.title}
-        quizDate={new Date(quiz.startsAt)}
-        location={quiz.location}
-        durationMinutes={quiz.durationMinutes || 180}
-        organizerEmail={quiz.organizerEmail || undefined}
+        quizId={quizDetails.id}
+        quizTitle={quizDetails.title}
+        quizDate={new Date(quizDetails.startsAt)}
+        location={quizDetails.location}
+        durationMinutes={quizDetails.durationMinutes}
+        organizerEmail={quizDetails.organizerEmail || undefined}
         isRegistered={isRegistered}
         isPaid={isPaid}
         paidByName={team?.paidBy?.name}
@@ -383,6 +419,13 @@ export function QuizDetailClient({
         isLocked={isLockedForUser}
         onRegisterToggle={handleRegisterToggle}
         onPaymentToggle={handlePaymentToggle}
+      />
+
+      <EditQuizDialog
+        isOpen={isEditDialogOpen}
+        quiz={quizDetails}
+        onClose={() => setIsEditDialogOpen(false)}
+        onSave={handleSaveQuizDetails}
       />
 
       <ConfirmDialog

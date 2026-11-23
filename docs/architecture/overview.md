@@ -15,7 +15,7 @@ For details on backing services, databases, storage tiers, and networking, see [
 graph TD
     subgraph BrowserClient["Frontend (Web Browser Runtime)"]
         LineupUI["Roster & Lineup ('use client')<br/>• QuizDetailClient<br/>• TeamLineup<br/>• MemberRosterClient"]
-        FormsUI["Forms & Wizards ('use client')<br/>• QuizEntryForm<br/>• EditQuizClient<br/>• FlyerUploader"]
+        FormsUI["Forms & Wizards ('use client')<br/>• QuizEntryForm<br/>• QuizMetadataFields<br/>• EditQuizDialog<br/>• EditQuizClient<br/>• FlyerUploader"]
         AuthUI["Auth & Modals ('use client')<br/>• LoginPinClient<br/>• FeedbackWidget<br/>• ConfirmDialog"]
         ClientCaps["CapabilitiesContext & useCapabilities<br/>(features/capabilities)"]
         ShareMod["Sharing Helpers: WhatsApp & Mailto<br/>(features/sharing)"]
@@ -93,7 +93,7 @@ The application cleanly partitions responsibilities between code executing in th
 
 - **Interactive React Components (`"use client"`):**
   - **Lineup & RSVP Controls:** `QuizDetailClient`, `TeamLineup`, `MemberRosterClient` handle user taps, instant attendance status toggles, and drag-and-drop roster reordering.
-  - **Creation & Edit Wizards:** `QuizEntryForm`, `EditQuizClient`, `FlyerUploader` handle drag-and-drop image uploads, clipboard pasting (`Ctrl+V`), and local preview rendering before submission.
+  - **Creation & Edit Wizards:** `QuizEntryForm`, `QuizMetadataFields`, `EditQuizDialog`, `EditQuizClient`, `FlyerUploader` handle drag-and-drop image uploads, clipboard pasting (`Ctrl+V`), collaborative metadata corrections, and local preview rendering before submission.
   - **Authentication:** `LoginPinClient` provides the personal 4-digit PIN keypad and instant validation feedback.
   - **Interactive Overlays:** `FeedbackWidget` (with client-side screenshot capture via `html2canvas-pro`), `ConfirmDialog`, and dashboard tabs in `QuizzesDashboard`.
 - **State Management & UI Adaptation:**

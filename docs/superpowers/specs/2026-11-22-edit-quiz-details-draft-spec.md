@@ -1,7 +1,9 @@
 # Design Document: Edit Quiz Details (Collaborative Error Correction)
 
+> **Superseded:** Replaced by [2026-11-23-edit-quiz-details-design.md](./2026-11-23-edit-quiz-details-design.md) (Option A modal, manual edits only, current UI fields only).
+
 - **Date:** 2026-11-22
-- **Status:** Draft / In Review
+- **Status:** Superseded
 - **Author:** Team & AI Agent
 - **Target App Version:** `v2.7.0`
 - **Related ADR:** [ADR 0008: Role-Based Authorization over Granular Permissions](../../adr/0008-role-based-authorization-over-granular-permissions.md)

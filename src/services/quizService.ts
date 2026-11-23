@@ -29,6 +29,21 @@ export function formatStructuredEntryFee(
   return `€${cleanAmount} / ${unitLabel}`;
 }
 
+export function parseStructuredEntryFee(entryFee?: string | null): {
+  amount: string;
+  unit: "TEAM" | "PERSON";
+} {
+  if (!entryFee) {
+    return { amount: "", unit: "TEAM" };
+  }
+  const unit: "TEAM" | "PERSON" = /persoon|pp|p\.p\./i.test(entryFee) ? "PERSON" : "TEAM";
+  const match = entryFee.match(/[0-9]+([.,][0-9]+)?/);
+  return {
+    amount: match ? match[0] : "",
+    unit,
+  };
+}
+
 export interface CreateQuizInput {
   title: string;
   startsAt: Date;
@@ -166,7 +181,6 @@ export async function getQuizById(id: string) {
   });
 }
 
-/** @internal */
 export interface UpdateQuizDetailsInput {
   title?: string;
   startsAt?: Date;
@@ -181,7 +195,6 @@ export interface UpdateQuizDetailsInput {
   maxTeamSize?: number;
 }
 
-/** @internal */
 export async function updateQuizDetails(
   quizId: string,
   data: UpdateQuizDetailsInput

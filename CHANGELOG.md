@@ -5,10 +5,13 @@ All notable changes to the **Pub Quiz App (BE-Quiz)** project will be documented
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [Unreleased]
+## [v2.7.0] - 2026-11-23
 
 ### Added
 
+- **Collaborative Edit Quiz Details (`src/components/EditQuizDialog.tsx`, `src/components/QuizMetadataFields.tsx`, `src/actions/quizActions.ts`):**
+  - Added `[✏️ Bewerken]` trigger and modal dialog (`EditQuizDialog`) on `/quizzes/[id]` allowing any authenticated member (`USER` or `ADMIN`) to manually fix quiz metadata (`title`, `startsAt`, `location`, `organizerEmail`, `entryFee`) under existing start-time lockdown rules (`isQuizLockedForUser`), while keeping team capacity, registration reset, and quiz cancellation `ADMIN`-only on `/quizzes/[id]/edit`.
+  - Added Server Action `updateQuizDetailsAction` enforcing session auth, quiz lock rules, field validation, explicit `null` clearing of optional fields, governance field exclusion, non-fatal `revalidatePath`, and `quiz.details_updated` domain event emission for shared Google Calendar sync.
 - **Quiz Start Lockdown & Historical Immutability (`src/lib/quizLock.ts`, `src/components/RsvpControl.tsx`, `src/components/ActionToolbar.tsx`):**
   - Added pure UTC time-and-status evaluator (`isPersonalRsvpLocked`, `isQuizLockedForUser`) with zero schema migrations or cron jobs.
   - Automatically freezes personal self-RSVP controls (_"Ik doe mee"_ / _"Kan niet"_) for all members—including admins—once `startsAt` arrives or when a quiz is `CANCELLED`/`ARCHIVED`, displaying role-specific Dutch status banners (`🔒 Quiz gestart — opstelling definitief`).
@@ -16,10 +19,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed & Removed
 
+- **Shared Quiz Form Fields & Entry-Fee Parsing (`src/components/QuizMetadataFields.tsx`, `src/components/QuizEntryForm.tsx`, `src/services/quizService.ts`):** Extracted shared metadata inputs (`QuizMetadataFields`) and `parseStructuredEntryFee` from `QuizEntryForm` so creation and editing share identical formatting, validation, and European date/time rules, and updated `QuizDetailClient` to manage a single `quizDetails` state object.
 - **Authenticated & Lock-Guarded Mutation Actions (`src/actions/rsvpActions.ts`, `src/actions/registrationActions.ts`, `src/actions/guestActions.ts`):** Enforced `getSessionMember()` authentication and server-side lock checks across RSVP, registration, payment, and guest Server Actions (`setRsvp`, `registerTeam`, `toggleFeePayment`), isolated `revalidatePath` calls inside inner `try/catch` blocks, and updated `QuizDetailClient.tsx` handlers to await `{ success: true }` before mutating client state.
 
 ### Fixed
 
+- **Strict 4-Digit Year Parsing (`src/lib/formatters.ts`):** Updated `parseEuropeanDateTime` to require explicit `DD/MM/YYYY` (or `YYYY-MM-DD`) and `HH:MM` segments so abbreviated 2-digit years (e.g. `20/11/26`) are rejected cleanly instead of being parsed as year `0026` AD.
 - **Reserve-List Guest Removal Lockdown (`src/components/TeamLineup.tsx`):** Applied the `!isLocked` guard to reserve-list guest removal buttons alongside active-lineup guest rows so non-admin inviters cannot remove reserve guests after `startsAt`.
 
 ### Changed & Removed
@@ -28,6 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Fixed `tests/ui/adminLayout.test.ts` to mock lower-level boundaries (`next/headers` `cookies` and `@/lib/db` `prisma.session`) instead of `@/lib/auth`, executing `AdminLayout` → `requireAdminSession` → `getSessionMember` → `validateSession` end-to-end across missing cookie, unknown token, expired session, `USER` role, and `ADMIN` role cases.
 - Deleted obsolete Day-1 seed smoke test `tests/db/schema.test.ts`.
 - **Fresh-Context Subagent Review Policy (`AGENTS.md`):** Replaced same-session self-review with mandatory fresh-context `general` subagent reviews for specs, plans, and implementations.
+
+---
 
 ## [v2.6.2] - 2026-11-22
 

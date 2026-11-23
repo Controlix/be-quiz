@@ -1,14 +1,12 @@
 import { format, parse, isValid } from "date-fns";
 import { nlBE } from "date-fns/locale";
 
-/** @internal */
 export function formatEuropeanDate(date: Date | string): string {
   const d = typeof date === "string" ? new Date(date) : date;
   if (!isValid(d)) return "";
   return format(d, "dd/MM/yyyy");
 }
 
-/** @internal */
 export function formatEuropeanTime(date: Date | string): string {
   const d = typeof date === "string" ? new Date(date) : date;
   if (!isValid(d)) return "";
@@ -46,15 +44,21 @@ export function formatEuropeanTimeString(val: string): string {
 export function parseEuropeanDateTime(dateStr: string, timeStr: string): Date | null {
   const cleanDate = dateStr.trim();
   const cleanTime = timeStr.trim();
+  if (!/^\d{2}:\d{2}$/.test(cleanTime)) {
+    return null;
+  }
+
   const combined = `${cleanDate} ${cleanTime}`;
 
-  // Try parsing dd/MM/yyyy HH:mm
-  const parsed = parse(combined, "dd/MM/yyyy HH:mm", new Date());
-  if (isValid(parsed)) return parsed;
+  if (/^\d{2}\/\d{2}\/\d{4}$/.test(cleanDate)) {
+    const parsed = parse(combined, "dd/MM/yyyy HH:mm", new Date());
+    return isValid(parsed) ? parsed : null;
+  }
 
-  // Fallback if ISO format was passed
-  const parsedIso = parse(combined, "yyyy-MM-dd HH:mm", new Date());
-  if (isValid(parsedIso)) return parsedIso;
+  if (/^\d{4}-\d{2}-\d{2}$/.test(cleanDate)) {
+    const parsedIso = parse(combined, "yyyy-MM-dd HH:mm", new Date());
+    return isValid(parsedIso) ? parsedIso : null;
+  }
 
   return null;
 }
