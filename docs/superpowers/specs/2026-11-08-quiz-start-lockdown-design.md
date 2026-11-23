@@ -1,7 +1,7 @@
 # Design Document: Quiz Start Lockdown & Historical Immutability
 
 - **Date:** 2026-11-08
-- **Status:** Draft / In Review
+- **Status:** Implemented (2026-11-22)
 - **Author:** AI Agent & Team
 - **Target App Version:** `v2.3.0`
 

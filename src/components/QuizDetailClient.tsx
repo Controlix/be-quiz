@@ -24,6 +24,7 @@ import {
   ClientRsvp,
 } from "@/lib/rsvpReducer";
 import { isQuizConcluded, QuizRatingSummary } from "@/lib/ratingRules";
+import { isPersonalRsvpLocked, isQuizLockedForUser } from "@/lib/quizLock";
 import { QuizRatingWidget } from "@/components/QuizRatingWidget";
 import { ArrowLeft, MapPin, Calendar, Coins, Settings, UserPlus } from "lucide-react";
 
@@ -80,22 +81,29 @@ export function QuizDetailClient({
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const handleRsvpChange = async (status: "ATTENDING" | "DECLINED") => {
-    dispatchRsvp({
-      type: "USER_RSVP",
-      memberId: currentMemberId,
-      name: currentMemberName,
-      status,
-    });
-    if (status === "ATTENDING") {
-      const res = await joinQuizRsvpAction(team.id, currentMemberId, quiz.id);
-      if (res.success && res.ratingSummary) {
+    try {
+      const res =
+        status === "ATTENDING"
+          ? await joinQuizRsvpAction(team.id, currentMemberId, quiz.id)
+          : await declineQuizRsvpAction(team.id, currentMemberId, quiz.id);
+
+      if (!res.success) {
+        setErrorMessage(res.error || "Fout bij bijwerken van deelname");
+        return;
+      }
+
+      dispatchRsvp({
+        type: "USER_RSVP",
+        memberId: currentMemberId,
+        name: currentMemberName,
+        status,
+      });
+
+      if (res.ratingSummary) {
         setRatingSummary(res.ratingSummary);
       }
-    } else {
-      const res = await declineQuizRsvpAction(team.id, currentMemberId, quiz.id);
-      if (res.success && res.ratingSummary) {
-        setRatingSummary(res.ratingSummary);
-      }
+    } catch (err: any) {
+      setErrorMessage(err?.message || "Fout bij bijwerken van deelname");
     }
   };
 
@@ -140,8 +148,16 @@ export function QuizDetailClient({
     const memberId = selectedMemberToDecline;
     setSelectedMemberToDecline(null);
 
-    dispatchRsvp({ type: "ADMIN_OVERRIDE_DECLINE", memberId });
-    await adminOverrideDeclineAction(team.id, memberId, currentMemberId);
+    try {
+      const res = await adminOverrideDeclineAction(team.id, memberId, currentMemberId);
+      if (!res.success) {
+        setErrorMessage(res.error || "Fout bij afzeggen van speler");
+        return;
+      }
+      dispatchRsvp({ type: "ADMIN_OVERRIDE_DECLINE", memberId });
+    } catch (err: any) {
+      setErrorMessage(err?.message || "Fout bij afzeggen van speler");
+    }
   };
 
   const handleAdminOverrideAttend = async (memberId: string) => {
@@ -171,18 +187,42 @@ export function QuizDetailClient({
   };
 
   const handleReorder = async (sourceIndex: number, destinationIndex: number) => {
-    dispatchRsvp({ type: "ADMIN_REORDER", sourceIndex, destinationIndex });
-    await adminReorderRsvpAction(team.id, sourceIndex, destinationIndex);
+    try {
+      const res = await adminReorderRsvpAction(team.id, sourceIndex, destinationIndex);
+      if (!res.success) {
+        setErrorMessage(res.error || "Fout bij herordenen van opstelling");
+        return;
+      }
+      dispatchRsvp({ type: "ADMIN_REORDER", sourceIndex, destinationIndex });
+    } catch (err: any) {
+      setErrorMessage(err?.message || "Fout bij herordenen van opstelling");
+    }
   };
 
   const handleRegisterToggle = async () => {
-    setIsRegistered((prev) => !prev);
-    await setRegisteredAction(team.id, currentMemberId);
+    try {
+      const res = await setRegisteredAction(team.id, currentMemberId);
+      if (!res.success) {
+        setErrorMessage(res.error || "Fout bij bijwerken van inschrijving");
+        return;
+      }
+      setIsRegistered((prev) => !prev);
+    } catch (err: any) {
+      setErrorMessage(err?.message || "Fout bij bijwerken van inschrijving");
+    }
   };
 
   const handlePaymentToggle = async () => {
-    setIsPaid((prev) => !prev);
-    await toggleFeePaidAction(team.id, currentMemberId);
+    try {
+      const res = await toggleFeePaidAction(team.id, currentMemberId);
+      if (!res.success) {
+        setErrorMessage(res.error || "Fout bij bijwerken van betaalstatus");
+        return;
+      }
+      setIsPaid(typeof res.isPaid === "boolean" ? res.isPaid : !isPaid);
+    } catch (err: any) {
+      setErrorMessage(err?.message || "Fout bij bijwerken van betaalstatus");
+    }
   };
 
   const currentUserIndex = attendees.findIndex((a) => a.memberId === currentMemberId);
@@ -190,7 +230,8 @@ export function QuizDetailClient({
   const reservePosition = isReserve ? currentUserIndex - (team?.maxTeamSize || 4) + 1 : null;
   const isEligible = currentUserIndex !== -1 && !isReserve;
   const isConcluded = isQuizConcluded(quiz.startsAt, quiz.durationMinutes || 180);
-  const isLockedForUser = !isAdmin && new Date(quiz.startsAt).getTime() <= Date.now();
+  const isPersonalLocked = isPersonalRsvpLocked(quiz);
+  const isLockedForUser = isQuizLockedForUser(quiz, isAdmin ? "ADMIN" : "USER");
 
   const dateStr = formatEuropeanDateTime(quiz.startsAt);
 
@@ -284,6 +325,8 @@ export function QuizDetailClient({
         currentStatus={currentUserRsvp}
         onRsvpChange={handleRsvpChange}
         reservePosition={reservePosition}
+        isLocked={isPersonalLocked}
+        isAdmin={isAdmin}
       />
 
       {/* Guest & Admin Member Addition */}
@@ -337,6 +380,7 @@ export function QuizDetailClient({
         paidByName={team?.paidBy?.name}
         teamName={team?.name || "De Quizvrienden"}
         contactName={currentMemberName}
+        isLocked={isLockedForUser}
         onRegisterToggle={handleRegisterToggle}
         onPaymentToggle={handlePaymentToggle}
       />

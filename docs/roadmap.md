@@ -38,7 +38,6 @@ To maximize development impact, enforce uncompromising architectural quality, an
 | **1**  | **[#12 Vercel Storage Optimization](#12-vercel-functions-storage--serverless-bundle-optimization)**                         | Infrastructure     | Prevents deployment failure at 74% storage limit               |
 | **3**  | **[#1 Admin Edit Quiz Details](#1-admin-edit-quiz-details-error-correction)**                                               | Core Admin         | Eliminates manual database surgery for typos                   |
 | **4**  | **[#3 Venue Maps Integration](#3-venue-maps-integration--navigation)**                                                      | Player Experience  | 1-tap route navigation on quiz night                           |
-| **5**  | **[#8 Quiz Start Lockdown](#8-quiz-start-lockdown--historical-immutability)**                                               | Data Integrity     | Freezes lineups & RSVPs once quiz starts (Spec ready)          |
 | **6**  | **[#6 Duplicate Quiz Detection](#6-duplicate-quiz-detection-on-entry)**                                                     | Data Hygiene       | Prevents split RSVPs and duplicate events                      |
 | **7**  | **[#7 Quiz Schedule Conflict Indicator](#7-quiz-schedule--date-conflict-indicator)**                                        | Event Coordination | Ambient warning for overlapping events on the calendar         |
 | **8**  | **[#B.2 Same-Day Member Conflict Warning](#b-teams--headcount)**                                                            | Team Operations    | Visual warning for double-booked players on registered quizzes |
@@ -134,17 +133,6 @@ To maximize development impact, enforce uncompromising architectural quality, an
   - Display a visible indicator or warning badge on affected quiz cards and detail views (e.g., _"⚠️ Datumconflict: 2 quizzen gepland op deze datum"_).
   - Provide a 1-tap view or link to inspect the conflicting quiz(zes).
 - **Scope:** `QuizCard.tsx`, `QuizDetailClient.tsx`, `quizService.ts`.
-
-### 8. Quiz Start Lockdown & Historical Immutability
-
-- **Status:** `[ ] Spec Ready: [docs/superpowers/specs/2026-11-08-quiz-start-lockdown-design.md](superpowers/specs/2026-11-08-quiz-start-lockdown-design.md)`
-- **Feedback:** When a quiz has started or ended, the lineup and details should be fixed to preserve historical records and prevent accidental changes.
-- **Requirement:**
-  - Automatically freeze RSVPs, roster lineup ordering, and metadata changes for regular users once `startsAt` has arrived.
-  - Administrators retain full override capabilities at all times.
-  - Dynamically enforce in domain services and server actions without requiring schema migrations or cron runners.
-  - Display clear read-only status indicators in the lineup and detail view for non-admins.
-- **Scope:** `src/lib/quizLock.ts`, `rsvpService.ts`, `QuizDetailClient.tsx`, `TeamLineup.tsx`, and `ActionToolbar.tsx`.
 
 ### 9. Admin Unread Feedback Indicator (Badge & Alert)
 

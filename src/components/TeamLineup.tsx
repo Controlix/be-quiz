@@ -265,7 +265,9 @@ export function TeamLineup({
               const isTarget = dragOverIndex === overallIndex;
               const canRemoveGuest =
                 member.isGuest &&
-                (isAdmin || (currentMemberId && member.invitedById === currentMemberId));
+                (isAdmin ||
+                  (!isLocked &&
+                    Boolean(currentMemberId && member.invitedById === currentMemberId)));
 
               return (
                 <li

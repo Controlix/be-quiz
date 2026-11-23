@@ -5,7 +5,7 @@ import {
   submitQuizRating,
   getBatchQuizRatings,
 } from "../../src/services/ratingService";
-import { setRsvp } from "../../src/services/rsvpService";
+import { setRsvp, adminOverrideAttend } from "../../src/services/rsvpService";
 
 describe("ratingService", () => {
   it("submits a rating for an active player and returns fresh summary", async () => {
@@ -31,8 +31,8 @@ describe("ratingService", () => {
       include: { team: true },
     });
 
-    await setRsvp(quiz.team!.id, player1.id, "ATTENDING");
-    await setRsvp(quiz.team!.id, player2.id, "ATTENDING");
+    await adminOverrideAttend(quiz.team!.id, player1.id, creator.id);
+    await adminOverrideAttend(quiz.team!.id, player2.id, creator.id);
 
     const summary = await submitQuizRating({
       quizId: quiz.id,
@@ -92,7 +92,7 @@ describe("ratingService", () => {
       },
       include: { team: true },
     });
-    await setRsvp(quiz.team!.id, player.id, "ATTENDING");
+    await adminOverrideAttend(quiz.team!.id, player.id, creator.id);
 
     await expect(
       submitQuizRating({ quizId: quiz.id, memberId: player.id, score: 5 })
@@ -117,8 +117,8 @@ describe("ratingService", () => {
       include: { team: true },
     });
 
-    await setRsvp(quiz.team!.id, p1.id, "ATTENDING");
-    await setRsvp(quiz.team!.id, p2.id, "ATTENDING"); // p2 is on reserve
+    await adminOverrideAttend(quiz.team!.id, p1.id, creator.id);
+    await adminOverrideAttend(quiz.team!.id, p2.id, creator.id); // p2 is on reserve
 
     await expect(submitQuizRating({ quizId: quiz.id, memberId: p2.id, score: 5 })).rejects.toThrow(
       "NOT_ELIGIBLE"
@@ -144,7 +144,7 @@ describe("ratingService", () => {
     });
 
     // p1 joins first (active lineup) and rates 5 stars
-    await setRsvp(quiz.team!.id, p1.id, "ATTENDING");
+    await adminOverrideAttend(quiz.team!.id, p1.id, creator.id);
     const initialSummary = await submitQuizRating({ quizId: quiz.id, memberId: p1.id, score: 5 });
     expect(initialSummary.average).toBe(5);
     expect(initialSummary.count).toBe(1);
@@ -182,7 +182,7 @@ describe("ratingService", () => {
       },
       include: { team: true },
     });
-    await setRsvp(q1.team!.id, player.id, "ATTENDING");
+    await adminOverrideAttend(q1.team!.id, player.id, creator.id);
     await submitQuizRating({ quizId: q1.id, memberId: player.id, score: 4 });
 
     const batch = await getBatchQuizRatings([q1.id]);
@@ -203,7 +203,7 @@ describe("ratingService", () => {
       },
       include: { team: true },
     });
-    await setRsvp(quiz.team!.id, player.id, "ATTENDING");
+    await adminOverrideAttend(quiz.team!.id, player.id, creator.id);
 
     await expect(
       submitQuizRating({ quizId: quiz.id, memberId: player.id, score: 0 })

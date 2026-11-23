@@ -2,6 +2,7 @@
 
 import { getSessionMember } from "@/lib/auth";
 import { prisma } from "@/lib/db";
+import { isQuizLockedForUser, QUIZ_LOCKED_MUTATION_ERROR } from "@/lib/quizLock";
 import { addGuestRsvp, removeGuestRsvp } from "@/services/rsvpService";
 import { revalidatePath } from "next/cache";
 
@@ -40,18 +41,19 @@ export async function addGuestAction(
       return { success: false, error: "Ploeg niet gevonden" };
     }
 
-    const isStarted = new Date(team.quiz.startsAt).getTime() <= Date.now();
-    if (isStarted && sessionMember.role !== "ADMIN") {
+    if (isQuizLockedForUser(team.quiz, sessionMember.role)) {
       return {
         success: false,
-        error: "Quiz is al gestart en vergrendeld voor wijzigingen.",
+        error: QUIZ_LOCKED_MUTATION_ERROR,
       };
     }
 
     const rsvp = await addGuestRsvp(teamId, guestName, sessionMember.id);
 
-    revalidatePath(`/quizzes/${team.quizId}`);
-    revalidatePath("/quizzes");
+    try {
+      revalidatePath(`/quizzes/${team.quizId}`);
+      revalidatePath("/quizzes");
+    } catch {}
 
     return {
       success: true,
@@ -91,18 +93,19 @@ export async function removeGuestAction(
       return { success: false, error: "Gast niet gevonden" };
     }
 
-    const isStarted = new Date(rsvp.team.quiz.startsAt).getTime() <= Date.now();
-    if (isStarted && sessionMember.role !== "ADMIN") {
+    if (isQuizLockedForUser(rsvp.team.quiz, sessionMember.role)) {
       return {
         success: false,
-        error: "Quiz is al gestart en vergrendeld voor wijzigingen.",
+        error: QUIZ_LOCKED_MUTATION_ERROR,
       };
     }
 
     await removeGuestRsvp(rsvpId, sessionMember.id, sessionMember.role);
 
-    revalidatePath(`/quizzes/${rsvp.team.quizId}`);
-    revalidatePath("/quizzes");
+    try {
+      revalidatePath(`/quizzes/${rsvp.team.quizId}`);
+      revalidatePath("/quizzes");
+    } catch {}
 
     return { success: true };
   } catch (err: any) {

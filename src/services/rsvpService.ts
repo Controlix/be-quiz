@@ -1,6 +1,7 @@
 import { prisma } from "@/lib/db";
 import { Rsvp, Member } from "@prisma/client";
 import { domainEvents } from "@/lib/events";
+import { isPersonalRsvpLocked, QUIZ_LOCKED_RSVP_ERROR } from "@/lib/quizLock";
 
 export async function setRsvp(
   teamId: string,
@@ -10,6 +11,17 @@ export async function setRsvp(
   const team = await prisma.$transaction(async (tx) => {
     // Acquire row-level lock on Team to serialize concurrent RSVPs
     await tx.$executeRaw`SELECT id FROM "Team" WHERE id = ${teamId} FOR UPDATE`;
+
+    const teamWithQuiz = await tx.team.findUniqueOrThrow({
+      where: { id: teamId },
+      select: {
+        quizId: true,
+        quiz: { select: { startsAt: true, status: true } },
+      },
+    });
+    if (isPersonalRsvpLocked(teamWithQuiz.quiz)) {
+      throw new Error(QUIZ_LOCKED_RSVP_ERROR);
+    }
 
     if (status === "ATTENDING") {
       await tx.rsvp.upsert({
@@ -53,10 +65,7 @@ export async function setRsvp(
       });
     }
 
-    return tx.team.findUniqueOrThrow({
-      where: { id: teamId },
-      select: { quizId: true },
-    });
+    return { quizId: teamWithQuiz.quizId };
   });
 
   domainEvents.emit({

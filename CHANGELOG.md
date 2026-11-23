@@ -7,12 +7,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+- **Quiz Start Lockdown & Historical Immutability (`src/lib/quizLock.ts`, `src/components/RsvpControl.tsx`, `src/components/ActionToolbar.tsx`):**
+  - Added pure UTC time-and-status evaluator (`isPersonalRsvpLocked`, `isQuizLockedForUser`) with zero schema migrations or cron jobs.
+  - Automatically freezes personal self-RSVP controls (_"Ik doe mee"_ / _"Kan niet"_) for all members—including admins—once `startsAt` arrives or when a quiz is `CANCELLED`/`ARCHIVED`, displaying role-specific Dutch status banners (`🔒 Quiz gestart — opstelling definitief`).
+  - Locked team registration and entry-fee payment toggles in `ActionToolbar` for regular `USER`s once started while preserving `ADMIN` override controls, post-quiz `QuizRatingWidget` voting, and WhatsApp/Calendar sharing.
+
 ### Changed & Removed
 
-- **Test Suite Modernization (Path A — Real Render & Guard Coverage):**
-  - Replaced 6 brittle `fs.readFileSync` source-scraping UI tests (`tests/ui/adminNav`, `dashboardHeader`, `emptyDashboard`, `formDateInputs`, `actionToolbarRegistration`, `adminFeedbackView`) with real React `renderToStaticMarkup` tests (`.test.tsx`) under Vitest `environment: "node"`.
-  - Fixed `tests/ui/adminLayout.test.ts` to mock lower-level boundaries (`next/headers` `cookies` and `@/lib/db` `prisma.session`) instead of `@/lib/auth`, executing `AdminLayout` → `requireAdminSession` → `getSessionMember` → `validateSession` end-to-end across missing cookie, unknown token, expired session, `USER` role, and `ADMIN` role cases.
-  - Deleted obsolete Day-1 seed smoke test `tests/db/schema.test.ts`.
+- **Authenticated & Lock-Guarded Mutation Actions (`src/actions/rsvpActions.ts`, `src/actions/registrationActions.ts`, `src/actions/guestActions.ts`):** Enforced `getSessionMember()` authentication and server-side lock checks across RSVP, registration, payment, and guest Server Actions (`setRsvp`, `registerTeam`, `toggleFeePayment`), isolated `revalidatePath` calls inside inner `try/catch` blocks, and updated `QuizDetailClient.tsx` handlers to await `{ success: true }` before mutating client state.
+
+### Fixed
+
+- **Reserve-List Guest Removal Lockdown (`src/components/TeamLineup.tsx`):** Applied the `!isLocked` guard to reserve-list guest removal buttons alongside active-lineup guest rows so non-admin inviters cannot remove reserve guests after `startsAt`.
+
+### Changed & Removed
+
+- Replaced 6 brittle `fs.readFileSync` source-scraping UI tests (`tests/ui/adminNav`, `dashboardHeader`, `emptyDashboard`, `formDateInputs`, `actionToolbarRegistration`, `adminFeedbackView`) with real React `renderToStaticMarkup` tests (`.test.tsx`) under Vitest `environment: "node"`.
+- Fixed `tests/ui/adminLayout.test.ts` to mock lower-level boundaries (`next/headers` `cookies` and `@/lib/db` `prisma.session`) instead of `@/lib/auth`, executing `AdminLayout` → `requireAdminSession` → `getSessionMember` → `validateSession` end-to-end across missing cookie, unknown token, expired session, `USER` role, and `ADMIN` role cases.
+- Deleted obsolete Day-1 seed smoke test `tests/db/schema.test.ts`.
 - **Fresh-Context Subagent Review Policy (`AGENTS.md`):** Replaced same-session self-review with mandatory fresh-context `general` subagent reviews for specs, plans, and implementations.
 
 ## [v2.6.2] - 2026-11-22

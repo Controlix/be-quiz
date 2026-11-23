@@ -37,58 +37,58 @@ An administrator's personal interactions with a quiz (submitting their personal 
 
 ## 2. Comprehensive Permission Matrix
 
-| Subsystem / Domain       | Action                           | Anonymous |      `USER`      |      `ADMIN`       | Enforcement Point       | Technical Implementation                                      |
-| :----------------------- | :------------------------------- | :-------: | :--------------: | :----------------: | :---------------------- | :------------------------------------------------------------ |
-| **Authentication**       | Claim invite token               |    ✅     |        ✅        |         ✅         | Route Handler           | `GET /auth/join?token=...`                                    |
-|                          | Log in with 4-digit PIN          |    ✅     |        ✅        |         ✅         | Server Action           | `loginWithPinAction`                                          |
-|                          | Initial PIN setup                |    ✅     |        ✅        |         ✅         | Server Action           | `setupInitialPinAction`                                       |
-|                          | Log out                          |    ❌     |        ✅        |         ✅         | Route Handler           | `GET /auth/logout`                                            |
-| **Quiz Browsing**        | View quiz dashboard              |    ❌     |        ✅        |         ✅         | RSC Page Guard          | `src/app/quizzes/page.tsx` (`getSessionMember`)               |
-|                          | View quiz details                |    ❌     |        ✅        |         ✅         | RSC Page Guard          | `src/app/quizzes/[id]/page.tsx` (`getSessionMember`)          |
-|                          | Export iCal feed (`.ics`)        |    ✅     |        ✅        |         ✅         | Route Handler           | `GET /api/quizzes/[id]/calendar.ics`                          |
-|                          | Add to Google Calendar           |    ❌     |        ✅        |         ✅         | Client Helper           | `features/calendar/googleCalendar.ts`                         |
-|                          | Share via WhatsApp / Mailto      |    ❌     |        ✅        |         ✅         | Client Helpers          | `features/sharing/`                                           |
-| **Quiz Creation**        | Access quiz creation wizard      |    ❌     |        ✅        |         ✅         | RSC Page Guard          | `src/app/quizzes/new/page.tsx` (`getSessionMember`)           |
-|                          | Create quiz manually             |    ❌     |        ✅        |         ✅         | Server Action           | `createQuizAction`                                            |
-|                          | Upload flyer image               |    ❌     |        ✅        |         ✅         | Route Handler           | `POST /api/quizzes/upload-flyer`                              |
-|                          | Extract flyer info via AI Vision |    ❌     |        ✅        |         ✅         | Route Handler           | `POST /api/quizzes/extract` (`features/vision`)               |
-| **Lineup & RSVPs**       | Self RSVP (Attend / Decline)     |    ❌     | ✅ _(pre-start)_ |         ✅         | Server Action           | `joinQuizRsvpAction`, `declineQuizRsvpAction`                 |
-|                          | Automatic FIFO queueing          |    ❌     |        ✅        |         ✅         | Domain Service          | `setRsvp` in `rsvpService.ts`                                 |
-|                          | Add guest player                 |    ❌     | ✅ _(pre-start)_ |         ✅         | Server Action           | `addGuestAction`                                              |
-|                          | Remove personally invited guest  |    ❌     | ✅ _(pre-start)_ |         ✅         | Server Action & Service | `removeGuestAction` (`target.invitedById === actorId`)        |
-|                          | Remove any guest player          |    ❌     |        ❌        |         ✅         | Server Action & Service | `removeGuestAction` (`actorRole === "ADMIN"`)                 |
-|                          | Reorder active lineup / waitlist |    ❌     |        ❌        |         ✅         | Server Action           | `adminReorderRsvpAction` (`role === "ADMIN"`)                 |
-|                          | Enroll unresponded teammate      |    ❌     |        ❌        |         ✅         | Server Action           | `adminOverrideAttendAction` (`role === "ADMIN"`)              |
-|                          | Reinstate declined teammate      |    ❌     |        ❌        |         ✅         | Server Action           | `adminOverrideAttendAction` (`role === "ADMIN"`)              |
-|                          | Override-decline / bench player  |    ❌     |        ❌        |         ✅         | Server Action           | `adminOverrideDeclineAction` (`role === "ADMIN"`)             |
-| **Team Logistics**       | Mark team registered             |    ❌     |        ✅        |         ✅         | Server Action           | `setRegisteredAction`                                         |
-|                          | Reset team registration          |    ❌     |        ❌        |         ✅         | Server Action           | `adminResetRegistrationAction` (`role === "ADMIN"`)           |
-|                          | Toggle entry fee payment         |    ❌     |        ✅        |         ✅         | Server Action           | `toggleFeePaidAction`                                         |
-| **Quiz Administration**  | Access quiz admin edit page      |    ❌     |        ❌        |         ✅         | RSC Page Guard          | `src/app/quizzes/[id]/edit/page.tsx` (`role === "ADMIN"`)     |
-|                          | Adjust maximum team size (1–10)  |    ❌     |        ❌        |         ✅         | Server Action           | `adminUpdateTeamCapacityAction` (`role === "ADMIN"`)          |
-|                          | Cancel quiz (move to archive)    |    ❌     |        ❌        |         ✅         | Server Action           | `adminCancelQuizAction` (`role === "ADMIN"`)                  |
-| **Post-Quiz Evaluation** | Submit / update star rating      |    ❌     | ✅ _(eligible)_  |  ✅ _(eligible)_   | Server Action           | `rateQuizAction` (Must be concluded & starting lineup)        |
-| **Member Management**    | Access `/admin/members`          |    ❌     |        ❌        |         ✅         | RSC Layout Guard        | `src/app/admin/layout.tsx` (`requireAdminSession`)            |
-|                          | Add new member & generate invite |    ❌     |        ❌        |         ✅         | Server Action           | `adminAddMemberAction` (`role === "ADMIN"`)                   |
-|                          | Reset member PIN                 |    ❌     |        ❌        |         ✅         | Server Action           | `adminResetMemberPinAction` (`role === "ADMIN"`)              |
-|                          | Promote member to `ADMIN`        |    ❌     |        ❌        |         ✅         | Server Action & Service | `adminUpdateMemberRoleAction` (`role === "ADMIN"`)            |
-|                          | Demote `ADMIN` to `USER`         |    ❌     |        ❌        | ✅ _(safeguarded)_ | Server Action & Service | `adminUpdateMemberRoleAction` (Cannot demote self/last admin) |
-| **Team Settings**        | Access `/admin/settings`         |    ❌     |        ❌        |         ✅         | RSC Layout Guard        | `src/app/admin/layout.tsx` (`requireAdminSession`)            |
-|                          | Update default team name         |    ❌     |        ❌        |         ✅         | Server Action           | `adminUpdateDefaultTeamNameAction` (`role === "ADMIN"`)       |
-| **Feedback & Triage**    | Submit feedback & screenshot     |    ✅     |        ✅        |         ✅         | Server Action           | `submitFeedbackAction`                                        |
-|                          | Access `/admin/feedback`         |    ❌     |        ❌        |         ✅         | RSC Layout Guard        | `src/app/admin/layout.tsx` (`requireAdminSession`)            |
-|                          | Toggle feedback resolved status  |    ❌     |        ❌        |         ✅         | Server Action           | `toggleFeedbackResolvedAction` (`role === "ADMIN"`)           |
-|                          | Permanently delete feedback      |    ❌     |        ❌        |         ✅         | Server Action           | `deleteFeedbackAction` (`role === "ADMIN"`)                   |
+| Subsystem / Domain       | Action                           | Anonymous |      `USER`      |      `ADMIN`       | Enforcement Point       | Technical Implementation                                             |
+| :----------------------- | :------------------------------- | :-------: | :--------------: | :----------------: | :---------------------- | :------------------------------------------------------------------- |
+| **Authentication**       | Claim invite token               |    ✅     |        ✅        |         ✅         | Route Handler           | `GET /auth/join?token=...`                                           |
+|                          | Log in with 4-digit PIN          |    ✅     |        ✅        |         ✅         | Server Action           | `loginWithPinAction`                                                 |
+|                          | Initial PIN setup                |    ✅     |        ✅        |         ✅         | Server Action           | `setupInitialPinAction`                                              |
+|                          | Log out                          |    ❌     |        ✅        |         ✅         | Route Handler           | `GET /auth/logout`                                                   |
+| **Quiz Browsing**        | View quiz dashboard              |    ❌     |        ✅        |         ✅         | RSC Page Guard          | `src/app/quizzes/page.tsx` (`getSessionMember`)                      |
+|                          | View quiz details                |    ❌     |        ✅        |         ✅         | RSC Page Guard          | `src/app/quizzes/[id]/page.tsx` (`getSessionMember`)                 |
+|                          | Export iCal feed (`.ics`)        |    ✅     |        ✅        |         ✅         | Route Handler           | `GET /api/quizzes/[id]/calendar.ics`                                 |
+|                          | Add to Google Calendar           |    ❌     |        ✅        |         ✅         | Client Helper           | `features/calendar/googleCalendar.ts`                                |
+|                          | Share via WhatsApp / Mailto      |    ❌     |        ✅        |         ✅         | Client Helpers          | `features/sharing/`                                                  |
+| **Quiz Creation**        | Access quiz creation wizard      |    ❌     |        ✅        |         ✅         | RSC Page Guard          | `src/app/quizzes/new/page.tsx` (`getSessionMember`)                  |
+|                          | Create quiz manually             |    ❌     |        ✅        |         ✅         | Server Action           | `createQuizAction`                                                   |
+|                          | Upload flyer image               |    ❌     |        ✅        |         ✅         | Route Handler           | `POST /api/quizzes/upload-flyer`                                     |
+|                          | Extract flyer info via AI Vision |    ❌     |        ✅        |         ✅         | Route Handler           | `POST /api/quizzes/extract` (`features/vision`)                      |
+| **Lineup & RSVPs**       | Self RSVP (Attend / Decline)     |    ❌     | ✅ _(pre-start)_ |  ✅ _(pre-start)_  | Server Action & Service | `joinQuizRsvpAction`, `declineQuizRsvpAction`, `rsvpService.setRsvp` |
+|                          | Automatic FIFO queueing          |    ❌     |        ✅        |         ✅         | Domain Service          | `setRsvp` in `rsvpService.ts`                                        |
+|                          | Add guest player                 |    ❌     | ✅ _(pre-start)_ |         ✅         | Server Action           | `addGuestAction`                                                     |
+|                          | Remove personally invited guest  |    ❌     | ✅ _(pre-start)_ |         ✅         | Server Action & Service | `removeGuestAction` (`target.invitedById === actorId`)               |
+|                          | Remove any guest player          |    ❌     |        ❌        |         ✅         | Server Action & Service | `removeGuestAction` (`actorRole === "ADMIN"`)                        |
+|                          | Reorder active lineup / waitlist |    ❌     |        ❌        |         ✅         | Server Action           | `adminReorderRsvpAction` (`role === "ADMIN"`)                        |
+|                          | Enroll unresponded teammate      |    ❌     |        ❌        |         ✅         | Server Action           | `adminOverrideAttendAction` (`role === "ADMIN"`)                     |
+|                          | Reinstate declined teammate      |    ❌     |        ❌        |         ✅         | Server Action           | `adminOverrideAttendAction` (`role === "ADMIN"`)                     |
+|                          | Override-decline / bench player  |    ❌     |        ❌        |         ✅         | Server Action           | `adminOverrideDeclineAction` (`role === "ADMIN"`)                    |
+| **Team Logistics**       | Mark team registered             |    ❌     | ✅ _(pre-start)_ |         ✅         | Server Action & Service | `setRegisteredAction`, `registrationService.registerTeam`            |
+|                          | Reset team registration          |    ❌     |        ❌        |         ✅         | Server Action           | `adminResetRegistrationAction` (`role === "ADMIN"`)                  |
+|                          | Toggle entry fee payment         |    ❌     | ✅ _(pre-start)_ |         ✅         | Server Action & Service | `toggleFeePaidAction`, `paymentService.toggleFeePayment`             |
+| **Quiz Administration**  | Access quiz admin edit page      |    ❌     |        ❌        |         ✅         | RSC Page Guard          | `src/app/quizzes/[id]/edit/page.tsx` (`role === "ADMIN"`)            |
+|                          | Adjust maximum team size (1–10)  |    ❌     |        ❌        |         ✅         | Server Action           | `adminUpdateTeamCapacityAction` (`role === "ADMIN"`)                 |
+|                          | Cancel quiz (move to archive)    |    ❌     |        ❌        |         ✅         | Server Action           | `adminCancelQuizAction` (`role === "ADMIN"`)                         |
+| **Post-Quiz Evaluation** | Submit / update star rating      |    ❌     | ✅ _(eligible)_  |  ✅ _(eligible)_   | Server Action           | `rateQuizAction` (Must be concluded & starting lineup)               |
+| **Member Management**    | Access `/admin/members`          |    ❌     |        ❌        |         ✅         | RSC Layout Guard        | `src/app/admin/layout.tsx` (`requireAdminSession`)                   |
+|                          | Add new member & generate invite |    ❌     |        ❌        |         ✅         | Server Action           | `adminAddMemberAction` (`role === "ADMIN"`)                          |
+|                          | Reset member PIN                 |    ❌     |        ❌        |         ✅         | Server Action           | `adminResetMemberPinAction` (`role === "ADMIN"`)                     |
+|                          | Promote member to `ADMIN`        |    ❌     |        ❌        |         ✅         | Server Action & Service | `adminUpdateMemberRoleAction` (`role === "ADMIN"`)                   |
+|                          | Demote `ADMIN` to `USER`         |    ❌     |        ❌        | ✅ _(safeguarded)_ | Server Action & Service | `adminUpdateMemberRoleAction` (Cannot demote self/last admin)        |
+| **Team Settings**        | Access `/admin/settings`         |    ❌     |        ❌        |         ✅         | RSC Layout Guard        | `src/app/admin/layout.tsx` (`requireAdminSession`)                   |
+|                          | Update default team name         |    ❌     |        ❌        |         ✅         | Server Action           | `adminUpdateDefaultTeamNameAction` (`role === "ADMIN"`)              |
+| **Feedback & Triage**    | Submit feedback & screenshot     |    ✅     |        ✅        |         ✅         | Server Action           | `submitFeedbackAction`                                               |
+|                          | Access `/admin/feedback`         |    ❌     |        ❌        |         ✅         | RSC Layout Guard        | `src/app/admin/layout.tsx` (`requireAdminSession`)                   |
+|                          | Toggle feedback resolved status  |    ❌     |        ❌        |         ✅         | Server Action           | `toggleFeedbackResolvedAction` (`role === "ADMIN"`)                  |
+|                          | Permanently delete feedback      |    ❌     |        ❌        |         ✅         | Server Action           | `deleteFeedbackAction` (`role === "ADMIN"`)                          |
 
 ---
 
 ## 3. Key Domain Safeguards & Invariants
 
-### 3.1 Start-Time Roster Lockdown
+### 3.1 Start-Time Roster & Mutation Lockdown
 
-- **Rule:** When the current time reaches or exceeds the quiz start time (`new Date(quiz.startsAt).getTime() <= Date.now()`), the roster automatically locks for standard users (`USER`).
-- **User Constraints:** Regular members cannot change their RSVP status, add new guests, or remove previously invited guests once a quiz is underway.
-- **Admin Bypass:** Administrators (`ADMIN`) retain full override authority after the quiz has started. This allows coordinators to adjust lineups on the fly for late arrivals, substitutions, or door walk-ins directly at the venue.
+- **Personal RSVP Freeze (`isPersonalRsvpLocked`):** Once the quiz start time arrives (`Date.now() >= new Date(quiz.startsAt).getTime()`) or the quiz is `CANCELLED` / `ARCHIVED`, personal self-RSVP controls (_"Ik doe mee"_ / _"Kan niet"_) freeze for **all** members—including administrators—to prevent accidental table mis-taps.
+- **User Constraints (`isQuizLockedForUser`):** Regular members (`USER`) cannot change their RSVP status, add/remove guests, or toggle team registration/payment flags once a quiz is locked.
+- **Admin Bypass:** Administrators (`ADMIN`) retain full override authority after the quiz has started via explicit lineup override controls (`adminOverrideAttend`, `adminOverrideDecline`, `adminReorderRsvpAction`) and logistics actions (`setRegisteredAction`, `toggleFeePaidAction`). This allows coordinators to adjust lineups on the fly for late arrivals, substitutions, or door walk-ins directly at the venue.
 
 ### 3.2 Guest Player Ownership & Removal
 

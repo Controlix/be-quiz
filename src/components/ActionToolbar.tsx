@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Mail, Share2, Calendar, Check, Copy } from "lucide-react";
+import { Mail, Share2, Calendar, Check, Copy, Lock } from "lucide-react";
 import {
   generateRegistrationMailto,
   getRegistrationEmailPlainText,
@@ -22,6 +22,7 @@ interface ActionToolbarProps {
   paidByName?: string;
   teamName: string;
   contactName?: string;
+  isLocked?: boolean;
   onRegisterToggle: () => void;
   onPaymentToggle: () => void;
 }
@@ -38,6 +39,7 @@ export function ActionToolbar({
   paidByName,
   teamName,
   contactName = "Marc",
+  isLocked = false,
   onRegisterToggle,
   onPaymentToggle,
 }: ActionToolbarProps) {
@@ -126,87 +128,116 @@ export function ActionToolbar({
           </span>
         </div>
 
-        <div className="space-y-2">
-          {emailRegistration && (
-            <a
-              href={mailtoUrl}
-              className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold shadow-sm transition-all active:scale-[0.99] ${
-                isRegistered
-                  ? "border border-slate-300 bg-slate-100 text-slate-800 hover:bg-slate-200"
-                  : "bg-emerald-600 text-white hover:bg-emerald-700"
-              }`}
-            >
-              <Mail className="h-4 w-4" />
-              <span>
-                {isRegistered ? "Open Registratie Mail Opnieuw" : "Schrijf Ploeg In (Open Mail)"}
-              </span>
-            </a>
-          )}
+        {isLocked ? (
+          <div className="flex items-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600">
+            <Lock className="h-3.5 w-3.5 shrink-0 text-slate-400" />
+            <span>Status vergrendeld na starttijd</span>
+          </div>
+        ) : (
+          <div className="space-y-2">
+            {emailRegistration && (
+              <a
+                href={mailtoUrl}
+                className={`flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold shadow-sm transition-all active:scale-[0.99] ${
+                  isRegistered
+                    ? "border border-slate-300 bg-slate-100 text-slate-800 hover:bg-slate-200"
+                    : "bg-emerald-600 text-white hover:bg-emerald-700"
+                }`}
+              >
+                <Mail className="h-4 w-4" />
+                <span>
+                  {isRegistered ? "Open Registratie Mail Opnieuw" : "Schrijf Ploeg In (Open Mail)"}
+                </span>
+              </a>
+            )}
 
-          {!isRegistered ? (
-            <button
-              type="button"
-              onClick={onRegisterToggle}
-              className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-800 transition-colors hover:bg-emerald-100"
-            >
-              <Check className="h-3.5 w-3.5 text-emerald-600" />
-              <span>
-                {emailRegistration
-                  ? "Mail verzonden? Bevestig registratie"
-                  : "Bevestig registratie"}
-              </span>
-            </button>
-          ) : (
-            <button
-              type="button"
-              onClick={onRegisterToggle}
-              className="flex w-full items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] text-slate-500 transition-colors hover:text-rose-600"
-            >
-              <span>Inschrijving heropenen / annuleren</span>
-            </button>
-          )}
-
-          {emailRegistration && (
-            <button
-              type="button"
-              onClick={handleCopy}
-              className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600 transition-colors hover:text-slate-900"
-            >
-              {copied ? (
+            {!isRegistered ? (
+              <button
+                type="button"
+                onClick={onRegisterToggle}
+                className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-semibold text-emerald-800 transition-colors hover:bg-emerald-100"
+              >
                 <Check className="h-3.5 w-3.5 text-emerald-600" />
-              ) : (
-                <Copy className="h-3.5 w-3.5" />
-              )}
-              <span>{copied ? "Gekopieerd!" : "Kopieer mailtekst"}</span>
-            </button>
-          )}
-        </div>
+                <span>
+                  {emailRegistration
+                    ? "Mail verzonden? Bevestig registratie"
+                    : "Bevestig registratie"}
+                </span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={onRegisterToggle}
+                className="flex w-full items-center justify-center gap-1.5 px-3 py-1.5 text-[11px] text-slate-500 transition-colors hover:text-rose-600"
+              >
+                <span>Inschrijving heropenen / annuleren</span>
+              </button>
+            )}
+
+            {emailRegistration && (
+              <button
+                type="button"
+                onClick={handleCopy}
+                className="flex w-full items-center justify-center gap-1.5 rounded-lg border border-slate-200 bg-slate-50 px-3 py-2 text-xs text-slate-600 transition-colors hover:text-slate-900"
+              >
+                {copied ? (
+                  <Check className="h-3.5 w-3.5 text-emerald-600" />
+                ) : (
+                  <Copy className="h-3.5 w-3.5" />
+                )}
+                <span>{copied ? "Gekopieerd!" : "Kopieer mailtekst"}</span>
+              </button>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Grid: Payment, WhatsApp, and Calendar */}
       <div className={gridClass}>
-        {/* Payment toggle */}
-        <button
-          type="button"
-          onClick={onPaymentToggle}
-          className={`flex flex-col items-center justify-center rounded-2xl border p-3 text-center transition-all ${
-            isPaid
-              ? "border-emerald-200 bg-emerald-50 text-emerald-900"
-              : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
-          }`}
-        >
-          <span
-            className={`mb-1 text-sm leading-none font-bold ${isPaid ? "text-emerald-600" : "text-slate-400"}`}
+        {/* Payment toggle (read-only when locked) */}
+        {isLocked ? (
+          <div
+            className={`flex flex-col items-center justify-center rounded-2xl border p-3 text-center ${
+              isPaid
+                ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+                : "border-slate-200 bg-slate-50 text-slate-600"
+            }`}
           >
-            €
-          </span>
-          <span className="text-[11px] leading-tight font-bold">
-            {isPaid ? "Betaald ✓" : "Inschrijfgeld"}
-          </span>
-          <span className="mt-0.5 max-w-full truncate text-[9px] text-slate-500">
-            {isPaid ? (paidByName ? `Door ${paidByName}` : "Betaald") : "Niet betaald"}
-          </span>
-        </button>
+            <span
+              className={`mb-1 text-sm leading-none font-bold ${isPaid ? "text-emerald-600" : "text-slate-400"}`}
+            >
+              €
+            </span>
+            <span className="text-[11px] leading-tight font-bold">
+              {isPaid ? "Betaald ✓" : "Inschrijfgeld"}
+            </span>
+            <span className="mt-0.5 max-w-full truncate text-[9px] text-slate-500">
+              {isPaid ? (paidByName ? `Door ${paidByName}` : "Betaald") : "Niet betaald"}
+            </span>
+          </div>
+        ) : (
+          <button
+            type="button"
+            onClick={onPaymentToggle}
+            className={`flex flex-col items-center justify-center rounded-2xl border p-3 text-center transition-all ${
+              isPaid
+                ? "border-emerald-200 bg-emerald-50 text-emerald-900"
+                : "border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+            }`}
+          >
+            <span
+              className={`mb-1 text-sm leading-none font-bold ${isPaid ? "text-emerald-600" : "text-slate-400"}`}
+            >
+              €
+            </span>
+            <span className="text-[11px] leading-tight font-bold">
+              {isPaid ? "Betaald ✓" : "Inschrijfgeld"}
+            </span>
+            <span className="mt-0.5 max-w-full truncate text-[9px] text-slate-500">
+              {isPaid ? (paidByName ? `Door ${paidByName}` : "Betaald") : "Niet betaald"}
+            </span>
+          </button>
+        )}
 
         {/* WhatsApp Share */}
         {whatsappShare && (
