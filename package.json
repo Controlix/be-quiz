@@ -43,7 +43,7 @@
     "minimatch": "^11.0.4"
   },
   "dependencies": {
-    "@prisma/client": "^6.19.3",
+    "@prisma/client": "^7.10.1",
     "@vercel/blob": "^2.8.2",
     "date-fns": "^4.4.0",
     "html2canvas-pro": "^2.6.4",
