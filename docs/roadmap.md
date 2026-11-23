@@ -23,7 +23,7 @@ This document is the **single source of truth for active and planned roadmap ite
 
 To maximize development impact, enforce uncompromising architectural quality, and protect service stability, backlog items across Part 1 and Part 2 are ranked from highest to lowest value based on the following explicit criteria hierarchy:
 
-1. **Operational Risk, Infrastructure & Storage Limits:** Preventing deployment failures, service outages, and platform quota exhaustion (e.g., Vercel serverless functions storage).
+1. **Operational Risk, Infrastructure & Storage Limits:** Preventing deployment failures, service outages, and platform quota exhaustion (active quota risk currently mitigated via Vercel retention settings and manual deployment pruning).
 2. **Code Quality, Security & Architectural Integrity:** Establishing automated guardrails, dead code elimination, whole-project static analysis (Knip), zero unauthenticated Server Action RPC endpoints, and preventing bundle bloat _before_ building new features.
 3. **Core Admin & Real-World Team Workflow:** Eliminating high-friction administrative surgery (e.g., manual database edits for typos) and supporting game-night team logistics (venue navigation, registration reset).
 4. **Data Integrity & Concurrency Safeguards:** Freezing lineups upon quiz start, avoiding duplicate event entries, and preventing double-booked player conflicts.
@@ -35,40 +35,40 @@ To maximize development impact, enforce uncompromising architectural quality, an
 
 | Rank   | Item                                                                                                                        | Category           | Key Benefit                                                    |
 | :----- | :-------------------------------------------------------------------------------------------------------------------------- | :----------------- | :------------------------------------------------------------- |
-| **1**  | **[#12 Vercel Storage Optimization](#12-vercel-functions-storage--serverless-bundle-optimization)**                         | Infrastructure     | Prevents deployment failure at 74% storage limit               |
-| **3**  | **[#1 Admin Edit Quiz Details](#1-admin-edit-quiz-details-error-correction)**                                               | Core Admin         | Eliminates manual database surgery for typos                   |
-| **4**  | **[#3 Venue Maps Integration](#3-venue-maps-integration--navigation)**                                                      | Player Experience  | 1-tap route navigation on quiz night                           |
-| **6**  | **[#6 Duplicate Quiz Detection](#6-duplicate-quiz-detection-on-entry)**                                                     | Data Hygiene       | Prevents split RSVPs and duplicate events                      |
-| **7**  | **[#7 Quiz Schedule Conflict Indicator](#7-quiz-schedule--date-conflict-indicator)**                                        | Event Coordination | Ambient warning for overlapping events on the calendar         |
-| **8**  | **[#B.2 Same-Day Member Conflict Warning](#b-teams--headcount)**                                                            | Team Operations    | Visual warning for double-booked players on registered quizzes |
-| **9**  | **[#B.1 Multiple Teams per Quiz](#b-teams--headcount)**                                                                     | Team Operations    | Allows fielding 2 teams when 8 people sign up                  |
-| **10** | **[#9 Admin Unread Feedback Indicator](#9-admin-unread-feedback-indicator-badge--alert)**                                   | Core Admin         | Ambient badge ensures member bugs & feedback aren't missed     |
-| **11** | **[#5 Date & Time Input Picker](#5-date--time-input-flexibility-calendar-picker--time-selector)**                           | Admin Ergonomics   | Eliminates manual typing of dates/times on mobile              |
-| **12** | **[#13 Responsive Tablet & Rotation Layout](#13-responsive-tablet--smartphone-rotation-layout-optimization-pwa-landscape)** | UX / Responsive    | Optimizes screen usage on tablets and rotated smartphones      |
-| **13** | **[#C.1 Secure PIN Storage Upgrade](#c-member-management--security)**                                                       | Security           | Replaces unsalted SHA-256 with salted/bcrypt hash              |
-| **14** | **[#C.2 / C.3 Member Soft-Delete & Details](#c-member-management--security)**                                               | Admin Management   | Clean roster management without breaking history               |
-| **15** | **[#A.2 Public Share Preview](#a-integrations--logistics)**                                                                 | Growth / Subbing   | Shareable preview link for WhatsApp group chats                |
-| **16** | **[#4 WhatsApp Share for Invites](#4-whatsapp-share-for-member-invites)**                                                   | Admin Ergonomics   | 1-tap invite link sharing via WhatsApp                         |
-| **17** | **[#E.1 Dependabot Grouping Config](#e-cicd--dependency-automation-infrastructure)**                                        | CI / CD            | Stops failing Prisma 7 / TS 7 Dependabot PRs                   |
-| **18** | **[#C.4 Hard Delete with Confirmation](#c-member-management--security)**                                                    | Admin Utility      | Permanent removal of test/erroneous entries                    |
-| **19** | **[#11 Custom Team Logo & Branding](#11-custom-team-logo-upload--header-branding)**                                         | Visual Polish      | Custom logo upload in settings & header                        |
-| **20** | **[#10 Fractional Star Rating](#10-read-only-fractional-star-rating-component)**                                            | Visual Polish      | Clipped SVG decimal stars (Spec ready)                         |
-| **21** | **[#2 Dynamic Capacity Icon](#2-dynamic-capacity-icon-for-player-count)**                                                   | Visual Polish      | Dynamic icon alongside player ratio                            |
-| **22** | **[#A.1 Carpooling & Ride-Sharing](#a-integrations--logistics)**                                                            | Feature            | Complex; already handled organically in WhatsApp               |
-| **23** | **[#D.1 Smart Historical Suggestion](#d-post-quiz-evaluation--historical-insights)**                                        | Insights           | Suggests past ratings on entry (Deferred)                      |
+| **1**  | **[#1 Admin Edit Quiz Details](#1-admin-edit-quiz-details-error-correction)**                                               | Core Admin         | Eliminates manual database surgery for typos                   |
+| **2**  | **[#3 Venue Maps Integration](#3-venue-maps-integration--navigation)**                                                      | Player Experience  | 1-tap route navigation on quiz night                           |
+| **3**  | **[#6 Duplicate Quiz Detection](#6-duplicate-quiz-detection-on-entry)**                                                     | Data Hygiene       | Prevents split RSVPs and duplicate events                      |
+| **4**  | **[#7 Quiz Schedule Conflict Indicator](#7-quiz-schedule--date-conflict-indicator)**                                        | Event Coordination | Ambient warning for overlapping events on the calendar         |
+| **5**  | **[#B.2 Same-Day Member Conflict Warning](#b-teams--headcount)**                                                            | Team Operations    | Visual warning for double-booked players on registered quizzes |
+| **6**  | **[#B.1 Multiple Teams per Quiz](#b-teams--headcount)**                                                                     | Team Operations    | Allows fielding 2 teams when 8 people sign up                  |
+| **7**  | **[#9 Admin Unread Feedback Indicator](#9-admin-unread-feedback-indicator-badge--alert)**                                   | Core Admin         | Ambient badge ensures member bugs & feedback aren't missed     |
+| **8**  | **[#5 Date & Time Input Picker](#5-date--time-input-flexibility-calendar-picker--time-selector)**                           | Admin Ergonomics   | Eliminates manual typing of dates/times on mobile              |
+| **9**  | **[#13 Responsive Tablet & Rotation Layout](#13-responsive-tablet--smartphone-rotation-layout-optimization-pwa-landscape)** | UX / Responsive    | Optimizes screen usage on tablets and rotated smartphones      |
+| **10** | **[#C.1 Secure PIN Storage Upgrade](#c-member-management--security)**                                                       | Security           | Replaces unsalted SHA-256 with salted/bcrypt hash              |
+| **11** | **[#C.2 / C.3 Member Soft-Delete & Details](#c-member-management--security)**                                               | Admin Management   | Clean roster management without breaking history               |
+| **12** | **[#A.2 Public Share Preview](#a-integrations--logistics)**                                                                 | Growth / Subbing   | Shareable preview link for WhatsApp group chats                |
+| **13** | **[#4 WhatsApp Share for Invites](#4-whatsapp-share-for-member-invites)**                                                   | Admin Ergonomics   | 1-tap invite link sharing via WhatsApp                         |
+| **14** | **[#E.1 Dependabot Grouping Config](#e-cicd--dependency-automation-infrastructure)**                                        | CI / CD            | Stops failing Prisma 7 / TS 7 Dependabot PRs                   |
+| **15** | **[#C.4 Hard Delete with Confirmation](#c-member-management--security)**                                                    | Admin Utility      | Permanent removal of test/erroneous entries                    |
+| **16** | **[#11 Custom Team Logo & Branding](#11-custom-team-logo-upload--header-branding)**                                         | Visual Polish      | Custom logo upload in settings & header                        |
+| **17** | **[#10 Fractional Star Rating](#10-read-only-fractional-star-rating-component)**                                            | Visual Polish      | Clipped SVG decimal stars (Spec ready)                         |
+| **18** | **[#2 Dynamic Capacity Icon](#2-dynamic-capacity-icon-for-player-count)**                                                   | Visual Polish      | Dynamic icon alongside player ratio                            |
+| **19** | **[#12 Vercel Storage Optimization](#12-vercel-functions-storage--serverless-bundle-optimization)**                         | Infrastructure     | Serverless bundle & output tracing optimization (deferred)     |
+| **20** | **[#A.1 Carpooling & Ride-Sharing](#a-integrations--logistics)**                                                            | Feature            | Complex; already handled organically in WhatsApp               |
+| **21** | **[#D.1 Smart Historical Suggestion](#d-post-quiz-evaluation--historical-insights)**                                        | Insights           | Suggests past ratings on entry (Deferred)                      |
 
 ### Tier Breakdown
 
-- **Tier 1: Critical Operational, Infrastructure & Code Quality Blockers (Ranks 1–3)**
-  - Urgent technical debts, storage/quota limits, and static quality guardrails (Knip) that prevent shipping dead Server Actions, exposed RPC endpoints, or bundle bloat before writing new features.
-- **Tier 2: Real-World Workflow & Team Operations (Ranks 4–10)**
-  - High-frequency friction reducers that reflect how pub quiz teams actually register, travel, finalize lineups, and monitor issues.
-- **Tier 3: Core Mobile & Admin Quality of Life (Ranks 11–15)**
+- **Tier 1: Core Admin & Real-World Team Workflow (Ranks 1–4)**
+  - High-frequency friction reducers, error correction (edit quiz details), and navigation.
+- **Tier 2: Team Operations & Data Integrity (Ranks 5–8)**
+  - Safeguards for lineups, multiple team signups, scheduling collisions, and admin feedback visibility.
+- **Tier 3: Core Mobile & Admin Quality of Life (Ranks 9–13)**
   - Major ergonomic, responsive layout, security, and team capacity upgrades that simplify season-long management.
-- **Tier 4: Quick Wins & Dependency Hygiene (Ranks 16–18)**
-  - Minor functional bugfixes, tooling additions, and configuration tuning with straightforward implementation paths.
-- **Tier 5: Visual Polish & Deferred Features (Ranks 19–23)**
-  - Aesthetic enhancements or speculative features where existing habits (e.g. WhatsApp chats) already suffice.
+- **Tier 4: Quick Wins & Tooling Hygiene (Ranks 14–15)**
+  - Minor functional additions and dependency automation with straightforward implementation paths.
+- **Tier 5: Visual Polish, Deferred Infrastructure & Speculative Features (Ranks 16–21)**
+  - Aesthetic enhancements, non-urgent build optimizations (Vercel functions storage), or speculative features where existing habits already suffice.
 
 ---
 
@@ -165,9 +165,10 @@ To maximize development impact, enforce uncompromising architectural quality, an
 
 ### 12. Vercel Functions Storage & Serverless Bundle Optimization
 
-- **Status:** `[ ] Active Priority: [docs/superpowers/feedback/inbox/2026-11-15-vercel-functions-storage-analysis-optimization-plan.md](superpowers/feedback/inbox/2026-11-15-vercel-functions-storage-analysis-optimization-plan.md)`
+- **Status:** `[ ] Backlog (Deferred / Non-urgent): [docs/superpowers/feedback/inbox/2026-11-15-vercel-functions-storage-analysis-optimization-plan.md](superpowers/feedback/inbox/2026-11-15-vercel-functions-storage-analysis-optimization-plan.md)`
+- **Operational Update:** Deployments were cleaned up manually and Vercel deployment retention settings were updated, successfully relieving immediate storage quota pressure. Deeper serverless bundle tracing optimization remains a valid improvement for the future, but is no longer an urgent blocker.
 - **Problem / Evidence:**
-  - Vercel Functions Storage usage has reached **7.42 GB / 10 GB (74%)** across `be-quiz` and `be-quiz-2`, approaching the Hobby plan ceiling.
+  - Vercel Functions Storage usage previously reached **7.42 GB / 10 GB (74%)** across `be-quiz` and `be-quiz-2`, approaching the Hobby plan ceiling.
   - Each deployment packages **17 serverless function bundles** (11 pages, 5 API routes, 1 middleware), each weighing **~42.4 MB to 43.0 MB compressed (~101 MB uncompressed)**.
   - A single deployment consumes **~729 MB** of Functions Storage, meaning retaining just ~10 builds exceeds 7.4 GB.
 - **Root Cause:**
@@ -175,7 +176,7 @@ To maximize development impact, enforce uncompromising architectural quality, an
   - Full Node.js runtime middleware (`/_middleware`) deploys across all regions with heavy imports (~42.4 MB).
   - Unconstrained deployment retention retains older preview and errored builds.
 - **Action Plan:**
-  1. **Immediate Dashboard Cleanup:** Tighten retention policies (previews: 1–3 days, canceled/errored: 1 day, prod: 7–14 days), delete old previews, and retire/clean up superseded `be-quiz-2` project.
+  1. ~~**Immediate Dashboard Cleanup:** Tighten retention policies (previews: 1–3 days, canceled/errored: 1 day, prod: 7–14 days), delete old previews, and retire/clean up superseded `be-quiz-2` project.~~ _(Completed manually)_
   2. **Audit Output Tracing:** Inspect `.next/server/**/*.nft.json` locally using production build or bundle analyzer to locate the oversized dependency tree.
   3. **Build & Config Optimization (`next.config.ts`):** Apply `outputFileTracingExcludes` and `serverExternalPackages` for heavy server libraries; streamline middleware to avoid pulling database/auth SDKs into the edge routing layer.
 - **Scope:** Vercel project settings, `next.config.ts`, `src/proxy.ts` / middleware.

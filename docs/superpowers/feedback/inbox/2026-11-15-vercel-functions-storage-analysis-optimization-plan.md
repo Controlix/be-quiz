@@ -1,5 +1,7 @@
 # Vercel Functions Storage Analysis & Optimization Plan
 
+> **Status Update (2026-11-23):** Deployments were pruned manually and Vercel retention policies updated, resolving immediate quota pressure. Deeper bundle tracing optimization remains a valid improvement for future maintenance, but is deprioritized from active urgent status.
+
 ## 1. Executive Summary
 
 - **Current Usage:** `7.42 GB / 10 GB` (74% of the Vercel Hobby plan limit) across two projects (`be-quiz` at ~4.6–4.7 GB and `be-quiz-2` at ~2.7–2.8 GB).
